@@ -58,11 +58,15 @@
         /* Colores de resaltado */
         .highlighted { background-color: #06b6d4; } /* Cyan 600 */
         .highlighted-bass { background-color: #f97316; } /* Orange 500 */
+        .highlighted-extra { background-color: #fbbf24; } /* Amber 400 */ /* Para notas extras */
         
         .white-key.highlighted { background-color: #06b6d4; color: white; }
         .black-key.highlighted { background-color: #06b6d4; }
         .white-key.highlighted-bass { background-color: #f97316; color: white; }
         .black-key.highlighted-bass { background-color: #f97316; }
+        .white-key.highlighted-extra { background-color: #fbbf24; color: black; } /* Amber */
+        .black-key.highlighted-extra { background-color: #fbbf24; } /* Amber */
+
 
         /* Etiqueta de nota */
         .note-label {
@@ -79,7 +83,7 @@
         }
 
         /* Deshabilitar botones */
-        .nav-button:disabled {
+        .nav-button:disabled, .control-button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
@@ -176,6 +180,14 @@
             border-radius: 0.25rem;
             font-family: monospace;
             color: #fde047; /* yellow-300 */
+        }
+        /* Contenedor para sección interactiva */
+        .interactive-section {
+            background-color: #111827; /* gray-900 */
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin-top: 2rem;
+            border: 1px solid #4b5563; /* gray-600 */
         }
 
     </style>
@@ -394,6 +406,78 @@
         <div id="page-improvisation" class="tab-content bg-gray-800 p-6 rounded-b-lg rounded-tr-lg shadow-xl mb-6">
             <h2 class="text-xl text-center text-gray-400 mb-6">Conceptos de Improvisación Bebop (Sistema Harris)</h2>
 
+            <!-- ===== SUBSECCIÓN INTERACTIVA: NOTAS EXTRAS ===== -->
+            <div class="interactive-section mb-8">
+                <h3 class="mb-4">Explorador Interactivo de "Notas Extras"</h3>
+                <p class="text-sm text-gray-400 mb-6">Practica cómo añadir notas cromáticas a las escalas para que las notas del acorde caigan en tiempo fuerte (Reglas Bebop).</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div>
+                        <label for="impro-scale-type" class="block text-sm font-medium text-gray-400 mb-1">Tipo de Escala:</label>
+                        <select id="impro-scale-type" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block w-full p-2.5">
+                            <option value="dominant" selected>Dominante 7</option>
+                            <option value="major6dim">Major 6 Diminished</option>
+                            <option value="minor6dim">minor 6 Diminished</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="impro-scale-root" class="block text-sm font-medium text-gray-400 mb-1">Tónica:</label>
+                        <select id="impro-scale-root" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block w-full p-2.5">
+                            <option value="C" selected>C</option>
+                            <option value="Db">Db / C#</option>
+                            <option value="D">D</option>
+                            <option value="Eb">Eb</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                            <option value="Gb">Gb / F#</option>
+                            <option value="G">G</option>
+                            <option value="Ab">Ab</option>
+                            <option value="A">A</option>
+                            <option value="Bb">Bb</option>
+                            <option value="B">B / Cb</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="impro-start-degree" class="block text-sm font-medium text-gray-400 mb-1">Nota de Inicio (Grado):</label>
+                        <select id="impro-start-degree" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block w-full p-2.5">
+                            <option value="8">8 (Octava)</option>
+                            <option value="7">7</option>
+                            <option value="6">6</option>
+                            <option value="5">5</option>
+                            <option value="4">4</option>
+                            <option value="3">3</option>
+                            <option value="2">2</option>
+                            <option value="1">1 (Tónica)</option> 
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                     <button id="btn-apply-rule1" class="control-button bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 px-4 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                         Aplicar Regla 1 (0 ó 1 Nota Extra)
+                     </button>
+                     <button id="btn-apply-rule2" class="control-button bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 px-4 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                         Aplicar Regla 2 (2 ó 3 Notas Extras)
+                     </button>
+                </div>
+                
+                 <!-- Piano para Improvisación -->
+                 <div class="bg-gray-700 p-4 rounded-lg">
+                    <p class="text-sm text-gray-400 mb-4">Resultado (Rango: C2 - C6)</p>
+                    <div class="piano-scroll-container">
+                        <div id="piano-container-impro" class="piano-container">
+                            <!-- Piano para la sección de improvisación -->
+                        </div>
+                    </div>
+                    <div id="note-display-impro" class="note-display"></div>
+                    <div class="flex justify-start gap-4 mt-2 text-sm">
+                        <div class="flex items-center"><div class="w-4 h-4 rounded bg-cyan-600 mr-2"></div>Nota de Escala/Acorde</div>
+                        <div class="flex items-center"><div class="w-4 h-4 rounded bg-amber-400 mr-2"></div>Nota Extra</div>
+                    </div>
+                </div>
+            </div>
+            <!-- ===== FIN SUBSECCIÓN INTERACTIVA ===== -->
+
             <p>Esta sección resume las ideas clave de Barry Harris para construir líneas melódicas en el estilo Bebop, basadas en sus conceptos armónicos. El orden sigue una progresión de dificultad conceptual.</p>
 
             <h3>1. Fundamentos: Las 3 Familias y sus Dominantes</h3>
@@ -407,9 +491,9 @@
             <h3>2. Las 4 Escalas de Barry Harris (8 Notas)</h3>
             <p>En lugar de los modos tradicionales, Harris usa 4 escalas principales de 8 notas, que combinan acordes de 6ª con disminuidos.</p>
             <ul>
-                <li><strong>Major 6 Diminished:</strong> Acorde Maj6 + Acorde dim7 un tono arriba (ej: <code>C6</code> + <code>Ddim7</code> = C-D-E-F-G-Ab-A-B). Útil para acordes Maj7 o Maj6.</li>
-                <li><strong>minor 6 Diminished:</strong> Acorde min6 + Acorde dim7 un tono arriba (ej: <code>Cm6</code> + <code>Ddim7</code> = C-D-Eb-F-G-Ab-A-B). Útil para acordes m7, m7b5 y dominantes alterados (si se toca desde la b2).</li>
-                <li><strong>Dominant 7 Diminished:</strong> Acorde Dom7 + Acorde dim7 un semitono abajo (ej: <code>C7</code> + <code>Bdim7</code> = C-D-E-F-G-Ab-Bb-B). Es la escala disminuida Semitono-Tono.</li>
+                <li><strong>Major 6 Diminished:</strong> Acorde Maj6 + Acorde dim7 un semitono abajo (ej: <code>C6</code> + <code>Bdim7</code> = C-D-E-F-G-Ab-A-B). Útil para acordes Maj7 o Maj6. <strong>Nota:</strong> En PDFs a veces se indica el dim7 un tono arriba (Ddim7), pero Bdim7 es más consistente con la escala resultante y ejemplos.</li>
+                <li><strong>minor 6 Diminished:</strong> Acorde min6 + Acorde dim7 un semitono abajo (ej: <code>Cm6</code> + <code>Bdim7</code> = C-D-Eb-F-G-Ab-A-B). Útil para acordes m7, m7b5 y dominantes alterados (si se toca desde la b2).</li>
+                <li><strong>Dominant 7 Diminished:</strong> Acorde Dom7 + Acorde dim7 un semitono abajo (ej: <code>C7</code> + <code>Bdim7</code> = C-D-E-F-G-Ab-Bb-B). Es la escala disminuida Semitono-Tono (usada por muchos, no exclusiva de Harris).</li>
                 <li><strong>Dominant 7b5 Diminished:</strong> Acorde Dom7b5 + Acorde dim7 un semitono abajo (ej: <code>C7b5</code> + <code>Bdim7</code> = C-D-E-F-Gb-Ab-Bb-B). También llamada escala de Tonos Enteros disminuida.</li>
             </ul>
 
@@ -419,11 +503,17 @@
                 <li><strong>Regla Principal:</strong> Las notas del acorde deben caer en los tiempos fuertes (1, 2, 3, 4).</li>
                 <li><strong>Aplicación (Dominante):</strong>
                     <ul>
-                        <li>Si empiezas en nota del acorde (1, 3, 5, b7): Añade <strong>1 o 3 notas extras</strong> (ej: C->B->Bb...).</li>
+                        <li>Si empiezas en nota del acorde (1=Tónica, 3, 5, b7): Añade <strong>1 o 3 notas extras</strong> (ej: C->B->Bb...). La Tónica (1 u 8) sigue regla especial: siempre 1 nota extra (la 7 Mayor).</li>
                         <li>Si empiezas en nota de la escala (2, 4, 6): Añade <strong>0 o 2 notas extras</strong> (ej: D->Db->C->B->Bb...).</li>
                     </ul>
                 </li>
-                <li><strong>Aplicación (Mayor/Menor):</strong> Reglas similares pero adaptadas a las escalas Major/minor 6 Diminished. La idea es siempre mantener las notas del acorde de 6ª en tiempos fuertes.</li>
+                <li><strong>Aplicación (Mayor/Menor - Escalas 6 Dim):</strong>
+                     <ul>
+                         <li>Si empiezas en nota del acorde de 6ª (1, 3, 5, 6): Añade <strong>1 o 3 notas extras</strong> (Harris usa cromatismos específicos).</li>
+                         <li>Si empiezas en nota del disminuido (b2, b3, #4, b6 en Maj6 / 2, 4, #5, 7 en min6): Añade <strong>0 o 2 notas extras</strong>.</li>
+                         <li><strong>Simplificación Común:</strong> A menudo se usa la regla de 1 nota extra (cromática) entre 6 y 5 para Maj/min.</li>
+                     </ul>
+                </li>
                 <li><strong>Expansión:</strong> Se pueden añadir muchas más notas extras cromáticamente, siempre siguiendo la lógica "par con par" o "impar con impar".</li>
             </ul>
 
@@ -482,6 +572,67 @@
     </div>
 
     <script>
+        // --- Mover definición de drawPiano fuera de DOMContentLoaded ---
+        const notePositions = {
+                'C2': { white: 0 }, 'Db2': { black: 25 }, 'D2': { white: 40 }, 'Eb2': { black: 65 }, 'E2': { white: 80 },
+                'F2': { white: 120 }, 'Gb2': { black: 145 }, 'G2': { white: 160 }, 'Ab2': { black: 185 }, 'A2': { white: 200 }, 'Bb2': { black: 225 }, 'B2': { white: 240 },
+                'C3': { white: 280 }, 'Db3': { black: 305 }, 'D3': { white: 320 }, 'Eb3': { black: 345 }, 'E3': { white: 360 },
+                'F3': { white: 400 }, 'Gb3': { black: 425 }, 'G3': { white: 440 }, 'Ab3': { black: 465 }, 'A3': { white: 480 }, 'Bb3': { black: 505 }, 'B3': { white: 520 },
+                'C4': { white: 560 }, 'Db4': { black: 585 }, 'D4': { white: 600 }, 'Eb4': { black: 625 }, 'E4': { white: 640 },
+                'F4': { white: 680 }, 'Gb4': { black: 705 }, 'G4': { white: 720 }, 'Ab4': { black: 745 }, 'A4': { white: 760 }, 'Bb4': { black: 785 }, 'B4': { white: 800 },
+                'C5': { white: 840 }, 'Db5': { black: 865 }, 'D5': { white: 880 }, 'Eb5': { black: 905 }, 'E5': { white: 920 },
+                'F5': { white: 960 }, 'Gb5': { black: 985 }, 'G5': { white: 1000 }, 'Ab5': { black: 1025 }, 'A5': { white: 1040 }, 'Bb5': { black: 1065 }, 'B5': { white: 1080 },
+                'C6': { white: 1120 }
+            };
+        const whiteNotesOrder = [
+                'C2', 'D2', 'E2', 'F2', 'G2', 'A2', 'B2',
+                'C3', 'D3', 'E3', 'F3', 'G3', 'A3', 'B3',
+                'C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4',
+                'C5', 'D5', 'E5', 'F5', 'G5', 'A5', 'B5',
+                'C6'
+            ];
+        const blackNotesOrder = [
+                'Db2', 'Eb2', 'Gb2', 'Ab2', 'Bb2',
+                'Db3', 'Eb3', 'Gb3', 'Ab3', 'Bb3',
+                'Db4', 'Eb4', 'Gb4', 'Ab4', 'Bb4',
+                'Db5', 'Eb5', 'Gb5', 'Ab5', 'Bb5'
+            ];
+        
+        function getNoteName(note) {
+            if (!note) return "";
+            return note.slice(0, -1).replace(/[0-9]/, '');
+        }
+
+        function drawPiano(container) {
+            container.innerHTML = ''; 
+
+            whiteNotesOrder.forEach(note => {
+                const keyEl = document.createElement('div');
+                keyEl.className = `piano-key white-key`;
+                keyEl.dataset.note = note;
+                keyEl.style.left = `${notePositions[note].white}px`;
+                
+                const label = document.createElement('span');
+                label.className = 'note-label';
+                label.textContent = getNoteName(note);
+                keyEl.appendChild(label);
+
+                container.appendChild(keyEl);
+            });
+
+            blackNotesOrder.forEach(note => {
+                const keyEl = document.createElement('div');
+                keyEl.className = `piano-key black-key`;
+                keyEl.dataset.note = note;
+                keyEl.style.left = `${notePositions[note].black}px`;
+                container.appendChild(keyEl);
+            });
+
+            const lastWhiteKeyOffset = notePositions['C6'].white;
+            container.style.width = `${lastWhiteKeyOffset + 40 + 10}px`; 
+        }
+        // --- Fin de definición de drawPiano movida ---
+
         document.addEventListener('DOMContentLoaded', () => {
             
             // --- UTILIDADES GLOBALES DE TEORÍA Y AUDIO ---
@@ -501,6 +652,12 @@
             const KEY_ROOT_NOTES = { 
                 'C': 'C2', 'Db': 'Db2', 'D': 'D2', 'Eb': 'Eb2', 'E': 'E2', 'F': 'F2',
                 'Gb': 'Gb2', 'G': 'G2', 'Ab': 'Ab2', 'A': 'A2', 'Bb': 'Bb2', 'B': 'B2'
+            };
+
+            // Usamos C3 como referencia para cálculos de escalas
+            const SCALE_KEY_ROOT_NOTES = { 
+                'C': 'C3', 'Db': 'Db3', 'D': 'D3', 'Eb': 'Eb3', 'E': 'E3', 'F': 'F3',
+                'Gb': 'Gb3', 'G': 'G3', 'Ab': 'Ab3', 'A': 'A3', 'Bb': 'Bb3', 'B': 'B3'
             };
             
             // --- Declaraciones de Elementos del DOM ---
@@ -538,13 +695,19 @@
             const keySelectScales = document.getElementById('key-select-scales');
             const btnMaj6DimScale = document.getElementById('btn-maj6-dim-scale');
             const btnMin6DimScale = document.getElementById('btn-min6-dim-scale');
+            
+            // Sección 3 (Improvisación - Notas Extras)
+            const pianoContainerImpro = document.getElementById('piano-container-impro');
+            const noteDisplayImpro = document.getElementById('note-display-impro');
+            const improScaleTypeSelect = document.getElementById('impro-scale-type');
+            const improScaleRootSelect = document.getElementById('impro-scale-root');
+            const improStartDegreeSelect = document.getElementById('impro-start-degree');
+            const btnApplyRule1 = document.getElementById('btn-apply-rule1');
+            const btnApplyRule2 = document.getElementById('btn-apply-rule2');
 
             // --- Funciones de Utilidad ---
-            function getNoteName(note) {
-                if (!note) return "";
-                return note.slice(0, -1).replace(/[0-9]/, '');
-            }
-
+            // getNoteName está definida globalmente ahora
+            
             function transpose(note, semitones) {
                 const index = ALL_NOTES.indexOf(note);
                 if (index === -1) {
@@ -565,14 +728,29 @@
                     let targetOctave = Math.floor(index / 12) + Math.floor((index % 12 + semitones) / 12);
                     targetOctave = Math.max(2, Math.min(5, targetOctave)); // Limitar octavas 2-5
                     
-                    const noteName = ALL_NOTES[targetNoteIndex].slice(0, -1);
-                    const newNote = `${noteName}${targetOctave}`;
+                    // Encuentra la nota base (C, Db, etc.)
+                     let noteBaseName = '';
+                     for(let i=0; i<ALL_NOTES.length; i++){
+                         if(i % 12 === targetNoteIndex){
+                             noteBaseName = getNoteName(ALL_NOTES[i]);
+                             break;
+                         }
+                     }
+                     if(!noteBaseName){
+                         console.error("No se pudo encontrar el nombre base para el índice:", targetNoteIndex);
+                         return note; // Fallback
+                     }
+
+                    const newNote = `${noteBaseName}${targetOctave}`;
 
                     if(noteFrequencies[newNote]) return newNote;
                     
-                    // Fallback muy genérico si todo falla
-                    console.warn(`Transposición compleja fuera de rango: ${note} + ${semitones}`);
-                    return ALL_NOTES[targetNoteIndex + 36] || note; // Default a octava 4
+                    // Fallback si la octava calculada no existe
+                    console.warn(`Transposición compleja fuera de rango o nota inexistente: ${note} + ${semitones} -> ${newNote}. Intentando octava 4.`);
+                     const fallbackNote = `${noteBaseName}4`;
+                     if(noteFrequencies[fallbackNote]) return fallbackNote;
+                    
+                    return note; // Último fallback
                 }
             }
             
@@ -616,18 +794,17 @@
                          return; // Salir si no hay AudioContext
                     }
                 }
-                // Si el AudioContext está suspendido (política de autoplay), intentar reanudarlo
                  if (audioCtx.state === 'suspended') {
                      audioCtx.resume();
                  }
 
                 const scheduledTime = audioCtx.currentTime + startTime;
-                const gain = Math.min(0.5, 0.8 / notes.length) ; // Ajusta el gain para evitar clipping
+                const gain = Math.min(0.5, 0.8 / notes.length) ; 
 
                 notes.forEach(note => {
                     const freq = getFrequency(note);
                     if (freq === 0) {
-                         console.warn("Frecuencia 0 para nota:", note);
+                        console.warn("Frecuencia 0 para nota:", note);
                         return; 
                     }
 
@@ -648,134 +825,303 @@
                 });
             }
 
-            let scalePlaybackTimeout = null; // Para cancelar animaciones previas
+            let scalePlaybackTimeout = null; 
 
-            function playScale(notes, container) {
+            // Función para tocar escalas animadas (acordes, 6dim, notas extras)
+            // Recibe notas con info de si son 'extra'
+            function playAnimatedScale(notesWithInfo, container) {
                 if (!audioCtx) {
-                    try {
+                     try {
                         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                     } catch (e) {
                          console.error("Web Audio API no soportada", e);
-                         return; // Salir si no hay AudioContext
+                         return;
                     }
                 }
                  if (audioCtx.state === 'suspended') {
                      audioCtx.resume();
                  }
 
-                // Cancelar cualquier animación/reproducción de escala anterior
                 if (scalePlaybackTimeout) {
                     clearTimeout(scalePlaybackTimeout);
                     scalePlaybackTimeout = null;
                 }
-                highlightKeys(container, []); // Limpiar highlights inmediatamente
+                highlightKeys(container, []); 
 
-
-                const duration = 0.25; // Duración de cada nota de la escala
+                const duration = 0.25; 
                 
-                notes.forEach((note, index) => {
+                notesWithInfo.forEach(({note, isExtra}, index) => {
                     const startTime = index * duration;
                     
-                    // Programar el highlight de CADA nota
                     scalePlaybackTimeout = setTimeout(() => {
-                        highlightKeys(container, [note]); // Resalta solo la nota actual
+                        highlightAnimatedKey(container, note, isExtra); // Resalta solo la nota actual con su tipo
                     }, startTime * 1000); 
                     
-                    // Tocar la nota individual
                     playChord([note], duration, startTime);
                 });
                 
-                // Al final, programar el highlight y toque del acorde completo
-                const endTime = notes.length * duration;
+                // Al final, no resaltar todo, dejar la última nota resaltada
+                const endTime = notesWithInfo.length * duration;
                 scalePlaybackTimeout = setTimeout(() => {
-                    highlightKeys(container, notes); // Resalta el acorde completo
-                    scalePlaybackTimeout = null; // Reiniciar timeout
+                    // Opcional: resaltar el acorde base al final?
+                    // highlightKeys(container, notesWithInfo.filter(n => !n.isExtra).map(n => n.note));
+                    scalePlaybackTimeout = null; 
                 }, endTime * 1000);
-                
-                playChord(notes, 1.5, endTime); // Toca el acorde completo
             }
 
-
-            // Mapeo de notas a su posición relativa en el piano (C2 - C6)
-            const notePositions = {
-                'C2': { white: 0 }, 'Db2': { black: 25 }, 'D2': { white: 40 }, 'Eb2': { black: 65 }, 'E2': { white: 80 },
-                'F2': { white: 120 }, 'Gb2': { black: 145 }, 'G2': { white: 160 }, 'Ab2': { black: 185 }, 'A2': { white: 200 }, 'Bb2': { black: 225 }, 'B2': { white: 240 },
-                'C3': { white: 280 }, 'Db3': { black: 305 }, 'D3': { white: 320 }, 'Eb3': { black: 345 }, 'E3': { white: 360 },
-                'F3': { white: 400 }, 'Gb3': { black: 425 }, 'G3': { white: 440 }, 'Ab3': { black: 465 }, 'A3': { white: 480 }, 'Bb3': { black: 505 }, 'B3': { white: 520 },
-                'C4': { white: 560 }, 'Db4': { black: 585 }, 'D4': { white: 600 }, 'Eb4': { black: 625 }, 'E4': { white: 640 },
-                'F4': { white: 680 }, 'Gb4': { black: 705 }, 'G4': { white: 720 }, 'Ab4': { black: 745 }, 'A4': { white: 760 }, 'Bb4': { black: 785 }, 'B4': { white: 800 },
-                'C5': { white: 840 }, 'Db5': { black: 865 }, 'D5': { white: 880 }, 'Eb5': { black: 905 }, 'E5': { white: 920 },
-                'F5': { white: 960 }, 'Gb5': { black: 985 }, 'G5': { white: 1000 }, 'Ab5': { black: 1025 }, 'A5': { white: 1040 }, 'Bb5': { black: 1065 }, 'B5': { white: 1080 },
-                'C6': { white: 1120 }
+            // --- Nuevas funciones para Improvisación (Notas Extras) ---
+            
+            // Define las escalas base (intervalos desde la tónica en semitonos)
+            const scaleFormulas = {
+                dominant: [0, 2, 4, 5, 7, 9, 10], // Mixolidia (7 notas)
+                major6dim: [0, 2, 4, 5, 7, 8, 9, 11], // C D E F G Ab A B (8 notas)
+                minor6dim: [0, 2, 3, 5, 7, 8, 9, 11]  // C D Eb F G Ab A B (8 notas) - Ajustada, PDF es ambiguo
             };
-            const whiteNotesOrder = [
-                'C2', 'D2', 'E2', 'F2', 'G2', 'A2', 'B2',
-                'C3', 'D3', 'E3', 'F3', 'G3', 'A3', 'B3',
-                'C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4',
-                'C5', 'D5', 'E5', 'F5', 'G5', 'A5', 'B5',
-                'C6'
-            ];
-            const blackNotesOrder = [
-                'Db2', 'Eb2', 'Gb2', 'Ab2', 'Bb2',
-                'Db3', 'Eb3', 'Gb3', 'Ab3', 'Bb3',
-                'Db4', 'Eb4', 'Gb4', 'Ab4', 'Bb4',
-                'Db5', 'Eb5', 'Gb5', 'Ab5', 'Bb5'
-            ];
+            
+            // Define los grados que son "notas del acorde" para cada tipo
+            // Para Dominante: 1, 3, 5, b7
+            // Para Maj6Dim: 1, 3, 5, 6 (notas del Maj6)
+            // Para min6Dim: 1, b3, 5, 6 (notas del min6)
+            const chordTonesMap = {
+                 dominant: [1, 3, 5, 7], // Usando índice 1-based para grados
+                 major6dim: [1, 3, 5, 6], // Grados del C6
+                 minor6dim: [1, 3, 5, 6] // Grados del Cm6 (1, b3, 5, 6)
+            };
 
-            function drawPiano(container) {
-                container.innerHTML = ''; 
+            // Función principal para generar la escala descendente con notas extras
+            function getBebopScale(scaleType, rootNote, startDegree) {
+                const formula = scaleFormulas[scaleType];
+                const scaleLength = formula.length; // 7 u 8
+                const rootNoteIndex = ALL_NOTES.indexOf(rootNote);
 
-                whiteNotesOrder.forEach(note => {
-                    const keyEl = document.createElement('div');
-                    keyEl.className = `piano-key white-key`;
-                    keyEl.dataset.note = note;
-                    keyEl.style.left = `${notePositions[note].white}px`;
+                if (rootNoteIndex === -1) {
+                    console.error("Nota raíz no encontrada:", rootNote);
+                    return { rule1Scale: [], rule2Scale: [], rule1Label: 'Error', rule2Label: 'Error', canApplyRule1: false, canApplyRule2: false };
+                }
+
+                // Generar la escala base descendente desde startDegree hasta la tónica una octava abajo
+                const baseScale = [];
+                // Ajustar startDegree si es > scaleLength (ej: 8 para escala de 7 notas)
+                 let currentDegree = parseInt(startDegree);
+                 if (currentDegree > scaleLength && scaleLength === 7) currentDegree = 1; // Si es 8 en dom7, empieza en 1
+                 if (currentDegree === 8 && scaleLength === 8) currentDegree = 1; // Si es 8 en 6dim, empieza en 1
+                 // Ajuste para grado 1 -> tratarlo como 8 para descenso
+                 if (currentDegree === 1) currentDegree = scaleLength + 1; // Tratar Tónica inicio como 8 (ó 9 si escala es 8)
+
+                
+                let startInterval = formula[(currentDegree - 1 -1 + scaleLength) % scaleLength]; // Intervalo de la nota de inicio real
+                 // Asegurar que la nota de inicio esté en una octava razonable (4 o 5)
+                 let startNote = transpose(rootNote, startInterval); // Calcula la nota de inicio desde la tónica base
+                 // Ajuste de octava inicial
+                 if(ALL_NOTES.indexOf(startNote) < ALL_NOTES.indexOf('C4')){
+                     startNote = transpose(startNote, 12);
+                 }
+                 if(ALL_NOTES.indexOf(startNote) > ALL_NOTES.indexOf('B5')){
+                      startNote = transpose(startNote, -12);
+                  }
+                 // Corrección si startDegree es 8 (Tónica superior)
+                 if(parseInt(startDegree) === 8 || parseInt(startDegree) === 1){
+                     startNote = transpose(rootNote, 12); // Asegura que empiece en la octava superior
+                 }
+
+
+                // Genera la escala descendente básica (1 octava + tónica)
+                baseScale.push(startNote); // Añadir la nota de inicio
+                let lastNote = startNote;
+                for (let i = 1; i < scaleLength + 1; i++) { // Bucle ajustado
+                    const degreeIndex = (currentDegree - 1 - i + scaleLength) % scaleLength;
+                    const interval = formula[degreeIndex];
+                    let nextIntervalDown = formula[(currentDegree - 1 - (i+1) + scaleLength) % scaleLength] ?? formula[formula.length -1]; // Siguiente intervalo teórico
                     
-                    const label = document.createElement('span');
-                    label.className = 'note-label';
-                    label.textContent = getNoteName(note);
-                    keyEl.appendChild(label);
+                    // Calcular semitonos de descenso desde la nota anterior
+                    let semitonesDown = (ALL_NOTES.indexOf(lastNote) - ALL_NOTES.indexOf(transpose(rootNote, interval))) % 12;
+                     if (semitonesDown < 0) semitonesDown += 12;
+                    
+                     // Determinar el descenso real (1 o 2 semitonos)
+                     let realSemitonesDown = 2; // Por defecto tono
+                     if ([3, 7].includes(scaleLength === 7 ? (degreeIndex + 1) % 7 || 7 : 0) || // semitonos en mixo (3-4, 7-1) - indices 2, 6
+                         [3, 7].includes(scaleLength === 8 ? (degreeIndex + 1) % 8 || 8 : 0)) { // semitonos en 6 dim? (E-F, B-C) - indices 2, 7
+                          // Lógica más precisa para semitonos según escala
+                          const currentNoteName = getNoteName(lastNote);
+                          const nextNoteName = getNoteName(transpose(rootNote, interval));
+                          if ((currentNoteName === 'E' && nextNoteName === 'F') || (currentNoteName === 'B' && nextNoteName === 'C') ||
+                              (scaleType === 'minor6dim' && currentNoteName === 'Ab' && nextNoteName === 'G')) { // Semitono descendente
+                                realSemitonesDown = 1;
+                          } else if (scaleType.includes('6dim') && (currentNoteName === 'A' && nextNoteName === 'Ab') || (currentNoteName === 'G' && nextNoteName === 'Gb')) {
+                                // Semitonos específicos de las 6 dim
+                                realSemitonesDown = 1;
+                          }
+                     }
+                    
+                    let note = transpose(lastNote, -realSemitonesDown);
 
-                    container.appendChild(keyEl);
-                });
-
-                blackNotesOrder.forEach(note => {
-                    const keyEl = document.createElement('div');
-                    keyEl.className = `piano-key black-key`;
-                    keyEl.dataset.note = note;
-                    keyEl.style.left = `${notePositions[note].black}px`;
-                    container.appendChild(keyEl);
-                });
-
-                const lastWhiteKeyOffset = notePositions['C6'].white;
-                container.style.width = `${lastWhiteKeyOffset + 40 + 10}px`; 
-            }
-
-            function highlightKeys(container, notes = [], bassNote = null) {
-                if (!container) return; // Safety check
-                container.querySelectorAll('.piano-key').forEach(key => {
-                    key.classList.remove('highlighted', 'highlighted-bass');
-                });
-
-                notes.forEach(note => {
-                    const keyEl = container.querySelector(`.piano-key[data-note="${note}"]`);
-                    if (keyEl) {
-                        const isBass = note === bassNote;
-                        keyEl.classList.add(isBass ? 'highlighted-bass' : 'highlighted');
+                    // Forzar a que sea la nota correcta de la escala si la transposición falla
+                    let expectedNote = transpose(rootNote, interval);
+                    if (getNoteName(note) !== getNoteName(expectedNote)) {
+                        note = expectedNote;
+                        // Ajustar octava si es necesario
+                         if (ALL_NOTES.indexOf(note) >= ALL_NOTES.indexOf(lastNote)) {
+                             note = transpose(note, -12);
+                         }
                     }
-                });
 
-                let noteDisplay;
-                if (container.id === 'piano-container-251') {
-                    noteDisplay = noteDisplay251;
-                } else if (container.id === 'piano-container-diminished') {
-                    noteDisplay = noteDisplayDiminished;
+                    // Asegurar que no baje demasiado
+                      if(ALL_NOTES.indexOf(note) < ALL_NOTES.indexOf('C2')){
+                          break; // Detener si baja mucho
+                      }
+                    
+                    baseScale.push(note);
+                    lastNote = note;
                 }
 
-                if (noteDisplay) {
-                    noteDisplay.textContent = notes.length > 0 ? `Notas: ${notes.map(getNoteName).join(', ')}` : '';
+                // ---- Lógica de Reglas ----
+                // Determinar grado real (1-8)
+                let actualStartDegree = parseInt(startDegree);
+                if (actualStartDegree === 1) actualStartDegree = 8; // Tratar Tónica como 8
+
+                const isEvenStart = actualStartDegree % 2 === 0;
+                const chordTonesDegrees = chordTonesMap[scaleType] || [];
+                // Ajustar grados de acorde para Dominante (b7 es el grado 7)
+                const isChordToneStart = chordTonesDegrees.includes(actualStartDegree);
+
+
+                // Determinar qué reglas aplicar
+                let rule1ExtraNotes = 0;
+                let rule2ExtraNotes = 0;
+                let rule1Insertions = []; // [{afterNoteIndex: noteIndex, extraNote: note}, ...]
+                let rule2Insertions = [];
+
+                if (scaleType === 'dominant') {
+                    if (actualStartDegree === 8) { // Regla especial Tónica (8)
+                        rule1ExtraNotes = 1;
+                        rule1Insertions = [{ afterNoteIndex: 0, extraNote: transpose(baseScale[0], -1) }]; // 7 Mayor
+                        rule2ExtraNotes = 1; // No aplica 3 notas
+                        rule2Insertions = rule1Insertions;
+                    } else if (isChordToneStart) { // Grados 3, 5, 7
+                        rule1ExtraNotes = 1;
+                        // Cromatismo entre 1 y b7. Indice de 1 es (actualStartDegree - 1)
+                        rule1Insertions = [{ afterNoteIndex: actualStartDegree - 1, extraNote: transpose(baseScale[actualStartDegree - 1], -1) }];
+                        rule2ExtraNotes = 3;
+                        rule2Insertions = [
+                            { afterNoteIndex: actualStartDegree - 3, extraNote: transpose(baseScale[actualStartDegree - 3], -1) }, // Entre 3 y 2
+                            { afterNoteIndex: actualStartDegree - 2, extraNote: transpose(baseScale[actualStartDegree - 2], -1) }, // Entre 2 y 1
+                            { afterNoteIndex: actualStartDegree - 1, extraNote: transpose(baseScale[actualStartDegree - 1], -1) }  // Entre 1 y b7
+                        ];
+                    } else { // Grados 2, 4, 6
+                        rule1ExtraNotes = 0;
+                        rule2ExtraNotes = 2;
+                        rule2Insertions = [
+                             { afterNoteIndex: actualStartDegree - 2, extraNote: transpose(baseScale[actualStartDegree - 2], -1) }, // Entre 2 y 1
+                             { afterNoteIndex: actualStartDegree - 1, extraNote: transpose(baseScale[actualStartDegree - 1], -1) }  // Entre 1 y b7
+                        ];
+                    }
+                } else { // major6dim y minor6dim (Simplificado con 1 nota extra entre 6 y 5)
+                     const degree6Interval = 9; // Sexta Mayor
+                     const degree5Interval = 7; // Quinta Justa
+                     const degree6NoteIndexInBase = baseScale.findIndex(note => (ALL_NOTES.indexOf(note) - rootNoteIndex) % 12 === degree6Interval);
+                     
+                     if (isChordToneStart) { // 1, 3, 5, 6
+                         rule1ExtraNotes = 1; 
+                         if (degree6NoteIndexInBase !== -1 && degree6NoteIndexInBase < baseScale.length -1) {
+                            rule1Insertions = [{ afterNoteIndex: degree6NoteIndexInBase, extraNote: transpose(baseScale[degree6NoteIndexInBase], -1)}]; // b6 entre 6 y 5
+                         }
+                         rule2ExtraNotes = 3; // TODO: Implementar lógica de 3 notas para 6dim
+                         rule2Insertions = rule1Insertions; // Placeholder
+                     } else { // Notas del disminuido
+                         rule1ExtraNotes = 0;
+                         rule2ExtraNotes = 2; // TODO: Implementar lógica de 2 notas para 6dim
+                     }
                 }
+                
+                // Aplicar las reglas (insertar notas extras)
+                const applyRules = (insertions) => {
+                    const resultScale = [];
+                    let insertionIndex = 0;
+                    for (let i = 0; i < baseScale.length; i++) {
+                        resultScale.push({ note: baseScale[i], isExtra: false });
+                        // Comprobar si hay que insertar una nota extra DESPUÉS de esta nota
+                        if (insertionIndex < insertions.length && insertions[insertionIndex].afterNoteIndex === i) {
+                            resultScale.push({ note: insertions[insertionIndex].extraNote, isExtra: true });
+                            insertionIndex++;
+                        }
+                    }
+                    return resultScale;
+                };
+
+                return {
+                    rule1Scale: applyRules(rule1Insertions),
+                    rule2Scale: applyRules(rule2Insertions),
+                    rule1Label: `${rule1ExtraNotes} Nota${rule1ExtraNotes !== 1 ? 's' : ''} Extra${rule1ExtraNotes > 0 ? '' : 's'}`,
+                    rule2Label: `${rule2ExtraNotes} Nota${rule2ExtraNotes !== 1 ? 's' : ''} Extra${rule2ExtraNotes > 0 ? '' : 's'}`,
+                    canApplyRule1: true, // Siempre se puede aplicar 0 o 1
+                    canApplyRule2: (scaleType === 'dominant' && actualStartDegree !== 8) || (scaleType !== 'dominant' && rule2ExtraNotes > 0) // Regla 2/3 no aplica a Tónica(8) en Dom7
+                };
             }
+
+            function updateImproControls() {
+                 const scaleType = improScaleTypeSelect.value;
+                 const rootNoteName = improScaleRootSelect.value;
+                 const startDegree = parseInt(improStartDegreeSelect.value);
+                 const rootNote = SCALE_KEY_ROOT_NOTES[rootNoteName];
+
+                 const { rule1Label, rule2Label, canApplyRule1, canApplyRule2 } = getBebopScale(scaleType, rootNote, startDegree);
+
+                 btnApplyRule1.textContent = `Oír Regla 1 (${rule1Label})`;
+                 btnApplyRule2.textContent = `Oír Regla 2 (${rule2Label})`;
+                 
+                 btnApplyRule1.disabled = !canApplyRule1;
+                 btnApplyRule2.disabled = !canApplyRule2;
+
+                 highlightKeys(pianoContainerImpro, []); // Limpiar piano al cambiar controles
+                 noteDisplayImpro.textContent = '';
+            }
+
+            btnApplyRule1.addEventListener('click', () => {
+                const scaleType = improScaleTypeSelect.value;
+                const rootNoteName = improScaleRootSelect.value;
+                const startDegree = parseInt(improStartDegreeSelect.value);
+                const rootNote = SCALE_KEY_ROOT_NOTES[rootNoteName];
+                
+                const { rule1Scale } = getBebopScale(scaleType, rootNote, startDegree);
+                playAnimatedScale(rule1Scale, pianoContainerImpro);
+            });
+            
+            btnApplyRule2.addEventListener('click', () => {
+                const scaleType = improScaleTypeSelect.value;
+                const rootNoteName = improScaleRootSelect.value;
+                const startDegree = parseInt(improStartDegreeSelect.value);
+                const rootNote = SCALE_KEY_ROOT_NOTES[rootNoteName];
+                
+                const { rule2Scale } = getBebopScale(scaleType, rootNote, startDegree);
+                playAnimatedScale(rule2Scale, pianoContainerImpro);
+            });
+
+            // Highlight animado específico para notas extras
+            function highlightAnimatedKey(container, note, isExtra = false) {
+                 if (!container) return;
+                 container.querySelectorAll('.piano-key').forEach(key => {
+                    key.classList.remove('highlighted', 'highlighted-extra'); // Limpia ambos tipos
+                 });
+                 const keyEl = container.querySelector(`.piano-key[data-note="${note}"]`);
+                 if (keyEl) {
+                    keyEl.classList.add(isExtra ? 'highlighted-extra' : 'highlighted');
+                 }
+                
+                // Actualizar display de nota actual
+                 let noteDisplay;
+                 if (container.id === 'piano-container-impro') {
+                     noteDisplay = noteDisplayImpro;
+                 } // Añadir otros pianos si es necesario
+                
+                 if (noteDisplay) {
+                     noteDisplay.textContent = `Nota: ${getNoteName(note)} ${isExtra ? '(Extra)' : ''}`;
+                 }
+            }
+
+
+            improScaleTypeSelect.addEventListener('change', updateImproControls);
+            improScaleRootSelect.addEventListener('change', updateImproControls);
+            improStartDegreeSelect.addEventListener('change', updateImproControls);
 
 
             // --- LÓGICA DE PESTAÑAS (TABS) ---
@@ -797,7 +1143,15 @@
                     // Limpiar pianos al cambiar de pestaña
                      highlightKeys(pianoContainer251);
                      highlightKeys(pianoContainerDiminished);
+                     highlightKeys(pianoContainerImpro);
                      inversionControls251.classList.add('hidden'); // Ocultar controles de inversión
+                     noteDisplay251.textContent = '';
+                     noteDisplayDiminished.textContent = '';
+                     noteDisplayImpro.textContent = '';
+                     if (scalePlaybackTimeout) { // Detener animación de escala si estaba en curso
+                        clearTimeout(scalePlaybackTimeout);
+                        scalePlaybackTimeout = null;
+                     }
                 });
             });
 
@@ -1004,17 +1358,11 @@
             // --- LÓGICA SECCIÓN 2: CONCEPTOS FUNDAMENTALES ---
             
             let currentDiminishedConcepts = {};
-            // Ajustamos la octava base para las escalas a C3
-            const SCALE_KEY_ROOT_NOTES = { 
-                'C': 'C3', 'Db': 'Db3', 'D': 'D3', 'Eb': 'Eb3', 'E': 'E3', 'F': 'F3',
-                'Gb': 'Gb3', 'G': 'G3', 'Ab': 'Ab3', 'A': 'A3', 'Bb': 'Bb3', 'B': 'B3'
-            };
-
+            
             function getMajor6DiminishedScale(rootNote) {
                 const maj6Chord = [rootNote, transpose(rootNote, 4), transpose(rootNote, 7), transpose(rootNote, 9)]; 
-                // El disminuido relacionado está UN SEMITONO ABAJO de la raíz del Maj6, o un tono arriba (Ddim para C6). Lo calculamos desde la raíz de la escala para consistencia.
-                 const relatedDimRoot = transpose(rootNote, -1); // B2 para C3
-                 const relatedDim = [relatedDimRoot, transpose(relatedDimRoot, 3), transpose(relatedDimRoot, 6), transpose(relatedDimRoot, 9)]; // B, D, F, Ab
+                 const relatedDimRoot = transpose(rootNote, -1); 
+                 const relatedDim = [relatedDimRoot, transpose(relatedDimRoot, 3), transpose(relatedDimRoot, 6), transpose(relatedDimRoot, 9)]; 
                 
                 const scale = [...maj6Chord, ...relatedDim];
                 scale.sort((a, b) => ALL_NOTES.indexOf(a) - ALL_NOTES.indexOf(b));
@@ -1023,9 +1371,8 @@
 
             function getMinor6DiminishedScale(rootNote) {
                 const min6Chord = [rootNote, transpose(rootNote, 3), transpose(rootNote, 7), transpose(rootNote, 9)]; 
-                // El disminuido es el mismo que para la escala mayor
-                 const relatedDimRoot = transpose(rootNote, -1); // B2 para C3
-                 const relatedDim = [relatedDimRoot, transpose(relatedDimRoot, 3), transpose(relatedDimRoot, 6), transpose(relatedDimRoot, 9)]; // B, D, F, Ab
+                 const relatedDimRoot = transpose(rootNote, -1); 
+                 const relatedDim = [relatedDimRoot, transpose(relatedDimRoot, 3), transpose(relatedDimRoot, 6), transpose(relatedDimRoot, 9)]; 
                 
                 const scale = [...min6Chord, ...relatedDim];
                 scale.sort((a, b) => ALL_NOTES.indexOf(a) - ALL_NOTES.indexOf(b));
@@ -1034,20 +1381,17 @@
 
 
             function generateDiminishedConcepts(keyTonic) { // C, Db, D
-                // Base Note en Octava 3 para cálculos
                  const baseNote = SCALE_KEY_ROOT_NOTES[keyTonic]; // C3, Db3, D3
                 
-                // 1. Definir las 3 Familias de Acordes (en octava 3/4)
                 const baseDimChord = [baseNote, transpose(baseNote, 3), transpose(baseNote, 6), transpose(baseNote, 9)];
                 const upDimChord = [transpose(baseNote, 1), transpose(baseNote, 4), transpose(baseNote, 7), transpose(baseNote, 10)];
                 const downDimChord = [transpose(baseNote, -1), transpose(baseNote, 2), transpose(baseNote, 5), transpose(baseNote, 8)];
                 
-                // 2. Generar Familia Dominante (Base - 1 nota)
                 const generatedDominants = [
                     { 
                         name: `${getNoteName(downDimChord[0])}7`, 
                         notes: [downDimChord[0], baseDimChord[1], baseDimChord[2], baseDimChord[3]], 
-                        bass: transpose(downDimChord[0], -12), // Bajo en octava 2
+                        bass: transpose(downDimChord[0], -12), 
                         desc: `(Bajar ${getNoteName(baseDimChord[0])} a ${getNoteName(downDimChord[0])})` 
                     },
                     { 
@@ -1070,10 +1414,8 @@
                     }
                 ];
 
-                // 3. Generar Familia m7b5 (Base + 1 nota)
                 const generatedM7b5s = [
                     { 
-                        // El nombre del m7b5 está una 2da Mayor arriba de la nota movida
                          name: `${getNoteName(transpose(baseDimChord[0], 2))}m7b5`, // C -> Dm7b5
                          notes: [upDimChord[0], baseDimChord[1], baseDimChord[2], baseDimChord[3]], 
                          bass: transpose(transpose(baseDimChord[0], 2), -12), // Bajo D2
@@ -1168,26 +1510,61 @@
             btnMaj6DimScale.addEventListener('click', () => {
                 const root = SCALE_KEY_ROOT_NOTES[keySelectScales.value];
                 const scale = getMajor6DiminishedScale(root);
-                playScale(scale, pianoContainerDiminished);
+                // Convertir a formato {note, isExtra: false} para playAnimatedScale
+                 const scaleInfo = scale.map(note => ({note, isExtra: false}));
+                 playAnimatedScale(scaleInfo, pianoContainerDiminished);
             });
 
             btnMin6DimScale.addEventListener('click', () => {
                 const root = SCALE_KEY_ROOT_NOTES[keySelectScales.value];
                 const scale = getMinor6DiminishedScale(root);
-                playScale(scale, pianoContainerDiminished);
+                 const scaleInfo = scale.map(note => ({note, isExtra: false}));
+                 playAnimatedScale(scaleInfo, pianoContainerDiminished);
             });
             
             keySelectScales.addEventListener('change', () => {
                 highlightKeys(pianoContainerDiminished);
             });
 
+            // Highlight genérico
+             function highlightKeys(container, notes = [], bassNote = null) {
+                if (!container) return; // Safety check
+                container.querySelectorAll('.piano-key').forEach(key => {
+                    key.classList.remove('highlighted', 'highlighted-bass', 'highlighted-extra'); // Limpiar todos
+                });
 
-            // --- INICIALIZACIÓN DE AMBAS SECCIONES ---
+                notes.forEach(note => {
+                    const keyEl = container.querySelector(`.piano-key[data-note="${note}"]`);
+                    if (keyEl) {
+                        const isBass = note === bassNote;
+                        keyEl.classList.add(isBass ? 'highlighted-bass' : 'highlighted');
+                    }
+                });
+
+                let noteDisplay;
+                if (container.id === 'piano-container-251') {
+                    noteDisplay = noteDisplay251;
+                } else if (container.id === 'piano-container-diminished') {
+                    noteDisplay = noteDisplayDiminished;
+                } else if (container.id === 'piano-container-impro') {
+                    noteDisplay = noteDisplayImpro;
+                }
+
+                if (noteDisplay) {
+                    noteDisplay.textContent = notes.length > 0 ? `Notas: ${notes.map(getNoteName).join(', ')}` : '';
+                }
+            }
+
+
+            // --- INICIALIZACIÓN ---
+            // Llamar a drawPiano globalmente
             drawPiano(pianoContainer251);
-            updateApp251(); 
-            
             drawPiano(pianoContainerDiminished);
+            drawPiano(pianoContainerImpro); 
+            
+            updateApp251(); 
             updateAppDiminished(); 
+            updateImproControls(); 
 
         });
     </script>
