@@ -33,6 +33,14 @@
             position: absolute; /* CORREGIDO: Debe ser absolute */
             box-shadow: 0 1px 3px rgba(0,0,0,0.3);
             z-index: 1; /* Las blancas debajo de las negras */
+            display: flex; /* Para alinear la etiqueta */
+            justify-content: center;
+            align-items: flex-end;
+            padding-bottom: 5px;
+            box-sizing: border-box;
+            color: #333;
+            font-size: 10px;
+            font-weight: bold;
         }
         .black-key {
             background-color: #333;
@@ -51,10 +59,24 @@
         .highlighted { background-color: #06b6d4; } /* Cyan 600 */
         .highlighted-bass { background-color: #f97316; } /* Orange 500 */
         
-        .white-key.highlighted { background-color: #06b6d4; }
+        .white-key.highlighted { background-color: #06b6d4; color: white; }
         .black-key.highlighted { background-color: #06b6d4; }
-        .white-key.highlighted-bass { background-color: #f97316; }
+        .white-key.highlighted-bass { background-color: #f97316; color: white; }
         .black-key.highlighted-bass { background-color: #f97316; }
+
+        /* Etiqueta de nota */
+        .note-label {
+            pointer-events: none; /* Para que no interfiera con los clics */
+        }
+
+        /* Display de notas */
+        .note-display {
+            text-align: center;
+            color: #cbd5e1; /* gray-300 */
+            font-size: 0.875rem;
+            margin-top: 0.75rem;
+            height: 1.25rem; /* Altura fija para evitar saltos */
+        }
 
         /* Deshabilitar botones */
         .nav-button:disabled {
@@ -161,7 +183,9 @@
                             <!-- Las teclas del piano se generarán aquí con JS -->
                         </div>
                     </div>
-                    <div class="flex justify-start gap-4 mt-4 text-sm">
+                    <!-- NUEVO: Note Display -->
+                    <div id="note-display-251" class="note-display"></div>
+                    <div class="flex justify-start gap-4 mt-2 text-sm"> <!-- margen mt-2 en lugar de mt-4 -->
                         <div class="flex items-center"><div class="w-4 h-4 rounded bg-cyan-600 mr-2"></div>Nota del Acorde</div>
                         <div class="flex items-center"><div class="w-4 h-4 rounded bg-orange-500 mr-2"></div>Nota del Bajo</div>
                     </div>
@@ -200,7 +224,7 @@
             <!-- Tarjeta Principal del Concepto -->
             <div class="bg-gray-800 rounded-lg mb-6">
                 
-                <!-- NUEVO: Explicación de las 3 Familias -->
+                <!-- Explicación de las 3 Familias -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 text-center">
                     <div class="bg-gray-700 p-3 rounded-lg">
                         <h4 class="text-sm font-semibold text-gray-400">Familia "Arriba" (iiø)</h4>
@@ -220,7 +244,7 @@
                     Toma la familia "Base" y "toma prestada" una nota de las familias vecinas (arriba o abajo) para generar nuevos acordes.
                 </p>
 
-                <!-- NUEVO: Botones de Acordes Generados (Granular) -->
+                <!-- Botones de Acordes Generados (Granular) -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div class="bg-gray-700 p-4 rounded-lg">
                         <h4 class="text-lg font-semibold text-white mb-3 text-center">Generar Familia V7 (Bajar una nota)</h4>
@@ -239,15 +263,49 @@
                     </div>
                 </div>
 
+                <!-- NUEVA SECCIÓN: ESCALAS 6 DIMINISHED -->
+                <div class="bg-gray-700 p-4 rounded-lg mt-6">
+                    <h4 class="text-lg font-semibold text-white mb-3 text-center">Las Escalas de 8 Notas (6 Diminished)</h4>
+                    <p class="text-sm text-gray-400 text-center mb-4">El corazón del sistema: un acorde de 6ª (Mayor o Menor) combinado con un acorde disminuido.</p>
+                    <div class="mb-4 max-w-xs mx-auto">
+                        <label for="key-select-scales" class="block text-sm font-medium text-gray-400 mb-2 text-center">Selecciona una Tónica:</label>
+                        <select id="key-select-scales" class="bg-gray-600 border border-gray-500 text-white text-lg rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block w-full p-2.5">
+                            <option value="C" selected>C</option>
+                            <option value="Db">Db / C#</option>
+                            <option value="D">D</option>
+                            <option value="Eb">Eb</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                            <option value="Gb">Gb / F#</option>
+                            <option value="G">G</option>
+                            <option value="Ab">Ab</option>
+                            <option value="A">A</option>
+                            <option value="Bb">Bb</option>
+                            <option value="B">B / Cb</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <button id="btn-maj6-dim-scale" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-4 rounded-lg flex-1 transition-all">
+                            Oír Escala Major 6 Diminished
+                        </button>
+                        <button id="btn-min6-dim-scale" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-4 rounded-lg flex-1 transition-all">
+                            Oír Escala minor 6 Diminished
+                        </button>
+                    </div>
+                </div>
+
+
                 <!-- Visualizador de Piano -->
-                <div class="bg-gray-700 p-4 rounded-lg">
+                <div class="bg-gray-700 p-4 rounded-lg mt-6"> <!-- Añadido margen superior -->
                     <p class="text-sm text-gray-400 mb-4">Visualizador de Teclado (Rango: C3 - G5)</p>
                     <div class="piano-scroll-container">
                         <div id="piano-container-diminished" class="piano-container">
                             <!-- Las teclas del piano se generarán aquí con JS -->
                         </div>
                     </div>
-                    <div class="flex justify-start gap-4 mt-4 text-sm">
+                    <!-- NUEVO: Note Display -->
+                    <div id="note-display-diminished" class="note-display"></div>
+                    <div class="flex justify-start gap-4 mt-2 text-sm">
                         <div class="flex items-center"><div class="w-4 h-4 rounded bg-cyan-600 mr-2"></div>Nota del Acorde</div>
                         <div class="flex items-center"><div class="w-4 h-4 rounded bg-orange-500 mr-2"></div>Nota del Bajo</div>
                     </div>
@@ -284,6 +342,7 @@
             
             // Sección 1 (2-5-1)
             const pianoContainer251 = document.getElementById('piano-container-251');
+            const noteDisplay251 = document.getElementById('note-display-251'); // NUEVO
             const conceptTitleEl251 = document.getElementById('concept-title-251');
             const conceptSubtitleEl251 = document.getElementById('concept-subtitle-251');
             const conceptDescriptionEl251 = document.getElementById('concept-description-251');
@@ -296,12 +355,17 @@
 
             // Sección 2 (Diminished)
             const pianoContainerDiminished = document.getElementById('piano-container-diminished');
+            const noteDisplayDiminished = document.getElementById('note-display-diminished'); // NUEVO
             const keySelectDiminished = document.getElementById('key-select-diminished');
             const domButtonsContainer = document.getElementById('dominant-buttons-container');
             const m7b5ButtonsContainer = document.getElementById('m7b5-buttons-container');
             const btnDimUp = document.getElementById('btn-dim-up');
             const btnDimBase = document.getElementById('btn-dim-base');
             const btnDimDown = document.getElementById('btn-dim-down');
+            // NUEVO para Escalas
+            const keySelectScales = document.getElementById('key-select-scales');
+            const btnMaj6DimScale = document.getElementById('btn-maj6-dim-scale');
+            const btnMin6DimScale = document.getElementById('btn-min6-dim-scale');
 
 
             // --- Funciones de Utilidad ---
@@ -395,6 +459,13 @@
                     keyEl.className = `piano-key white-key`;
                     keyEl.dataset.note = note;
                     keyEl.style.left = `${notePositions[note].white}px`;
+                    
+                    // NUEVO: Añadir etiqueta de nota
+                    const label = document.createElement('span');
+                    label.className = 'note-label';
+                    label.textContent = getNoteName(note);
+                    keyEl.appendChild(label);
+
                     container.appendChild(keyEl);
                 });
 
@@ -428,6 +499,18 @@
                         keyEl.classList.add(isBass ? 'highlighted-bass' : 'highlighted');
                     }
                 });
+
+                // NUEVO: Actualizar el display de notas
+                let noteDisplay;
+                if (container.id === 'piano-container-251') {
+                    noteDisplay = noteDisplay251;
+                } else if (container.id === 'piano-container-diminished') {
+                    noteDisplay = noteDisplayDiminished;
+                }
+
+                if (noteDisplay) {
+                    noteDisplay.textContent = notes.length > 0 ? `Notas: ${notes.map(getNoteName).join(', ')}` : '';
+                }
             }
 
 
@@ -602,10 +685,23 @@
             // --- LÓGICA SECCIÓN 2: CONCEPTOS FUNDAMENTALES ---
             
             let currentDiminishedConcepts = {};
-            //**FIX START**: Declaración movida al principio del script.
-            // const pianoContainerDiminished = document.getElementById('piano-container-diminished');
-            // const keySelectDiminished = document.getElementById('key-select-diminished');
-            //**FIX END**
+
+            function getMajor6DiminishedScale(rootNote) {
+                const maj6Chord = [rootNote, transpose(rootNote, 4), transpose(rootNote, 7), transpose(rootNote, 9)]; // C, E, G, A
+                const relatedDim = [transpose(rootNote, 2), transpose(rootNote, 5), transpose(rootNote, 8), transpose(rootNote, 11)]; // D, F, Ab, B
+                const scale = [...maj6Chord, ...relatedDim];
+                scale.sort((a, b) => ALL_NOTES.indexOf(a) - ALL_NOTES.indexOf(b));
+                return scale; // C, D, E, F, G, Ab, A, B
+            }
+
+            function getMinor6DiminishedScale(rootNote) {
+                const min6Chord = [rootNote, transpose(rootNote, 3), transpose(rootNote, 7), transpose(rootNote, 9)]; // C, Eb, G, A
+                const relatedDim = [transpose(rootNote, 2), transpose(rootNote, 5), transpose(rootNote, 8), transpose(rootNote, 11)]; // D, F, Ab, B (Mismo acorde dim.)
+                const scale = [...min6Chord, ...relatedDim];
+                scale.sort((a, b) => ALL_NOTES.indexOf(a) - ALL_NOTES.indexOf(b));
+                return scale; // C, D, Eb, F, G, Ab, A, B
+            }
+
 
             function generateDiminishedConcepts(keyTonic) {
                 const baseNote = KEY_ROOT_NOTES[keyTonic]; // C3, Db3, or D3
@@ -648,48 +744,37 @@
                 // (Subir una nota de la Base a una de la familia de Arriba)
                 const generatedM7b5s = [
                     { 
-                        name: `${getNoteName(transpose(upDimChord[0], -1))}m7b5`, // El Dm7b5 viene de subir C a Db. El root es D (Eb).
+                        name: `${getNoteName(transpose(baseDimChord[0], 2))}m7b5`, // C -> Dm7b5 (D,F,Ab,C). Root = D (+2)
                         notes: [upDimChord[0], baseDimChord[1], baseDimChord[2], baseDimChord[3]], 
-                        bass: transpose(upDimChord[0], -1), // Raíz del m7b5
+                        bass: transpose(baseDimChord[0], 2),
                         desc: `(Subir ${getNoteName(baseDimChord[0])} a ${getNoteName(upDimChord[0])})` 
                     },
                     { 
-                        name: `${getNoteName(transpose(upDimChord[1], -1))}m7b5`, 
+                        name: `${getNoteName(transpose(baseDimChord[1], 2))}m7b5`, // Eb -> Fm7b5 (F,Ab,C,Eb). Root = F (+2)
                         notes: [baseDimChord[0], upDimChord[1], baseDimChord[2], baseDimChord[3]], 
-                        bass: transpose(upDimChord[1], -1),
+                        bass: transpose(baseDimChord[1], 2),
                         desc: `(Subir ${getNoteName(baseDimChord[1])} a ${getNoteName(upDimChord[1])})`
                     },
                     { 
-                        name: `${getNoteName(transpose(upDimChord[2], -1))}m7b5`, 
+                        name: `${getNoteName(transpose(baseDimChord[2], 2))}m7b5`, // Gb -> Abm7b5 (Ab,C,Eb,Gb). Root = Ab (+2)
                         notes: [baseDimChord[0], baseDimChord[1], upDimChord[2], baseDimChord[3]], 
-                        bass: transpose(upDimChord[2], -1),
+                        bass: transpose(baseDimChord[2], 2),
                         desc: `(Subir ${getNoteName(baseDimChord[2])} a ${getNoteName(upDimChord[2])})`
                     },
                     { 
-                        name: `${getNoteName(transpose(upDimChord[3], -1))}m7b5`, 
+                        name: `${getNoteName(transpose(baseDimChord[3], 2))}m7b5`, // A -> Bm7b5 (B,D,F,A). Root = B (+2)
                         notes: [baseDimChord[0], baseDimChord[1], baseDimChord[2], upDimChord[3]], 
-                        bass: transpose(upDimChord[3], -1),
+                        bass: transpose(baseDimChord[3], 2),
                         desc: `(Subir ${getNoteName(baseDimChord[3])} a ${getNoteName(upDimChord[3])})`
                     }
                 ];
                 
-                // 4. Escalas (para referencia, aunque ya no se usan en la UI principal)
-                const maj6Chord = [baseNote, transpose(baseNote, 4), transpose(baseNote, 7), transpose(baseNote, 9)];
-                const relatedDimForMaj6 = [transpose(baseNote, 2), transpose(baseNote, 5), transpose(baseNote, 8), transpose(baseNote, 11)];
-                const maj6DimScale = [...maj6Chord, ...relatedDimForMaj6].sort((a, b) => ALL_NOTES.indexOf(a) - ALL_NOTES.indexOf(b));
-                const min6Chord = [baseNote, transpose(baseNote, 3), transpose(baseNote, 7), transpose(baseNote, 9)];
-                const relatedDimForMin6 = [transpose(baseNote, 1), transpose(baseNote, 4), transpose(baseNote, 7), transpose(baseNote, 10)];
-                const min6DimScale = [...min6Chord, transpose(baseNote, 1), transpose(baseNote, 4), transpose(baseNote, 10)].sort((a, b) => ALL_NOTES.indexOf(a) - ALL_NOTES.indexOf(b));
-
-
                 return {
                     baseDimChord,
                     upDimChord,
                     downDimChord,
                     generatedDominants,
-                    generatedM7b5s,
-                    maj6DimScale,
-                    min6DimScale
+                    generatedM7b5s
                 };
             }
             
@@ -752,6 +837,26 @@
             });
 
             keySelectDiminished.addEventListener('change', updateAppDiminished);
+
+            // NUEVO: Listeners para Escalas
+            btnMaj6DimScale.addEventListener('click', () => {
+                const root = KEY_ROOT_NOTES[keySelectScales.value];
+                const scale = getMajor6DiminishedScale(root);
+                highlightKeys(pianoContainerDiminished, scale);
+                playScale(scale);
+            });
+
+            btnMin6DimScale.addEventListener('click', () => {
+                const root = KEY_ROOT_NOTES[keySelectScales.value];
+                const scale = getMinor6DiminishedScale(root);
+                highlightKeys(pianoContainerDiminished, scale);
+                playScale(scale);
+            });
+            
+            keySelectScales.addEventListener('change', () => {
+                // Al cambiar el select, limpiar el piano
+                highlightKeys(pianoContainerDiminished);
+            });
 
 
             // --- INICIALIZACIÓN DE AMBAS SECCIONES ---
