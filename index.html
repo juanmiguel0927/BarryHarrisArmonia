@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Explorador de Armonía 2-5-1 (Sistema Harris)</title>
+    <title>Explorador de Armonía e Improvisación (Sistema Harris)</title>
     <!-- Cargar Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Estilos personalizados para el piano */
@@ -92,7 +92,7 @@
 
         /* Estilos de Pestañas */
         .tab-button {
-            padding: 0.75rem 1.5rem;
+            padding: 0.75rem 1rem; /* Ajustado el padding */
             border-radius: 0.5rem 0.5rem 0 0;
             background-color: #374151; /* gray-700 */
             color: #d1d5db; /* gray-300 */
@@ -100,6 +100,14 @@
             border-bottom: none;
             cursor: pointer;
             font-weight: 600;
+            white-space: nowrap; /* Evita que el texto se parta */
+            font-size: 0.875rem; /* Reducido el tamaño de fuente */
+        }
+        @media (min-width: 640px) { /* sm */
+             .tab-button {
+                padding: 0.75rem 1.5rem;
+                font-size: 1rem;
+             }
         }
         .tab-button.active {
             background-color: #1f2937; /* gray-800 */
@@ -115,6 +123,61 @@
             display: block;
         }
 
+        /* NUEVO: Estilo para botones de inversión */
+        .inv-button {
+             background-color: #4b5563; /* gray-600 */
+             color: white;
+             font-size: 0.875rem;
+             padding: 0.5rem 0.75rem;
+             border-radius: 0.375rem;
+             flex: 1 1 0%;
+             transition: background-color 0.2s;
+        }
+        .inv-button:hover {
+            background-color: #6b7280; /* gray-500 */
+        }
+
+        /* Estilos para la pestaña de improvisación */
+        #page-improvisation h3 {
+            font-size: 1.5rem; /* text-2xl */
+            font-weight: 600; /* font-semibold */
+            color: #67e8f9; /* cyan-300 */
+            margin-bottom: 1rem; /* mb-4 */
+            border-bottom: 1px solid #4b5563; /* border-b border-gray-600 */
+            padding-bottom: 0.5rem; /* pb-2 */
+        }
+        #page-improvisation h4 {
+            font-size: 1.125rem; /* text-lg */
+            font-weight: 600; /* font-semibold */
+            color: #e5e7eb; /* gray-200 */
+            margin-top: 1.5rem; /* mt-6 */
+            margin-bottom: 0.75rem; /* mb-3 */
+        }
+        #page-improvisation p {
+            color: #d1d5db; /* gray-300 */
+            margin-bottom: 1rem; /* mb-4 */
+            line-height: 1.6;
+        }
+        #page-improvisation ul {
+            list-style-type: disc;
+            margin-left: 1.5rem; /* ml-6 */
+            margin-bottom: 1rem; /* mb-4 */
+            color: #d1d5db; /* gray-300 */
+        }
+        #page-improvisation li {
+            margin-bottom: 0.5rem; /* mb-2 */
+        }
+        #page-improvisation strong {
+             color: #93c5fd; /* blue-300 */
+        }
+        #page-improvisation code {
+            background-color: #374151; /* gray-700 */
+            padding: 0.1rem 0.4rem;
+            border-radius: 0.25rem;
+            font-family: monospace;
+            color: #fde047; /* yellow-300 */
+        }
+
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100 font-sans p-4 md:p-8">
@@ -122,19 +185,23 @@
     <div class="max-w-4xl mx-auto">
         
         <!-- Título -->
-        <h1 class="text-3xl font-bold text-center mb-2 text-cyan-300">Explorador de Armonía de Barry Harris</h1>
+        <h1 class="text-3xl font-bold text-center mb-2 text-cyan-300">Explorador de Armonía e Improvisación</h1>
+        <h2 class="text-xl text-center text-gray-400 mb-6">Sistema de Barry Harris</h2>
         
         <!-- Pestañas de Navegación -->
         <div class="flex mb-0">
             <button id="tab-btn-251" class="tab-button active" data-tab="page-251">
-                Explorador 2-5-1 (Aplicación)
+                2-5-1 (Armonía)
             </button>
             <button id="tab-btn-diminished" class="tab-button" data-tab="page-diminished">
-                Conceptos Fundamentales (Teoría)
+                Conceptos Fundamentales
+            </button>
+            <button id="tab-btn-improvisation" class="tab-button" data-tab="page-improvisation">
+                Improvisación (Conceptos)
             </button>
         </div>
 
-        <!-- =========== SECCIÓN 1: EXPLORADOR 2-5-1 (Contenido existente) =========== -->
+        <!-- =========== SECCIÓN 1: EXPLORADOR 2-5-1 =========== -->
         <div id="page-251" class="tab-content active bg-gray-800 p-6 rounded-b-lg rounded-tr-lg shadow-xl mb-6">
             <h2 class="text-xl text-center text-gray-400 mb-4">Sustituciones de Acordes 2-5-1</h2>
 
@@ -173,19 +240,29 @@
                     <button id="btn-harris-251" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-4 rounded-lg flex-1 transition-all">
                         Oír Sustitución de Harris
                     </button>
+
+                    <!-- Controles de Inversión -->
+                    <div id="inversion-controls-251" class="hidden w-full md:col-span-2 p-3 bg-gray-700 rounded-lg -mt-4">
+                        <p class="text-sm text-center text-gray-400 mb-2">Practicar Inversiones (solo acorde):</p>
+                        <div class="flex justify-around gap-2">
+                             <button id="btn-inv-1" class="inv-button">Fundamental</button>
+                             <button id="btn-inv-2" class="inv-button">1ra Inversión</button>
+                             <button id="btn-inv-3" class="inv-button">2da Inversión</button>
+                             <button id="btn-inv-4" class="inv-button">3ra Inversión</button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Visualizador de Piano -->
                 <div class="bg-gray-700 p-4 rounded-lg">
-                    <p class="text-sm text-gray-400 mb-4">Visualizador de Teclado (Rango: C3 - G5)</p>
+                    <p class="text-sm text-gray-400 mb-4">Visualizador de Teclado (Rango: C2 - C6)</p>
                     <div class="piano-scroll-container">
                         <div id="piano-container-251" class="piano-container">
                             <!-- Las teclas del piano se generarán aquí con JS -->
                         </div>
                     </div>
-                    <!-- NUEVO: Note Display -->
                     <div id="note-display-251" class="note-display"></div>
-                    <div class="flex justify-start gap-4 mt-2 text-sm"> <!-- margen mt-2 en lugar de mt-4 -->
+                    <div class="flex justify-start gap-4 mt-2 text-sm">
                         <div class="flex items-center"><div class="w-4 h-4 rounded bg-cyan-600 mr-2"></div>Nota del Acorde</div>
                         <div class="flex items-center"><div class="w-4 h-4 rounded bg-orange-500 mr-2"></div>Nota del Bajo</div>
                     </div>
@@ -207,7 +284,7 @@
         <!-- =========== FIN SECCIÓN 1 =========== -->
 
 
-        <!-- =========== SECCIÓN 2: CONCEPTOS FUNDAMENTALES (Nuevo) =========== -->
+        <!-- =========== SECCIÓN 2: CONCEPTOS FUNDAMENTALES =========== -->
         <div id="page-diminished" class="tab-content bg-gray-800 p-6 rounded-b-lg rounded-tr-lg shadow-xl mb-6">
             <h2 class="text-xl text-center text-gray-400 mb-4">El Decodificador de Acordes Disminuidos</h2>
 
@@ -263,7 +340,7 @@
                     </div>
                 </div>
 
-                <!-- NUEVA SECCIÓN: ESCALAS 6 DIMINISHED -->
+                <!-- SECCIÓN: ESCALAS 6 DIMINISHED -->
                 <div class="bg-gray-700 p-4 rounded-lg mt-6">
                     <h4 class="text-lg font-semibold text-white mb-3 text-center">Las Escalas de 8 Notas (6 Diminished)</h4>
                     <p class="text-sm text-gray-400 text-center mb-4">El corazón del sistema: un acorde de 6ª (Mayor o Menor) combinado con un acorde disminuido.</p>
@@ -294,16 +371,14 @@
                     </div>
                 </div>
 
-
                 <!-- Visualizador de Piano -->
-                <div class="bg-gray-700 p-4 rounded-lg mt-6"> <!-- Añadido margen superior -->
-                    <p class="text-sm text-gray-400 mb-4">Visualizador de Teclado (Rango: C3 - G5)</p>
+                <div class="bg-gray-700 p-4 rounded-lg mt-6">
+                    <p class="text-sm text-gray-400 mb-4">Visualizador de Teclado (Rango: C2 - C6)</p>
                     <div class="piano-scroll-container">
                         <div id="piano-container-diminished" class="piano-container">
                             <!-- Las teclas del piano se generarán aquí con JS -->
                         </div>
                     </div>
-                    <!-- NUEVO: Note Display -->
                     <div id="note-display-diminished" class="note-display"></div>
                     <div class="flex justify-start gap-4 mt-2 text-sm">
                         <div class="flex items-center"><div class="w-4 h-4 rounded bg-cyan-600 mr-2"></div>Nota del Acorde</div>
@@ -315,6 +390,95 @@
         </div>
         <!-- =========== FIN SECCIÓN 2 =========== -->
 
+        <!-- =========== NUEVA SECCIÓN 3: IMPROVISACIÓN =========== -->
+        <div id="page-improvisation" class="tab-content bg-gray-800 p-6 rounded-b-lg rounded-tr-lg shadow-xl mb-6">
+            <h2 class="text-xl text-center text-gray-400 mb-6">Conceptos de Improvisación Bebop (Sistema Harris)</h2>
+
+            <p>Esta sección resume las ideas clave de Barry Harris para construir líneas melódicas en el estilo Bebop, basadas en sus conceptos armónicos. El orden sigue una progresión de dificultad conceptual.</p>
+
+            <h3>1. Fundamentos: Las 3 Familias y sus Dominantes</h3>
+            <p>Todo el sistema melódico, al igual que el armónico, se deriva de la relación entre los 3 únicos acordes disminuidos 7 y los acordes dominantes 7 que generan.</p>
+            <ul>
+                <li>Hay 3 acordes disminuidos 7: <code>Cdim7</code> (C-Eb-Gb-A), <code>C#dim7</code> (C#-E-G-Bb), <code>Ddim7</code> (D-F-Ab-B).</li>
+                <li>Cada disminuido 7 genera 4 acordes Dominantes 7 al bajar una de sus notas medio tono (ej: de <code>C#dim7</code> salen <code>C7</code>, <code>Eb7</code>, <code>Gb7(F#7)</code>, <code>A7</code>).</li>
+                <li>Estos 4 dominantes están **relacionados** y sus escalas se pueden usar intercambiablemente. Harris dice: "Juega con tus hermanos".</li>
+            </ul>
+
+            <h3>2. Las 4 Escalas de Barry Harris (8 Notas)</h3>
+            <p>En lugar de los modos tradicionales, Harris usa 4 escalas principales de 8 notas, que combinan acordes de 6ª con disminuidos.</p>
+            <ul>
+                <li><strong>Major 6 Diminished:</strong> Acorde Maj6 + Acorde dim7 un tono arriba (ej: <code>C6</code> + <code>Ddim7</code> = C-D-E-F-G-Ab-A-B). Útil para acordes Maj7 o Maj6.</li>
+                <li><strong>minor 6 Diminished:</strong> Acorde min6 + Acorde dim7 un tono arriba (ej: <code>Cm6</code> + <code>Ddim7</code> = C-D-Eb-F-G-Ab-A-B). Útil para acordes m7, m7b5 y dominantes alterados (si se toca desde la b2).</li>
+                <li><strong>Dominant 7 Diminished:</strong> Acorde Dom7 + Acorde dim7 un semitono abajo (ej: <code>C7</code> + <code>Bdim7</code> = C-D-E-F-G-Ab-Bb-B). Es la escala disminuida Semitono-Tono.</li>
+                <li><strong>Dominant 7b5 Diminished:</strong> Acorde Dom7b5 + Acorde dim7 un semitono abajo (ej: <code>C7b5</code> + <code>Bdim7</code> = C-D-E-F-Gb-Ab-Bb-B). También llamada escala de Tonos Enteros disminuida.</li>
+            </ul>
+
+            <h3>3. Reglas Rítmicas: Las "Notas Extras"</h3>
+            <p>Para que las notas importantes del acorde caigan en los tiempos fuertes al tocar escalas en corcheas (especialmente descendiendo), Harris añade notas cromáticas de paso ("notas extras"). Esto es crucial para el sonido Bebop.</p>
+            <ul>
+                <li><strong>Regla Principal:</strong> Las notas del acorde deben caer en los tiempos fuertes (1, 2, 3, 4).</li>
+                <li><strong>Aplicación (Dominante):</strong>
+                    <ul>
+                        <li>Si empiezas en nota del acorde (1, 3, 5, b7): Añade <strong>1 o 3 notas extras</strong> (ej: C->B->Bb...).</li>
+                        <li>Si empiezas en nota de la escala (2, 4, 6): Añade <strong>0 o 2 notas extras</strong> (ej: D->Db->C->B->Bb...).</li>
+                    </ul>
+                </li>
+                <li><strong>Aplicación (Mayor/Menor):</strong> Reglas similares pero adaptadas a las escalas Major/minor 6 Diminished. La idea es siempre mantener las notas del acorde de 6ª en tiempos fuertes.</li>
+                <li><strong>Expansión:</strong> Se pueden añadir muchas más notas extras cromáticamente, siempre siguiendo la lógica "par con par" o "impar con impar".</li>
+            </ul>
+
+             <h4>Misceláneas de las Reglas</h4>
+             <p>Hay reglas adicionales para aplicar las notas extras en situaciones comunes:</p>
+             <ul>
+                <li><strong>Ascenso y Descenso:</strong> Al subir y luego bajar, la regla se aplica desde la nota más alta alcanzada.</li>
+                <li><strong>Comienzo con Tresillo:</strong> La regla se aplica según la nota central del tresillo.</li>
+                <li><strong>Comienzo con Arpegio (Tríada):</strong> La regla se aplica según la nota superior de la tríada.</li>
+                <li><strong>Comienzo con Arpegio (Cuatríada):</strong> La regla se aplica según la nota inferior del arpegio (con excepciones).</li>
+                <li><strong>Comienzo con Semitono + Tresillo:</strong> La regla se aplica según la nota superior del arpegio en el tresillo.</li>
+             </ul>
+
+
+            <h3>4. Aplicaciones Melódicas</h3>
+            
+            <h4>4.1. Uso de Escalas Dominantes Relacionadas</h4>
+            <p>Ya que los 4 dominantes de una familia son "hermanos", puedes empezar una frase con la escala de <code>C7</code> y continuarla fluidamente con notas de la escala de <code>Eb7</code>, <code>F#7</code> o <code>A7</code> antes de resolver. Esto crea líneas con tensión "outside" pero lógicas dentro del sistema.</p>
+
+            <h4>4.2. "Contornos" (Outlining)</h4>
+            <p>En lugar de pensar modo por modo (D Dórico, G Mixolidio, C Jónico), Harris piensa en **una escala principal que "contornea" o define la progresión**. El sistema se simplifica a movimientos V-I.</p>
+            <ul>
+                <li><strong>Ejemplo II-V-I (Dm7-G7-C):</strong> Se usa principalmente la escala de <strong>G7</strong> sobre ambos acordes (Dm7 y G7).</li>
+                <li><strong>Blues / Rhythm Changes:** Se definen "esquemas de escalas" para toda la forma, indicando qué escala dominante o mayor/menor usar sobre secciones de varios compases (ej: C7 up, F7 up, C7 up & down...).</li>
+            </ul>
+
+            <h4>4.3. El "Importante Menor"</h4>
+            <p>Es el acorde menor (usualmente m7 o m9) construido sobre la <strong>5ª justa</strong> de un acorde dominante.</p>
+            <ul>
+                <li><strong>Ejemplo:</strong> Sobre <code>G7</code>, el "importante menor" es <code>Dm7</code> o <code>Dm9</code>.</li>
+                <li><strong>Uso:</strong> Se usa mucho melódicamente, arpegiando el "importante menor" para crear un sonido <code>V7(b9, b5)</code> o simplemente como color sobre el V7. Muy común en turnarounds y secuencias II-V-I-VI.</li>
+            </ul>
+
+            <h4>4.4. "Merodeando Notas" (Surrounding / Enclosures)</h4>
+            <p>Similar al concepto clásico de apoyaturas o notas vecinas, pero extendido. Una nota objetivo (usualmente del acorde) se "merodea" o rodea con notas de la escala, **incluyendo notas de las escalas dominantes relacionadas**.</p>
+            <ul>
+                <li><strong>Ejemplo:</strong> Para llegar a la nota <code>E</code> (3ª de C7), puedes tocar <code>F# -> D# -> E</code> (usando notas de la escala de A7, relacionada con C7).</li>
+                <li>Esto crea un sonido muy cromático y característico del Bebop.</li>
+            </ul>
+
+            <h4>4.5. "Frases para Salir de Problemas" (Pivot Phrases)</h4>
+            <p>Son 4 frases melódicas cortas (licks) que empiezan en la 5ª, 4ª, 3ª y 2ª de la escala dominante. Sirven como "comodines" para conectar ideas, cambiar de dirección o simplemente llenar espacio de forma estilística.</p>
+            <ul>
+                <li>Se pueden encadenar entre sí o con fragmentos de escalas.</li>
+            </ul>
+
+            <h4>4.6. Tritono Melódico</h4>
+            <p>Se practica tocar frases, arpegios o escalas y transportarlas instantáneamente un tritono (ej. una frase sobre G7, repetirla sobre Db7) para usar sobre sustituciones tritonales o simplemente como tensión.</p>
+
+
+            <p class="mt-8 text-sm text-gray-500">Nota: Esta es una síntesis basada en los documentos proporcionados. El sistema de Barry Harris es profundo y se explora mejor con la práctica y la escucha.</p>
+
+        </div>
+        <!-- =========== FIN SECCIÓN 3 =========== -->
+
     </div>
 
     <script>
@@ -323,16 +487,20 @@
             // --- UTILIDADES GLOBALES DE TEORÍA Y AUDIO ---
             let audioCtx = null;
             const oscillatorType = 'triangle'; 
+            
             const noteFrequencies = {
                 'C2': 65.41, 'Db2': 69.30, 'D2': 73.42, 'Eb2': 77.78, 'E2': 82.41, 'F2': 87.31, 'Gb2': 92.50, 'G2': 98.00, 'Ab2': 103.83, 'A2': 110.00, 'Bb2': 116.54, 'B2': 123.47,
                 'C3': 130.81, 'Db3': 138.59, 'D3': 146.83, 'Eb3': 155.56, 'E3': 164.81, 'F3': 174.61, 'Gb3': 185.00, 'G3': 196.00, 'Ab3': 207.65, 'A3': 220.00, 'Bb3': 233.08, 'B3': 246.94,
                 'C4': 261.63, 'Db4': 277.18, 'D4': 293.66, 'Eb4': 311.13, 'E4': 329.63, 'F4': 349.23, 'Gb4': 369.99, 'G4': 392.00, 'Ab4': 415.30, 'A4': 440.00, 'Bb4': 466.16, 'B4': 493.88,
-                'C5': 523.25, 'Db5': 554.37, 'D5': 587.33, 'Eb5': 622.25, 'E5': 659.25, 'F5': 698.46, 'Gb5': 739.99, 'G5': 783.99, 'Ab5': 830.61, 'A5': 880.00, 'Bb5': 932.33, 'B5': 987.77
+                'C5': 523.25, 'Db5': 554.37, 'D5': 587.33, 'Eb5': 622.25, 'E5': 659.25, 'F5': 698.46, 'Gb5': 739.99, 'G5': 783.99, 'Ab5': 830.61, 'A5': 880.00, 'Bb5': 932.33, 'B5': 987.77,
+                'C6': 1046.50
             };
             const ALL_NOTES = Object.keys(noteFrequencies);
-            const KEY_ROOT_NOTES = { // Nota base para cada tonalidad (en octava 3)
-                'C': 'C3', 'Db': 'Db3', 'D': 'D3', 'Eb': 'Eb3', 'E': 'E3', 'F': 'F3',
-                'Gb': 'Gb3', 'G': 'G3', 'Ab': 'Ab3', 'A': 'A3', 'Bb': 'Bb3', 'B': 'B3'
+            
+            // Usamos C2 como referencia para cálculos de octava iniciales
+            const KEY_ROOT_NOTES = { 
+                'C': 'C2', 'Db': 'Db2', 'D': 'D2', 'Eb': 'Eb2', 'E': 'E2', 'F': 'F2',
+                'Gb': 'Gb2', 'G': 'G2', 'Ab': 'Ab2', 'A': 'A2', 'Bb': 'Bb2', 'B': 'B2'
             };
             
             // --- Declaraciones de Elementos del DOM ---
@@ -342,7 +510,7 @@
             
             // Sección 1 (2-5-1)
             const pianoContainer251 = document.getElementById('piano-container-251');
-            const noteDisplay251 = document.getElementById('note-display-251'); // NUEVO
+            const noteDisplay251 = document.getElementById('note-display-251'); 
             const conceptTitleEl251 = document.getElementById('concept-title-251');
             const conceptSubtitleEl251 = document.getElementById('concept-subtitle-251');
             const conceptDescriptionEl251 = document.getElementById('concept-description-251');
@@ -352,24 +520,28 @@
             const btnNext251 = document.getElementById('btn-next-251');
             const stepIndicator251 = document.getElementById('step-indicator-251');
             const keySelect251 = document.getElementById('key-select-251');
+            const inversionControls251 = document.getElementById('inversion-controls-251');
+            const btnInv1 = document.getElementById('btn-inv-1');
+            const btnInv2 = document.getElementById('btn-inv-2');
+            const btnInv3 = document.getElementById('btn-inv-3');
+            const btnInv4 = document.getElementById('btn-inv-4');
 
             // Sección 2 (Diminished)
             const pianoContainerDiminished = document.getElementById('piano-container-diminished');
-            const noteDisplayDiminished = document.getElementById('note-display-diminished'); // NUEVO
+            const noteDisplayDiminished = document.getElementById('note-display-diminished'); 
             const keySelectDiminished = document.getElementById('key-select-diminished');
             const domButtonsContainer = document.getElementById('dominant-buttons-container');
             const m7b5ButtonsContainer = document.getElementById('m7b5-buttons-container');
             const btnDimUp = document.getElementById('btn-dim-up');
             const btnDimBase = document.getElementById('btn-dim-base');
             const btnDimDown = document.getElementById('btn-dim-down');
-            // NUEVO para Escalas
             const keySelectScales = document.getElementById('key-select-scales');
             const btnMaj6DimScale = document.getElementById('btn-maj6-dim-scale');
             const btnMin6DimScale = document.getElementById('btn-min6-dim-scale');
 
-
             // --- Funciones de Utilidad ---
             function getNoteName(note) {
+                if (!note) return "";
                 return note.slice(0, -1).replace(/[0-9]/, '');
             }
 
@@ -383,27 +555,81 @@
                 if (newIndex >= 0 && newIndex < ALL_NOTES.length) {
                     return ALL_NOTES[newIndex];
                 } else {
-                    console.warn(`Transposición fuera de rango: ${note} + ${semitones}`);
-                    const fallbackIndex = (index % 12) + semitones + 24; 
-                    return ALL_NOTES[fallbackIndex] || note;
+                    // Intenta wrappear si está fuera de rango C2-C6
+                    const normalizedIndex = index % 12;
+                    let targetNoteIndex = (normalizedIndex + semitones) % 12;
+                    if (targetNoteIndex < 0) {
+                        targetNoteIndex += 12;
+                    }
+                    // Intenta mantener una octava razonable (ej. 3 o 4)
+                    let targetOctave = Math.floor(index / 12) + Math.floor((index % 12 + semitones) / 12);
+                    targetOctave = Math.max(2, Math.min(5, targetOctave)); // Limitar octavas 2-5
+                    
+                    const noteName = ALL_NOTES[targetNoteIndex].slice(0, -1);
+                    const newNote = `${noteName}${targetOctave}`;
+
+                    if(noteFrequencies[newNote]) return newNote;
+                    
+                    // Fallback muy genérico si todo falla
+                    console.warn(`Transposición compleja fuera de rango: ${note} + ${semitones}`);
+                    return ALL_NOTES[targetNoteIndex + 36] || note; // Default a octava 4
                 }
             }
             
+            function getChordInversions(notes) {
+                if (!notes || notes.length !== 4) {
+                    console.warn("Se necesitan 4 notas para getChordInversions", notes);
+                    return [notes, notes, notes, notes]; // Safety check
+                }
+                const inversions = [];
+                // Asegura que las transposiciones no bajen de C2 ni suban mucho
+                 const t = (n, s) => {
+                     let newNote = transpose(n, s);
+                     // Si el resultado es menor que C2, sube una octava
+                     if (ALL_NOTES.indexOf(newNote) < ALL_NOTES.indexOf('C2')) {
+                         newNote = transpose(newNote, 12);
+                     }
+                      // Si el resultado es mayor que B5 (antes de C6), baja una octava
+                      if (ALL_NOTES.indexOf(newNote) > ALL_NOTES.indexOf('B5')) {
+                          newNote = transpose(newNote, -12);
+                      }
+                     return newNote;
+                 };
+
+                inversions.push(notes); // Inv 1 (Posición Fundamental del acorde de 6ª)
+                inversions.push([notes[1], notes[2], notes[3], t(notes[0], 12)]); // Inv 2
+                inversions.push([notes[2], notes[3], t(notes[0], 12), t(notes[1], 12)]); // Inv 3
+                inversions.push([notes[3], t(notes[0], 12), t(notes[1], 12), t(notes[2], 12)]); // Inv 4
+                return inversions;
+            }
+
             function getFrequency(note) {
                 return noteFrequencies[note] || 0;
             }
 
             function playChord(notes, duration = 1.5, startTime = 0) {
                 if (!audioCtx) {
-                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    try {
+                        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    } catch (e) {
+                         console.error("Web Audio API no soportada", e);
+                         return; // Salir si no hay AudioContext
+                    }
                 }
+                // Si el AudioContext está suspendido (política de autoplay), intentar reanudarlo
+                 if (audioCtx.state === 'suspended') {
+                     audioCtx.resume();
+                 }
 
                 const scheduledTime = audioCtx.currentTime + startTime;
-                const gain = 0.3 / notes.length;
+                const gain = Math.min(0.5, 0.8 / notes.length) ; // Ajusta el gain para evitar clipping
 
                 notes.forEach(note => {
                     const freq = getFrequency(note);
-                    if (freq === 0) return; 
+                    if (freq === 0) {
+                         console.warn("Frecuencia 0 para nota:", note);
+                        return; 
+                    }
 
                     const oscillator = audioCtx.createOscillator();
                     const gainNode = audioCtx.createGain();
@@ -422,37 +648,82 @@
                 });
             }
 
-            function playScale(notes) {
+            let scalePlaybackTimeout = null; // Para cancelar animaciones previas
+
+            function playScale(notes, container) {
                 if (!audioCtx) {
-                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    try {
+                        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    } catch (e) {
+                         console.error("Web Audio API no soportada", e);
+                         return; // Salir si no hay AudioContext
+                    }
                 }
-                const duration = 0.3;
+                 if (audioCtx.state === 'suspended') {
+                     audioCtx.resume();
+                 }
+
+                // Cancelar cualquier animación/reproducción de escala anterior
+                if (scalePlaybackTimeout) {
+                    clearTimeout(scalePlaybackTimeout);
+                    scalePlaybackTimeout = null;
+                }
+                highlightKeys(container, []); // Limpiar highlights inmediatamente
+
+
+                const duration = 0.25; // Duración de cada nota de la escala
+                
                 notes.forEach((note, index) => {
-                    playChord([note], duration, index * duration);
+                    const startTime = index * duration;
+                    
+                    // Programar el highlight de CADA nota
+                    scalePlaybackTimeout = setTimeout(() => {
+                        highlightKeys(container, [note]); // Resalta solo la nota actual
+                    }, startTime * 1000); 
+                    
+                    // Tocar la nota individual
+                    playChord([note], duration, startTime);
                 });
-                // Tocar acorde final
-                playChord(notes, 1.5, notes.length * duration);
+                
+                // Al final, programar el highlight y toque del acorde completo
+                const endTime = notes.length * duration;
+                scalePlaybackTimeout = setTimeout(() => {
+                    highlightKeys(container, notes); // Resalta el acorde completo
+                    scalePlaybackTimeout = null; // Reiniciar timeout
+                }, endTime * 1000);
+                
+                playChord(notes, 1.5, endTime); // Toca el acorde completo
             }
 
-            // Mapeo de notas a su posición relativa en el piano
-            const notePositions = {
-                'C3': { white: 0 }, 'Db3': { black: 25 }, 'D3': { white: 40 }, 'Eb3': { black: 65 }, 'E3': { white: 80 },
-                'F3': { white: 120 }, 'Gb3': { black: 145 }, 'G3': { white: 160 }, 'Ab3': { black: 185 }, 'A3': { white: 200 }, 'Bb3': { black: 225 }, 'B3': { white: 240 },
-                'C4': { white: 280 }, 'Db4': { black: 305 }, 'D4': { white: 320 }, 'Eb4': { black: 345 }, 'E4': { white: 360 },
-                'F4': { white: 400 }, 'Gb4': { black: 425 }, 'G4': { white: 440 }, 'Ab4': { black: 465 }, 'A4': { white: 480 }, 'Bb4': { black: 505 }, 'B4': { white: 520 },
-                'C5': { white: 560 }, 'Db5': { black: 585 }, 'D5': { white: 600 }, 'Eb5': { black: 625 }, 'E5': { white: 640 },
-                'F5': { white: 680 }, 'Gb5': { black: 705 }, 'G5': { white: 720 },
-                'G2': { white: -1000 }, 'C2': { white: -1040 }, 'F2': { white: -1080 }
-            };
-            const whiteNotesOrder = ['C3', 'D3', 'E3', 'F3', 'G3', 'A3', 'B3', 'C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5', 'D5', 'E5', 'F5', 'G5'];
-            const blackNotesOrder = ['Db3', 'Eb3', 'Gb3', 'Ab3', 'Bb3', 'Db4', 'Eb4', 'Gb4', 'Ab4', 'Bb4', 'Db5', 'Eb5', 'Gb5'];
 
-            /**
-             * Función genérica para dibujar un piano en un contenedor
-             * @param {HTMLElement} container - El elemento div que contendrá el piano
-             */
+            // Mapeo de notas a su posición relativa en el piano (C2 - C6)
+            const notePositions = {
+                'C2': { white: 0 }, 'Db2': { black: 25 }, 'D2': { white: 40 }, 'Eb2': { black: 65 }, 'E2': { white: 80 },
+                'F2': { white: 120 }, 'Gb2': { black: 145 }, 'G2': { white: 160 }, 'Ab2': { black: 185 }, 'A2': { white: 200 }, 'Bb2': { black: 225 }, 'B2': { white: 240 },
+                'C3': { white: 280 }, 'Db3': { black: 305 }, 'D3': { white: 320 }, 'Eb3': { black: 345 }, 'E3': { white: 360 },
+                'F3': { white: 400 }, 'Gb3': { black: 425 }, 'G3': { white: 440 }, 'Ab3': { black: 465 }, 'A3': { white: 480 }, 'Bb3': { black: 505 }, 'B3': { white: 520 },
+                'C4': { white: 560 }, 'Db4': { black: 585 }, 'D4': { white: 600 }, 'Eb4': { black: 625 }, 'E4': { white: 640 },
+                'F4': { white: 680 }, 'Gb4': { black: 705 }, 'G4': { white: 720 }, 'Ab4': { black: 745 }, 'A4': { white: 760 }, 'Bb4': { black: 785 }, 'B4': { white: 800 },
+                'C5': { white: 840 }, 'Db5': { black: 865 }, 'D5': { white: 880 }, 'Eb5': { black: 905 }, 'E5': { white: 920 },
+                'F5': { white: 960 }, 'Gb5': { black: 985 }, 'G5': { white: 1000 }, 'Ab5': { black: 1025 }, 'A5': { white: 1040 }, 'Bb5': { black: 1065 }, 'B5': { white: 1080 },
+                'C6': { white: 1120 }
+            };
+            const whiteNotesOrder = [
+                'C2', 'D2', 'E2', 'F2', 'G2', 'A2', 'B2',
+                'C3', 'D3', 'E3', 'F3', 'G3', 'A3', 'B3',
+                'C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4',
+                'C5', 'D5', 'E5', 'F5', 'G5', 'A5', 'B5',
+                'C6'
+            ];
+            const blackNotesOrder = [
+                'Db2', 'Eb2', 'Gb2', 'Ab2', 'Bb2',
+                'Db3', 'Eb3', 'Gb3', 'Ab3', 'Bb3',
+                'Db4', 'Eb4', 'Gb4', 'Ab4', 'Bb4',
+                'Db5', 'Eb5', 'Gb5', 'Ab5', 'Bb5'
+            ];
+
             function drawPiano(container) {
-                container.innerHTML = ''; // Limpiar
+                container.innerHTML = ''; 
 
                 whiteNotesOrder.forEach(note => {
                     const keyEl = document.createElement('div');
@@ -460,7 +731,6 @@
                     keyEl.dataset.note = note;
                     keyEl.style.left = `${notePositions[note].white}px`;
                     
-                    // NUEVO: Añadir etiqueta de nota
                     const label = document.createElement('span');
                     label.className = 'note-label';
                     label.textContent = getNoteName(note);
@@ -477,17 +747,12 @@
                     container.appendChild(keyEl);
                 });
 
-                const lastWhiteKeyOffset = notePositions['G5'].white;
-                container.style.width = `${lastWhiteKeyOffset + 40 + 10}px`;
+                const lastWhiteKeyOffset = notePositions['C6'].white;
+                container.style.width = `${lastWhiteKeyOffset + 40 + 10}px`; 
             }
 
-            /**
-             * Función genérica para resaltar teclas en un contenedor de piano
-             * @param {HTMLElement} container - El elemento div que contiene el piano
-             * @param {string[]} notes - Array de notas a resaltar (ej: ['C3', 'E3', 'G3'])
-             * @param {string} bassNote - La nota bajo (opcional)
-             */
             function highlightKeys(container, notes = [], bassNote = null) {
+                if (!container) return; // Safety check
                 container.querySelectorAll('.piano-key').forEach(key => {
                     key.classList.remove('highlighted', 'highlighted-bass');
                 });
@@ -500,7 +765,6 @@
                     }
                 });
 
-                // NUEVO: Actualizar el display de notas
                 let noteDisplay;
                 if (container.id === 'piano-container-251') {
                     noteDisplay = noteDisplay251;
@@ -529,6 +793,11 @@
                             content.classList.remove('active');
                         }
                     });
+                    
+                    // Limpiar pianos al cambiar de pestaña
+                     highlightKeys(pianoContainer251);
+                     highlightKeys(pianoContainerDiminished);
+                     inversionControls251.classList.add('hidden'); // Ocultar controles de inversión
                 });
             });
 
@@ -538,99 +807,131 @@
             let concepts251 = [];
             let currentConceptIndex251 = 0;
 
-            function generateConcepts251(keyTonic) {
-                const ii_root_note = transpose(keyTonic, 2);   // G3 (para F)
-                const V_root_note = transpose(keyTonic, 7);    // C4 (para F)
-                const I_root_note = keyTonic;                // F3 (para F)
+            function generateConcepts251(keyTonicRoot) { // keyTonicRoot es C2, Db2, etc.
+                 const keyTonic = transpose(keyTonicRoot, 12); // Pasa a octava 3 para cálculos (C3, Db3...)
+                 
+                 const ii_root_note = transpose(keyTonic, 2);   // D3 (para C)
+                 const V_root_note = transpose(keyTonic, 7);    // G3 (para C)
+                 const I_root_note = keyTonic;                // C3 (para C)
+                 
+                 // AJUSTE: Mover todas las notas de acorde base a octava 2/3
+                 const adjustOctave = (note) => {
+                     let noteIndex = ALL_NOTES.indexOf(note);
+                     // Si la nota está en octava 4 o más, bajarla una octava
+                     if (noteIndex >= ALL_NOTES.indexOf('C4')) {
+                         return transpose(note, -12);
+                     }
+                      // Si la nota está por debajo de F2, subirla una octava
+                      if (noteIndex < ALL_NOTES.indexOf('F2')) {
+                          return transpose(note, 12);
+                      }
+                     return note;
+                 };
 
-                const ii_bass = transpose(ii_root_note, -12); // G2
-                const V_bass = transpose(V_root_note, -12);   // C3
-                const I_bass = transpose(I_root_note, -12);   // F2
+                 const ii_bass = transpose(ii_root_note, -12); // D2
+                 const V_bass = transpose(V_root_note, -12);   // G2
+                 const I_bass = transpose(I_root_note, -12);   // C2
 
-                const iiName = getNoteName(ii_root_note); 
-                const VName = getNoteName(V_root_note);   
-                const IName = getNoteName(I_root_note);   
-                
-                const ii_b3_note = transpose(ii_root_note, 3); 
-                const ii_b3_Name = getNoteName(ii_b3_note);   
-                
-                const ii_b7_note = transpose(ii_root_note, 10); 
-                const ii_b7_Name = getNoteName(ii_b7_note);   
+                 const iiName = getNoteName(ii_root_note); 
+                 const VName = getNoteName(V_root_note);   
+                 const IName = getNoteName(I_root_note);   
+                 
+                 const ii_b3_note = transpose(ii_root_note, 3); 
+                 const ii_b3_Name = getNoteName(ii_b3_note);   
+                 
+                 const ii_b7_note = transpose(ii_root_note, 10); 
+                 const ii_b7_Name = getNoteName(ii_b7_note);   
 
-                const V_5_note = transpose(V_root_note, 7);   
-                const V_5_Name = getNoteName(V_5_note);     
-                
-                const V_b7_note = transpose(V_root_note, 10); 
-                const V_b7_Name = getNoteName(V_b7_note);    
+                 const V_5_note = transpose(V_root_note, 7);   
+                 const V_5_Name = getNoteName(V_5_note);     
+                 
+                 const V_b7_note = transpose(V_root_note, 10); 
+                 const V_b7_Name = getNoteName(V_b7_note);    
 
-                const V_b2_note = transpose(V_root_note, 1);  
-                const V_b2_Name = getNoteName(V_b2_note);    
+                 const V_b2_note = transpose(V_root_note, 1);  
+                 const V_b2_Name = getNoteName(V_b2_note);    
 
-                const I_5_note = transpose(I_root_note, 7);   
-                const I_5_Name = getNoteName(I_5_note);     
+                 const I_5_note = transpose(I_root_note, 7);   
+                 const I_5_Name = getNoteName(I_5_note);     
+                 
+                 // Generar notas de acorde (en octava baja) y sus inversiones
+                 // Acordes Estándar (octava baja)
+                 const std_ii_notes = [adjustOctave(ii_root_note), adjustOctave(transpose(ii_root_note, 3)), adjustOctave(transpose(ii_root_note, 7)), adjustOctave(transpose(ii_root_note, 10))].sort((a,b) => ALL_NOTES.indexOf(a) - ALL_NOTES.indexOf(b));
+                 const std_V_notes = [adjustOctave(V_root_note), adjustOctave(transpose(V_root_note, 4)), adjustOctave(transpose(V_root_note, 7)), adjustOctave(transpose(V_root_note, 10))].sort((a,b) => ALL_NOTES.indexOf(a) - ALL_NOTES.indexOf(b));
+                 const std_I_notes = [adjustOctave(I_root_note), adjustOctave(transpose(I_root_note, 4)), adjustOctave(transpose(I_root_note, 7)), adjustOctave(transpose(I_root_note, 11))].sort((a,b) => ALL_NOTES.indexOf(a) - ALL_NOTES.indexOf(b));
+
+                 // Acordes de Harris (octava baja)
+                 const c1_notes = [adjustOctave(ii_b3_note), adjustOctave(transpose(ii_b3_note, 4)), adjustOctave(transpose(ii_b3_note, 7)), adjustOctave(transpose(ii_b3_note, 9))].sort((a,b) => ALL_NOTES.indexOf(a) - ALL_NOTES.indexOf(b));
+                 const c2_notes = [adjustOctave(ii_b7_note), adjustOctave(transpose(ii_b7_note, 4)), adjustOctave(transpose(ii_b7_note, 7)), adjustOctave(transpose(ii_b7_note, 9))].sort((a,b) => ALL_NOTES.indexOf(a) - ALL_NOTES.indexOf(b));
+                 const c3_notes = [adjustOctave(V_5_note), adjustOctave(transpose(V_5_note, 3)), adjustOctave(transpose(V_5_note, 7)), adjustOctave(transpose(V_5_note, 9))].sort((a,b) => ALL_NOTES.indexOf(a) - ALL_NOTES.indexOf(b));
+                 const c4_notes = [adjustOctave(V_b7_note), adjustOctave(transpose(V_b7_note, 4)), adjustOctave(transpose(V_b7_note, 7)), adjustOctave(transpose(V_b7_note, 9))].sort((a,b) => ALL_NOTES.indexOf(a) - ALL_NOTES.indexOf(b));
+                 const c5_notes = [adjustOctave(V_b7_note), adjustOctave(transpose(V_b7_note, 3)), adjustOctave(transpose(V_b7_note, 7)), adjustOctave(transpose(V_b7_note, 9))].sort((a,b) => ALL_NOTES.indexOf(a) - ALL_NOTES.indexOf(b));
+                 const c6_notes = [adjustOctave(V_b2_note), adjustOctave(transpose(V_b2_note, 3)), adjustOctave(transpose(V_b2_note, 7)), adjustOctave(transpose(V_b2_note, 9))].sort((a,b) => ALL_NOTES.indexOf(a) - ALL_NOTES.indexOf(b));
+                 const c7_notes = [adjustOctave(I_root_note), adjustOctave(transpose(I_root_note, 4)), adjustOctave(transpose(I_root_note, 7)), adjustOctave(transpose(I_root_note, 9))].sort((a,b) => ALL_NOTES.indexOf(a) - ALL_NOTES.indexOf(b));
+                 const c8_notes = [adjustOctave(I_5_note), adjustOctave(transpose(I_5_note, 4)), adjustOctave(transpose(I_5_note, 7)), adjustOctave(transpose(I_5_note, 9))].sort((a,b) => ALL_NOTES.indexOf(a) - ALL_NOTES.indexOf(b));
 
                 return [
                     {
                         title: `1. El Acorde II (${iiName}m7)`,
                         subtitle: `Sustitución: ${ii_b3_Name}6 (Sexta Mayor Relativa)`,
                         description: `En lugar de ${iiName}m7, usamos un ${ii_b3_Name}6. ¡Son las mismas notas! El sistema de Harris prefiere el acorde de 6ª. El bajo se mantiene en ${iiName}.`,
-                        standardChord: { name: `${iiName}m7`, notes: [ii_root_note, transpose(ii_root_note, 3), transpose(ii_root_note, 7), transpose(ii_root_note, 10)] },
-                        harrisChord: { name: `${ii_b3_Name}6 / ${iiName}`, notes: [ii_bass, ii_b3_note, transpose(ii_b3_note, 4), transpose(ii_b3_note, 7), transpose(ii_b3_note, 9)], bassNote: ii_bass }
+                        standardChord: { name: `${iiName}m7`, notes: std_ii_notes },
+                        harrisChord: { name: `${ii_b3_Name}6 / ${iiName}`, notes: [ii_bass, ...c1_notes], chordNotes: c1_notes, bassNote: ii_bass, inversions: getChordInversions(c1_notes) }
                     },
                     {
                         title: `2. El Acorde II (${iiName}m7)`,
                         subtitle: `Sustitución: ${ii_b7_Name}6 (Desde el Menor Importante)`,
                         description: `Otra opción para el II (${iiName}m7) es usar un ${ii_b7_Name}6 sobre el bajo de ${iiName}. Esto crea un sonido más complejo, un color diferente.`,
-                        standardChord: { name: `${iiName}m7`, notes: [ii_root_note, transpose(ii_root_note, 3), transpose(ii_root_note, 7), transpose(ii_root_note, 10)] },
-                        harrisChord: { name: `${ii_b7_Name}6 / ${iiName}`, notes: [ii_bass, ii_b7_note, transpose(ii_b7_note, 4), transpose(ii_b7_note, 7), transpose(ii_b7_note, 9)], bassNote: ii_bass }
+                        standardChord: { name: `${iiName}m7`, notes: std_ii_notes },
+                        harrisChord: { name: `${ii_b7_Name}6 / ${iiName}`, notes: [ii_bass, ...c2_notes], chordNotes: c2_notes, bassNote: ii_bass, inversions: getChordInversions(c2_notes) }
                     },
                     {
                         title: `3. El Acorde V (${VName}7)`,
                         subtitle: `Sustitución: ${V_5_Name}m6 (6ª menor en la 5ª)`,
                         description: `Para un sonido ${VName}9, usamos un ${V_5_Name}m6 sobre el bajo de ${VName}. El ${V_5_Name}m6 añade la 9ª y la 3ª al acorde de ${VName}7.`,
-                        standardChord: { name: `${VName}7`, notes: [V_root_note, transpose(V_root_note, 4), transpose(V_root_note, 7), transpose(V_root_note, 10)] },
-                        harrisChord: { name: `${V_5_Name}m6 / ${VName}`, notes: [V_bass, V_5_note, transpose(V_5_note, 3), transpose(V_5_note, 7), transpose(V_5_note, 9)], bassNote: V_bass }
+                        standardChord: { name: `${VName}7`, notes: std_V_notes },
+                        harrisChord: { name: `${V_5_Name}m6 / ${VName}`, notes: [V_bass, ...c3_notes], chordNotes: c3_notes, bassNote: V_bass, inversions: getChordInversions(c3_notes) }
                     },
                     {
                         title: `4. El Acorde V (${VName}7)`,
                         subtitle: `Sustitución: ${V_b7_Name}6 (6ª mayor en la b7)`,
                         description: `Para un sonido ${VName}7sus4, usamos un ${V_b7_Name}6 sobre el bajo de ${VName}. El acorde de ${V_b7_Name}6 introduce la 4ª y elimina la 3ª.`,
-                        standardChord: { name: `${VName}7`, notes: [V_root_note, transpose(V_root_note, 4), transpose(V_root_note, 7), transpose(V_root_note, 10)] },
-                        harrisChord: { name: `${V_b7_Name}6 / ${VName}`, notes: [V_bass, V_b7_note, transpose(V_b7_note, 4), transpose(V_b7_note, 7), transpose(V_b7_note, 9)], bassNote: V_bass }
+                        standardChord: { name: `${VName}7`, notes: std_V_notes },
+                        harrisChord: { name: `${V_b7_Name}6 / ${VName}`, notes: [V_bass, ...c4_notes], chordNotes: c4_notes, bassNote: V_bass, inversions: getChordInversions(c4_notes) }
                     },
                     {
                         title: `5. El Acorde V (${VName}7)`,
                         subtitle: `Sustitución: ${V_b7_Name}m6 (6ª menor en la b7)`,
                         description: `Para más tensión (${VName}7sus4(b9)), usamos ${V_b7_Name}m6 sobre ${VName}. El ${V_b7_Name}m6 introduce la 4ª y la b9.`,
-                        standardChord: { name: `${VName}7`, notes: [V_root_note, transpose(V_root_note, 4), transpose(V_root_note, 7), transpose(V_root_note, 10)] },
-                        harrisChord: { name: `${V_b7_Name}m6 / ${VName}`, notes: [V_bass, V_b7_note, transpose(V_b7_note, 3), transpose(V_b7_note, 7), transpose(V_b7_note, 9)], bassNote: V_bass }
+                        standardChord: { name: `${VName}7`, notes: std_V_notes },
+                        harrisChord: { name: `${V_b7_Name}m6 / ${VName}`, notes: [V_bass, ...c5_notes], chordNotes: c5_notes, bassNote: V_bass, inversions: getChordInversions(c5_notes) }
                     },
                     {
                         title: `6. El Acorde V (${VName}7)`,
                         subtitle: `Sustitución: ${V_b2_Name}m6 (6ª menor en la b2)`,
                         description: `Para tensión máxima (${VName}7alt), usamos ${V_b2_Name}m6 sobre ${VName}. Esto introduce la b9 y la #5. ¡Una sustitución muy poderosa!`,
-                        standardChord: { name: `${VName}7`, notes: [V_root_note, transpose(V_root_note, 4), transpose(V_root_note, 7), transpose(V_root_note, 10)] },
-                        harrisChord: { name: `${V_b2_Name}m6 / ${VName}`, notes: [V_bass, V_b2_note, transpose(V_b2_note, 3), transpose(V_b2_note, 7), transpose(V_b2_note, 9)], bassNote: V_bass }
+                        standardChord: { name: `${VName}7`, notes: std_V_notes },
+                        harrisChord: { name: `${V_b2_Name}m6 / ${VName}`, notes: [V_bass, ...c6_notes], chordNotes: c6_notes, bassNote: V_bass, inversions: getChordInversions(c6_notes) }
                     },
                     {
                         title: `7. El Acorde I (${IName})`,
                         subtitle: `Sustitución: ${IName}6 (Tónica de Harris)`,
                         description: `El sistema de Harris resuelve por defecto al acorde de 6ª Mayor (${IName}6) en lugar del Maj7.`,
-                        standardChord: { name: `${IName}maj7`, notes: [I_root_note, transpose(I_root_note, 4), transpose(I_root_note, 7), transpose(I_root_note, 11)] },
-                        harrisChord: { name: `${IName}6`, notes: [I_bass, I_root_note, transpose(I_root_note, 4), transpose(I_root_note, 7), transpose(I_root_note, 9)], bassNote: I_bass }
+                        standardChord: { name: `${IName}maj7`, notes: std_I_notes },
+                        harrisChord: { name: `${IName}6`, notes: [I_bass, ...c7_notes], chordNotes: c7_notes, bassNote: I_bass, inversions: getChordInversions(c7_notes) }
                     },
                     {
                         title: `8. El Acorde I (${IName})`,
                         subtitle: `Sustitución: ${I_5_Name}6 (6ª mayor en la 5ª)`,
                         description: `Para una resolución más rica (${IName}maj9), usamos un ${I_5_Name}6 sobre el bajo de ${IName}. Esto añade la 9ª al acorde de ${IName}.`,
-                        standardChord: { name: `${IName}maj7`, notes: [I_root_note, transpose(I_root_note, 4), transpose(I_root_note, 7), transpose(I_root_note, 11)] },
-                        harrisChord: { name: `${I_5_Name}6 / ${IName}`, notes: [I_bass, I_5_note, transpose(I_5_note, 4), transpose(I_5_note, 7), transpose(I_5_note, 9)], bassNote: I_bass }
+                        standardChord: { name: `${IName}maj7`, notes: std_I_notes },
+                        harrisChord: { name: `${I_5_Name}6 / ${IName}`, notes: [I_bass, ...c8_notes], chordNotes: c8_notes, bassNote: I_bass, inversions: getChordInversions(c8_notes) }
                     }
                 ];
             }
             
             function loadConcept251(index) {
-                if (!concepts251 || concepts251.length === 0) return;
+                if (!concepts251 || concepts251.length === 0 || index < 0 || index >= concepts251.length) return;
                 const concept = concepts251[index];
                 
                 conceptTitleEl251.textContent = concept.title;
@@ -640,7 +941,8 @@
                 btnHarris251.textContent = `Oír ${concept.harrisChord.name}`;
                 stepIndicator251.textContent = `Paso ${index + 1} de ${concepts251.length}`;
                 
-                highlightKeys(pianoContainer251); // Limpiar piano
+                highlightKeys(pianoContainer251); 
+                inversionControls251.classList.add('hidden'); 
                 
                 btnPrev251.disabled = (index === 0);
                 btnNext251.disabled = (index === concepts251.length - 1);
@@ -652,6 +954,7 @@
                 concepts251 = generateConcepts251(baseNote);
                 currentConceptIndex251 = 0;
                 loadConcept251(currentConceptIndex251);
+                inversionControls251.classList.add('hidden'); 
             }
 
             btnPrev251.addEventListener('click', () => {
@@ -672,101 +975,128 @@
                 const concept = concepts251[currentConceptIndex251];
                 highlightKeys(pianoContainer251, concept.standardChord.notes);
                 playChord(concept.standardChord.notes); 
+                inversionControls251.classList.add('hidden'); 
             });
 
             btnHarris251.addEventListener('click', () => {
                 const concept = concepts251[currentConceptIndex251];
                 highlightKeys(pianoContainer251, concept.harrisChord.notes, concept.harrisChord.bassNote);
                 playChord(concept.harrisChord.notes); 
+                inversionControls251.classList.remove('hidden'); 
             });
 
             keySelect251.addEventListener('change', updateApp251);
+
+            function playInversion(invIndex) {
+                const concept = concepts251[currentConceptIndex251];
+                if (!concept || !concept.harrisChord.inversions) return;
+                const inversionNotes = concept.harrisChord.inversions[invIndex];
+                highlightKeys(pianoContainer251, inversionNotes);
+                playChord(inversionNotes);
+            }
+
+            btnInv1.addEventListener('click', () => playInversion(0));
+            btnInv2.addEventListener('click', () => playInversion(1));
+            btnInv3.addEventListener('click', () => playInversion(2));
+            btnInv4.addEventListener('click', () => playInversion(3));
+
             
             // --- LÓGICA SECCIÓN 2: CONCEPTOS FUNDAMENTALES ---
             
             let currentDiminishedConcepts = {};
+            // Ajustamos la octava base para las escalas a C3
+            const SCALE_KEY_ROOT_NOTES = { 
+                'C': 'C3', 'Db': 'Db3', 'D': 'D3', 'Eb': 'Eb3', 'E': 'E3', 'F': 'F3',
+                'Gb': 'Gb3', 'G': 'G3', 'Ab': 'Ab3', 'A': 'A3', 'Bb': 'Bb3', 'B': 'B3'
+            };
 
             function getMajor6DiminishedScale(rootNote) {
-                const maj6Chord = [rootNote, transpose(rootNote, 4), transpose(rootNote, 7), transpose(rootNote, 9)]; // C, E, G, A
-                const relatedDim = [transpose(rootNote, 2), transpose(rootNote, 5), transpose(rootNote, 8), transpose(rootNote, 11)]; // D, F, Ab, B
+                const maj6Chord = [rootNote, transpose(rootNote, 4), transpose(rootNote, 7), transpose(rootNote, 9)]; 
+                // El disminuido relacionado está UN SEMITONO ABAJO de la raíz del Maj6, o un tono arriba (Ddim para C6). Lo calculamos desde la raíz de la escala para consistencia.
+                 const relatedDimRoot = transpose(rootNote, -1); // B2 para C3
+                 const relatedDim = [relatedDimRoot, transpose(relatedDimRoot, 3), transpose(relatedDimRoot, 6), transpose(relatedDimRoot, 9)]; // B, D, F, Ab
+                
                 const scale = [...maj6Chord, ...relatedDim];
                 scale.sort((a, b) => ALL_NOTES.indexOf(a) - ALL_NOTES.indexOf(b));
-                return scale; // C, D, E, F, G, Ab, A, B
+                return scale; // C3, D3, E3, F3, G3, Ab3, A3, B3
             }
 
             function getMinor6DiminishedScale(rootNote) {
-                const min6Chord = [rootNote, transpose(rootNote, 3), transpose(rootNote, 7), transpose(rootNote, 9)]; // C, Eb, G, A
-                const relatedDim = [transpose(rootNote, 2), transpose(rootNote, 5), transpose(rootNote, 8), transpose(rootNote, 11)]; // D, F, Ab, B (Mismo acorde dim.)
+                const min6Chord = [rootNote, transpose(rootNote, 3), transpose(rootNote, 7), transpose(rootNote, 9)]; 
+                // El disminuido es el mismo que para la escala mayor
+                 const relatedDimRoot = transpose(rootNote, -1); // B2 para C3
+                 const relatedDim = [relatedDimRoot, transpose(relatedDimRoot, 3), transpose(relatedDimRoot, 6), transpose(relatedDimRoot, 9)]; // B, D, F, Ab
+                
                 const scale = [...min6Chord, ...relatedDim];
                 scale.sort((a, b) => ALL_NOTES.indexOf(a) - ALL_NOTES.indexOf(b));
-                return scale; // C, D, Eb, F, G, Ab, A, B
+                return scale; // C3, D3, Eb3, F3, G3, Ab3, A3, B3
             }
 
 
-            function generateDiminishedConcepts(keyTonic) {
-                const baseNote = KEY_ROOT_NOTES[keyTonic]; // C3, Db3, or D3
+            function generateDiminishedConcepts(keyTonic) { // C, Db, D
+                // Base Note en Octava 3 para cálculos
+                 const baseNote = SCALE_KEY_ROOT_NOTES[keyTonic]; // C3, Db3, D3
                 
-                // 1. Definir las 3 Familias de Acordes
+                // 1. Definir las 3 Familias de Acordes (en octava 3/4)
                 const baseDimChord = [baseNote, transpose(baseNote, 3), transpose(baseNote, 6), transpose(baseNote, 9)];
                 const upDimChord = [transpose(baseNote, 1), transpose(baseNote, 4), transpose(baseNote, 7), transpose(baseNote, 10)];
                 const downDimChord = [transpose(baseNote, -1), transpose(baseNote, 2), transpose(baseNote, 5), transpose(baseNote, 8)];
                 
                 // 2. Generar Familia Dominante (Base - 1 nota)
-                // (Bajar una nota de la Base a una de la familia de Abajo)
                 const generatedDominants = [
                     { 
                         name: `${getNoteName(downDimChord[0])}7`, 
                         notes: [downDimChord[0], baseDimChord[1], baseDimChord[2], baseDimChord[3]], 
-                        bass: downDimChord[0],
+                        bass: transpose(downDimChord[0], -12), // Bajo en octava 2
                         desc: `(Bajar ${getNoteName(baseDimChord[0])} a ${getNoteName(downDimChord[0])})` 
                     },
                     { 
                         name: `${getNoteName(downDimChord[1])}7`, 
                         notes: [baseDimChord[0], downDimChord[1], baseDimChord[2], baseDimChord[3]], 
-                        bass: downDimChord[1],
+                        bass: transpose(downDimChord[1], -12), 
                         desc: `(Bajar ${getNoteName(baseDimChord[1])} a ${getNoteName(downDimChord[1])})`
                     },
                     { 
                         name: `${getNoteName(downDimChord[2])}7`, 
                         notes: [baseDimChord[0], baseDimChord[1], downDimChord[2], baseDimChord[3]], 
-                        bass: downDimChord[2],
+                        bass: transpose(downDimChord[2], -12), 
                         desc: `(Bajar ${getNoteName(baseDimChord[2])} a ${getNoteName(downDimChord[2])})`
                     },
                     { 
                         name: `${getNoteName(downDimChord[3])}7`, 
                         notes: [baseDimChord[0], baseDimChord[1], baseDimChord[2], downDimChord[3]], 
-                        bass: downDimChord[3],
+                        bass: transpose(downDimChord[3], -12), 
                         desc: `(Bajar ${getNoteName(baseDimChord[3])} a ${getNoteName(downDimChord[3])})`
                     }
                 ];
 
                 // 3. Generar Familia m7b5 (Base + 1 nota)
-                // (Subir una nota de la Base a una de la familia de Arriba)
                 const generatedM7b5s = [
                     { 
-                        name: `${getNoteName(transpose(baseDimChord[0], 2))}m7b5`, // C -> Dm7b5 (D,F,Ab,C). Root = D (+2)
-                        notes: [upDimChord[0], baseDimChord[1], baseDimChord[2], baseDimChord[3]], 
-                        bass: transpose(baseDimChord[0], 2),
-                        desc: `(Subir ${getNoteName(baseDimChord[0])} a ${getNoteName(upDimChord[0])})` 
+                        // El nombre del m7b5 está una 2da Mayor arriba de la nota movida
+                         name: `${getNoteName(transpose(baseDimChord[0], 2))}m7b5`, // C -> Dm7b5
+                         notes: [upDimChord[0], baseDimChord[1], baseDimChord[2], baseDimChord[3]], 
+                         bass: transpose(transpose(baseDimChord[0], 2), -12), // Bajo D2
+                         desc: `(Subir ${getNoteName(baseDimChord[0])} a ${getNoteName(upDimChord[0])})` 
                     },
-                    { 
-                        name: `${getNoteName(transpose(baseDimChord[1], 2))}m7b5`, // Eb -> Fm7b5 (F,Ab,C,Eb). Root = F (+2)
-                        notes: [baseDimChord[0], upDimChord[1], baseDimChord[2], baseDimChord[3]], 
-                        bass: transpose(baseDimChord[1], 2),
-                        desc: `(Subir ${getNoteName(baseDimChord[1])} a ${getNoteName(upDimChord[1])})`
-                    },
-                    { 
-                        name: `${getNoteName(transpose(baseDimChord[2], 2))}m7b5`, // Gb -> Abm7b5 (Ab,C,Eb,Gb). Root = Ab (+2)
-                        notes: [baseDimChord[0], baseDimChord[1], upDimChord[2], baseDimChord[3]], 
-                        bass: transpose(baseDimChord[2], 2),
-                        desc: `(Subir ${getNoteName(baseDimChord[2])} a ${getNoteName(upDimChord[2])})`
-                    },
-                    { 
-                        name: `${getNoteName(transpose(baseDimChord[3], 2))}m7b5`, // A -> Bm7b5 (B,D,F,A). Root = B (+2)
-                        notes: [baseDimChord[0], baseDimChord[1], baseDimChord[2], upDimChord[3]], 
-                        bass: transpose(baseDimChord[3], 2),
-                        desc: `(Subir ${getNoteName(baseDimChord[3])} a ${getNoteName(upDimChord[3])})`
-                    }
+                     { 
+                         name: `${getNoteName(transpose(baseDimChord[1], 2))}m7b5`, // Eb -> Fm7b5
+                         notes: [baseDimChord[0], upDimChord[1], baseDimChord[2], baseDimChord[3]], 
+                         bass: transpose(transpose(baseDimChord[1], 2), -12), // Bajo F2
+                         desc: `(Subir ${getNoteName(baseDimChord[1])} a ${getNoteName(upDimChord[1])})`
+                     },
+                     { 
+                         name: `${getNoteName(transpose(baseDimChord[2], 2))}m7b5`, // Gb -> Abm7b5
+                         notes: [baseDimChord[0], baseDimChord[1], upDimChord[2], baseDimChord[3]], 
+                         bass: transpose(transpose(baseDimChord[2], 2), -12), // Bajo Ab2
+                         desc: `(Subir ${getNoteName(baseDimChord[2])} a ${getNoteName(upDimChord[2])})`
+                     },
+                     { 
+                         name: `${getNoteName(transpose(baseDimChord[3], 2))}m7b5`, // A -> Bm7b5
+                         notes: [baseDimChord[0], baseDimChord[1], baseDimChord[2], upDimChord[3]], 
+                         bass: transpose(transpose(baseDimChord[3], 2), -12), // Bajo B2
+                         desc: `(Subir ${getNoteName(baseDimChord[3])} a ${getNoteName(upDimChord[3])})`
+                     }
                 ];
                 
                 return {
@@ -782,42 +1112,39 @@
                 const selectedKey = keySelectDiminished.value; // C, Db, D
                 currentDiminishedConcepts = generateDiminishedConcepts(selectedKey);
                 
-                // Limpiar el piano al cambiar
                 highlightKeys(pianoContainerDiminished);
 
-                // Poblar los botones de familia
                 btnDimUp.textContent = currentDiminishedConcepts.upDimChord.map(getNoteName).join(' - ');
                 btnDimBase.textContent = currentDiminishedConcepts.baseDimChord.map(getNoteName).join(' - ');
                 btnDimDown.textContent = currentDiminishedConcepts.downDimChord.map(getNoteName).join(' - ');
 
-                // Poblar los botones de Dominantes
                 domButtonsContainer.innerHTML = '';
-                currentDiminishedConcepts.generatedDominants.forEach((chord, index) => {
+                currentDiminishedConcepts.generatedDominants.forEach((chord) => {
                     const button = document.createElement('button');
                     button.className = 'w-full bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-3 rounded-lg text-left transition-all';
                     button.innerHTML = `Oír <strong class="text-cyan-300">${chord.name}</strong> <span class="text-xs text-gray-400">${chord.desc}</span>`;
                     button.addEventListener('click', () => {
-                        highlightKeys(pianoContainerDiminished, chord.notes, chord.bass);
-                        playChord(chord.notes);
+                        const notesToPlay = [chord.bass, ...chord.notes];
+                        highlightKeys(pianoContainerDiminished, notesToPlay, chord.bass);
+                        playChord(notesToPlay);
                     });
                     domButtonsContainer.appendChild(button);
                 });
 
-                // Poblar los botones de m7b5
                 m7b5ButtonsContainer.innerHTML = '';
-                currentDiminishedConcepts.generatedM7b5s.forEach((chord, index) => {
+                currentDiminishedConcepts.generatedM7b5s.forEach((chord) => {
                     const button = document.createElement('button');
                     button.className = 'w-full bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-3 rounded-lg text-left transition-all';
                     button.innerHTML = `Oír <strong class="text-cyan-300">${chord.name}</strong> <span class="text-xs text-gray-400">${chord.desc}</span>`;
                     button.addEventListener('click', () => {
-                        highlightKeys(pianoContainerDiminished, chord.notes, chord.bass);
-                        playChord(chord.notes);
+                        const notesToPlay = [chord.bass, ...chord.notes];
+                        highlightKeys(pianoContainerDiminished, notesToPlay, chord.bass);
+                        playChord(notesToPlay);
                     });
                     m7b5ButtonsContainer.appendChild(button);
                 });
             }
             
-            // Listeners para la sección 2 (Familias principales)
             btnDimBase.addEventListener('click', () => {
                 const chord = currentDiminishedConcepts.baseDimChord;
                 highlightKeys(pianoContainerDiminished, chord);
@@ -838,33 +1165,29 @@
 
             keySelectDiminished.addEventListener('change', updateAppDiminished);
 
-            // NUEVO: Listeners para Escalas
             btnMaj6DimScale.addEventListener('click', () => {
-                const root = KEY_ROOT_NOTES[keySelectScales.value];
+                const root = SCALE_KEY_ROOT_NOTES[keySelectScales.value];
                 const scale = getMajor6DiminishedScale(root);
-                highlightKeys(pianoContainerDiminished, scale);
-                playScale(scale);
+                playScale(scale, pianoContainerDiminished);
             });
 
             btnMin6DimScale.addEventListener('click', () => {
-                const root = KEY_ROOT_NOTES[keySelectScales.value];
+                const root = SCALE_KEY_ROOT_NOTES[keySelectScales.value];
                 const scale = getMinor6DiminishedScale(root);
-                highlightKeys(pianoContainerDiminished, scale);
-                playScale(scale);
+                playScale(scale, pianoContainerDiminished);
             });
             
             keySelectScales.addEventListener('change', () => {
-                // Al cambiar el select, limpiar el piano
                 highlightKeys(pianoContainerDiminished);
             });
 
 
             // --- INICIALIZACIÓN DE AMBAS SECCIONES ---
             drawPiano(pianoContainer251);
-            updateApp251(); // Inicializa la pestaña 2-5-1
+            updateApp251(); 
             
             drawPiano(pianoContainerDiminished);
-            updateAppDiminished(); // Inicializa la pestaña de conceptos
+            updateAppDiminished(); 
 
         });
     </script>
