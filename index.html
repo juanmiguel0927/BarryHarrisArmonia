@@ -106,6 +106,7 @@
         #page-improvisation h3 { font-size: 1.5rem; font-weight: 600; color: #fcd34d; margin-bottom: 1rem; border-bottom: 1px solid #3f3f46; padding-bottom: 0.5rem; }
         #page-improvisation h4 { font-size: 1.125rem; font-weight: 600; color: #e4e4e7; margin-top: 1.5rem; margin-bottom: 0.75rem; }
         #page-improvisation ul { list-style-type: disc; margin-left: 1.5rem; margin-bottom: 1rem; color: #d4d4d8; }
+        #page-improvisation ol { list-style-type: decimal; margin-left: 1.5rem; margin-bottom: 1rem; color: #d4d4d8; }
         #page-improvisation li { margin-bottom: 0.5rem; }
         #page-improvisation strong { color: #7dd3fc; }
         #page-improvisation code { background-color: #27272a; padding: 0.1rem 0.4rem; border-radius: 0.25rem; font-family: monospace; color: #fde047; }
@@ -354,6 +355,42 @@
                 </div>
             </div>
 
+            <div class="interactive-section mb-8">
+                <h3 class="text-center mt-2 text-amber-400">Generador de Frases (Licks)</h3>
+                <p class="text-sm text-zinc-400 mb-6 text-center">Combina las fórmulas melódicas y las escalas con notas extras para crear frases aleatorias sobre un acorde V7.</p>
+                
+                <div class="mb-4 max-w-xs mx-auto">
+                    <label for="lick-tonic-select">Tonalidad (Acorde I):</label>
+                    <select id="lick-tonic-select">
+                        <option value="C" selected>C</option><option value="Db">Db / C#</option><option value="D">D</option><option value="Eb">Eb</option>
+                        <option value="E">E</option><option value="F">F</option><option value="Gb">Gb / F#</option><option value="G">G</option>
+                        <option value="Ab">Ab</option><option value="A">A</option><option value="Bb">Bb</option><option value="B">B / Cb</option>
+                    </select>
+                </div>
+                <p class="text-center text-zinc-400 mb-4">Improvisar sobre: <strong id="lick-v7-display" class="text-xl text-amber-400">G7</strong></p>
+
+                <div class="text-center">
+                    <button id="btn-generate-lick" class="bg-lime-500 hover:bg-lime-400 text-zinc-900 font-bold py-3 px-6 rounded-lg transition-all">
+                        Generar Frase Aleatoria
+                    </button>
+                </div>
+                
+                <p id="lick-formula-display" class="text-sm text-zinc-400 mt-4 text-center h-4"></p>
+            </div>
+
+
+            <div class="interactive-section mb-8">
+                <h3 class="text-center mt-2 text-amber-400">Fórmulas para Crear Frases</h3>
+                <p class="text-sm text-zinc-400 mb-4">Estas son las 5 "fórmulas" o reglas de aplicación (mencionadas en `Impro bebop.pdf` p. 15) para conectar arpegios y otras ideas con tus escalas descendentes.</p>
+                <ol class="list-decimal list-inside text-zinc-300 space-y-2">
+                    <li><strong>Ascenso y Descenso:</strong> Empieza en cualquier grado, sube hasta otro grado cualquiera y baja la escala aplicando la <strong>regla de la nota inicial</strong>.</li>
+                    <li><strong>Comienzo con Tresillo:</strong> Comienza con un tresillo de corcheas y baja la escala aplicando la <strong>regla de la segunda nota</strong> del tresillo.</li>
+                    <li><strong>Comienzo con Tríada:</strong> Sube por cualquier tríada diatónica y baja la escala aplicando la <strong>regla de la tónica (nota base)</strong> de esa tríada.</li>
+                    <li><strong>Comienzo con Cuatríada (Acorde):</strong> Sube por un acorde de 4 notas y baja la escala aplicando la <strong>regla de la nota más aguda</strong> del acorde.</li>
+                    <li><strong>Aproximación + Tresillo:</strong> Comienza un semitono por debajo de un acorde, sube el arpegio en tresillo y baja la escala aplicando la <strong>regla de la nota más aguda</strong> del arpegio.</li>
+                </ol>
+            </div>
+
         </div>
 
     </div>
@@ -385,6 +422,10 @@
             const pivotQualitySelect = document.getElementById('pivot-quality-select');
             const btnPivotArpeggioNormal = document.getElementById('btn-pivot-arpeggio-normal');
             const btnPivotArpeggioPivot = document.getElementById('btn-pivot-arpeggio-pivot');
+            const lickTonicSelect = document.getElementById('lick-tonic-select');
+            const lickV7Display = document.getElementById('lick-v7-display');
+            const btnGenerateLick = document.getElementById('btn-generate-lick');
+            const lickFormulaDisplay = document.getElementById('lick-formula-display');
 
 
             function transpose(note, semitones) { if (!note) { return 'C4'; } const index = ALL_NOTES.indexOf(note); if (index === -1) { return note; } const newIndex = index + semitones; if (newIndex >= 0 && newIndex < ALL_NOTES.length) { return ALL_NOTES[newIndex]; } else { const normIdx = index % 12; let targetIdx = (normIdx + semitones) % 12; if (targetIdx < 0) { targetIdx += 12; } let targetOct = Math.floor(index / 12) + Math.floor((index % 12 + semitones) / 12); targetOct = Math.max(2, Math.min(5, targetOct)); let baseName = ''; for(let i=0; i<ALL_NOTES.length; i++){ if(i % 12 === targetIdx){ baseName = getNoteName(ALL_NOTES[i]); break; } } if(!baseName){ return note; } const newNote = `${baseName}${targetOct}`; if(noteFrequencies[newNote]) return newNote; const fallbackNote = `${baseName}4`; if(noteFrequencies[fallbackNote]) return fallbackNote; return note; } }
@@ -568,8 +609,8 @@
                     scaleInfo = notesToPlay.map(n => ({note: n, isExtra: false}));
                 } else {
                     const pivotedRoot = transpose(notes[0], 12); // C4 -> C5
-                    notesToPlay = [pivotedRoot, notes[1], notes[2], notes[3]]; // [C5, E4, G4, B4]
-                    scaleInfo = notesToPlay.map((n, i) => ({note: n, isExtra: i === 0})); // Marcar C5 como "extra"
+                    notesToPlay = [notes[1], notes[2], notes[3], pivotedRoot]; // [E4, G4, B4, C5]
+                    scaleInfo = notesToPlay.map((n, i) => ({note: n, isExtra: i === 3})); // Marcar C5 como "extra"
                 }
                 playAnimatedScale(scaleInfo, pianoContainerImpro, 'highlighted');
             }
@@ -637,6 +678,10 @@
                              if (majDim.some(dn => getNoteName(dn) === getNoteName(note)) || minDim.some(dn => getNoteName(dn) === getNoteName(note))) {
                                  isExtra = true;
                              }
+                         }
+                         if (container === pianoContainerImpro && notes.length === 4) { 
+                              const pivotRootName = pivotRootSelect.value;
+                              if(getNoteName(note) === pivotRootName) isExtra = true;
                          }
                          
                          keyEl.classList.add(isBass ? 'highlighted-bass' : (isExtra ? 'highlighted-extra' : 'highlighted')); 
@@ -875,9 +920,46 @@
              outlineKeySelect.onchange = updateOutlineDisplay; 
              btnPlayOutline.onclick = playOutlineSequence;
 
+            const lickLibrary = {
+                'G': [
+                    { name: "Arpegio V7 -> Escala V7 (Regla 1)", notes: [{note: 'G3', isExtra: false}, {note: 'B3', isExtra: false}, {note: 'D4', isExtra: false}, {note: 'F4', isExtra: false}, {note: 'E4', isExtra: false}, {note: 'D4', isExtra: false}, {note: 'C4', isExtra: false}, {note: 'B3', isExtra: true}, {note: 'Bb3', isExtra: false}, {note: 'A3', isExtra: false}, {note: 'G3', isExtra: false}] },
+                    { name: "Arpegio IIm7 -> Escala V7 (Regla 0)", notes: [{note: 'D3', isExtra: false}, {note: 'F3', isExtra: false}, {note: 'A3', isExtra: false}, {note: 'C4', isExtra: false}, {note: 'Bb3', isExtra: false}, {note: 'A3', isExtra: false}, {note: 'G3', isExtra: false}, {note: 'F3', isExtra: false}] },
+                    { name: "Tresillo (Grado 2) -> Escala V7", notes: [{note: 'A3', isExtra: false}, {note: 'G3', isExtra: false}, {note: 'F3', isExtra: false}, {note: 'E3', isExtra: false}, {note: 'D3', isExtra: false}, {note: 'C3', isExtra: false}, {note: 'B2', isExtra: true}, {note: 'Bb2', isExtra: false}] },
+                    { name: "Arp dim (Rel.) -> Escala V7", notes: [{note: 'B3', isExtra: false}, {note: 'D4', isExtra: false}, {note: 'F4', isExtra: false}, {note: 'Ab4', isExtra: false}, {note: 'G4', isExtra: false}, {note: 'F4', isExtra: false}, {note: 'E4', isExtra: false}, {note: 'Eb4', isExtra: true}, {note: 'D4', isExtra: false}, {note: 'C4', isExtra: false}] }
+                ]
+            };
+            function updateLickV7Display() {
+                const tonicName = lickTonicSelect.value;
+                const v7Root = transpose(SCALE_KEY_ROOT_NOTES[tonicName], 7);
+                lickV7Display.textContent = `${getNoteName(v7Root)}7`;
+            }
+            btnGenerateLick.onclick = () => {
+                const tonicName = lickTonicSelect.value;
+                const v7RootName = getNoteName(transpose(SCALE_KEY_ROOT_NOTES[tonicName], 7));
+                
+                const baseKey = 'G';
+                const baseLicks = lickLibrary[baseKey];
+                if (!baseLicks) return;
+
+                const randomLickData = baseLicks[Math.floor(Math.random() * baseLicks.length)];
+                
+                const transposition = ALL_NOTES.indexOf(SCALE_KEY_ROOT_NOTES[v7RootName]) - ALL_NOTES.indexOf(SCALE_KEY_ROOT_NOTES[baseKey]);
+                
+                const transposedLick = randomLickData.notes.map(item => ({
+                    ...item,
+                    note: transpose(item.note, transposition)
+                }));
+                
+                lickFormulaDisplay.textContent = `Fórmula: ${randomLickData.name}`;
+                playAnimatedScale(transposedLick, pianoContainerImpro, 'highlighted', 0.18); 
+            };
+            lickTonicSelect.onchange = updateLickV7Display;
+            
+
             drawPiano(pianoContainer251); drawPiano(pianoContainerDiminished); drawPiano(pianoContainerImpro); drawPiano(pianoContainerOutlines); 
             updateApp251(); updateAppDiminished(); updateImproControls(); updateOutlineDisplay(); 
-            updateDimScaleButtonText(); 
+            updateDimScaleButtonText();
+            updateLickV7Display();
         });
     </script>
 </body>
