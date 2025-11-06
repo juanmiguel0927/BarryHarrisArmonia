@@ -79,7 +79,7 @@
             line-height: 1.4;
             word-break: break-word;
         }
-        .nav-button:disabled, .control-button:disabled, #btn-play-outline:disabled {
+        .nav-button:disabled, .control-button:disabled, #btn-play-outline:disabled, #btn-repeat-lick:disabled, #btn-save-lick:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
@@ -293,6 +293,53 @@
         <div id="page-improvisation" class="tab-content page-section">
             
             <div class="interactive-section mb-8">
+                <h3 class="text-center mt-2 text-amber-400">Generador de Frases (Licks)</h3>
+                <p class="text-sm text-zinc-400 mb-6 text-center">Combina las fórmulas melódicas y las escalas con notas extras para crear frases aleatorias sobre un acorde V7.</p>
+                
+                <div class="mb-4 max-w-xs mx-auto">
+                    <label for="lick-tonic-select">Tonalidad (Acorde I):</label>
+                    <select id="lick-tonic-select">
+                        <option value="C" selected>C</option><option value="Db">Db / C#</option><option value="D">D</option><option value="Eb">Eb</option>
+                        <option value="E">E</option><option value="F">F</option><option value="Gb">Gb / F#</option><option value="G">G</option>
+                        <option value="Ab">Ab</option><option value="A">A</option><option value="Bb">Bb</option><option value="B">B / Cb</option>
+                    </select>
+                </div>
+                <p class="text-center text-zinc-400 mb-4">Improvisar sobre: <strong id="lick-v7-display" class="text-xl text-amber-400">G7</strong></p>
+
+                <div class="text-center">
+                    <div class="flex justify-center gap-4">
+                        <button id="btn-generate-lick" class="bg-lime-500 hover:bg-lime-400 text-zinc-900 font-bold py-3 px-6 rounded-lg transition-all">
+                            Generar Frase
+                        </button>
+                        <button id="btn-repeat-lick" class="control-button bg-zinc-600 hover:bg-zinc-500 text-white font-bold py-3 px-5 rounded-lg transition-all" disabled>▶ Repetir</button>
+                        <button id="btn-save-lick" class="control-button bg-sky-500 hover:bg-sky-400 text-white font-bold py-3 px-5 rounded-lg transition-all" disabled>+</button>
+                    </div>
+                </div>
+                
+                <p id="lick-formula-display" class="text-sm text-zinc-400 mt-4 text-center min-h-[2.5rem]"></p>
+
+                <div class="piano-section mt-6">
+                    <p class="piano-label">Frase Generada (Rango: C2 - C6)</p>
+                    <div class="piano-scroll-container">
+                        <div id="piano-container-lick" class="piano-container">
+                        </div>
+                    </div>
+                    <div id="note-display-lick" class="note-display"></div>
+                    <div class="flex justify-start gap-4 mt-2 text-sm text-zinc-400">
+                        <div class="flex items-center"><div class="w-4 h-4 rounded bg-amber-500 mr-2"></div>Nota de Escala/Acorde</div>
+                        <div class="flex items-center"><div class="w-4 h-4 rounded bg-rose-500 mr-2"></div>Nota Extra</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="saved-licks-section" class="interactive-section mb-8" style="display: none;">
+                <h3 class="text-center mt-2 text-amber-400">Frases Guardadas</h3>
+                <div id="saved-licks-container" class="space-y-4 mt-4">
+                </div>
+            </div>
+
+
+            <div class="interactive-section mb-8">
                 <h3 class="text-center mt-2 text-amber-400">Explorador Interactivo de "Notas Extras"</h3>
                 <p class="text-sm text-zinc-400 mb-6 text-center">Practica cómo añadir notas cromáticas a las escalas para que las notas del acorde caigan en tiempo fuerte (Reglas Bebop).</p>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -356,30 +403,6 @@
             </div>
 
             <div class="interactive-section mb-8">
-                <h3 class="text-center mt-2 text-amber-400">Generador de Frases (Licks)</h3>
-                <p class="text-sm text-zinc-400 mb-6 text-center">Combina las fórmulas melódicas y las escalas con notas extras para crear frases aleatorias sobre un acorde V7.</p>
-                
-                <div class="mb-4 max-w-xs mx-auto">
-                    <label for="lick-tonic-select">Tonalidad (Acorde I):</label>
-                    <select id="lick-tonic-select">
-                        <option value="C" selected>C</option><option value="Db">Db / C#</option><option value="D">D</option><option value="Eb">Eb</option>
-                        <option value="E">E</option><option value="F">F</option><option value="Gb">Gb / F#</option><option value="G">G</option>
-                        <option value="Ab">Ab</option><option value="A">A</option><option value="Bb">Bb</option><option value="B">B / Cb</option>
-                    </select>
-                </div>
-                <p class="text-center text-zinc-400 mb-4">Improvisar sobre: <strong id="lick-v7-display" class="text-xl text-amber-400">G7</strong></p>
-
-                <div class="text-center">
-                    <button id="btn-generate-lick" class="bg-lime-500 hover:bg-lime-400 text-zinc-900 font-bold py-3 px-6 rounded-lg transition-all">
-                        Generar Frase Aleatoria
-                    </button>
-                </div>
-                
-                <p id="lick-formula-display" class="text-sm text-zinc-400 mt-4 text-center h-4"></p>
-            </div>
-
-
-            <div class="interactive-section mb-8">
                 <h3 class="text-center mt-2 text-amber-400">Fórmulas para Crear Frases</h3>
                 <p class="text-sm text-zinc-400 mb-4">Estas son las 5 "fórmulas" o reglas de aplicación (mencionadas en `Impro bebop.pdf` p. 15) para conectar arpegios y otras ideas con tus escalas descendentes.</p>
                 <ol class="list-decimal list-inside text-zinc-300 space-y-2">
@@ -426,7 +449,14 @@
             const lickV7Display = document.getElementById('lick-v7-display');
             const btnGenerateLick = document.getElementById('btn-generate-lick');
             const lickFormulaDisplay = document.getElementById('lick-formula-display');
-
+            const pianoContainerLick = document.getElementById('piano-container-lick');
+            const noteDisplayLick = document.getElementById('note-display-lick');
+            const btnRepeatLick = document.getElementById('btn-repeat-lick');
+            const btnSaveLick = document.getElementById('btn-save-lick');
+            const savedLicksSection = document.getElementById('saved-licks-section');
+            const savedLicksContainer = document.getElementById('saved-licks-container');
+            const LICK_STORAGE_KEY = 'barryHarrisSavedLicks';
+            let lastGeneratedLick = { notes: [], formula: "", name: "", v7: "" };
 
             function transpose(note, semitones) { if (!note) { return 'C4'; } const index = ALL_NOTES.indexOf(note); if (index === -1) { return note; } const newIndex = index + semitones; if (newIndex >= 0 && newIndex < ALL_NOTES.length) { return ALL_NOTES[newIndex]; } else { const normIdx = index % 12; let targetIdx = (normIdx + semitones) % 12; if (targetIdx < 0) { targetIdx += 12; } let targetOct = Math.floor(index / 12) + Math.floor((index % 12 + semitones) / 12); targetOct = Math.max(2, Math.min(5, targetOct)); let baseName = ''; for(let i=0; i<ALL_NOTES.length; i++){ if(i % 12 === targetIdx){ baseName = getNoteName(ALL_NOTES[i]); break; } } if(!baseName){ return note; } const newNote = `${baseName}${targetOct}`; if(noteFrequencies[newNote]) return newNote; const fallbackNote = `${baseName}4`; if(noteFrequencies[fallbackNote]) return fallbackNote; return note; } }
             
@@ -444,12 +474,13 @@
             function getFrequency(note) { return noteFrequencies[note] || 0; }
             function playChord(notes, duration = 1.5, startTime = 0) { if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { console.error("Web Audio API no soportada", e); return; } } if (audioCtx.state === 'suspended') { audioCtx.resume(); } const scheduledTime = audioCtx.currentTime + startTime; const gain = Math.min(0.4, 0.7 / (notes.length || 1)) ; notes.forEach(note => { if (!note) { return; } const freq = getFrequency(note); if (freq === 0) { return; } const osc = audioCtx.createOscillator(); const gainN = audioCtx.createGain(); osc.type = oscillatorType; osc.frequency.setValueAtTime(freq, scheduledTime); gainN.gain.setValueAtTime(gain, scheduledTime); gainN.gain.exponentialRampToValueAtTime(0.0001, scheduledTime + duration); osc.connect(gainN); gainN.connect(audioCtx.destination); osc.start(scheduledTime); osc.stop(scheduledTime + duration); }); }
             let scalePlaybackTimeout = null; 
-            function playAnimatedScale(notesWithInfo, container, highlightType = 'highlighted', noteDuration = 0.25) { 
+            function playAnimatedScale(notesWithInfo, container, highlightType = 'highlighted', baseNoteDuration = 0.25) { 
                  if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return Promise.reject("Web Audio API not supported"); } } if (audioCtx.state === 'suspended') { audioCtx.resume(); } stopAnimatedScale(); highlightKeys(container, []); 
                  let cumulativeTime = 0; let timeouts = []; let playedNotesSequence = []; 
                  return new Promise((resolve) => { 
-                     notesWithInfo.forEach(({note, isExtra, direction}, index) => { 
-                         const startTime = cumulativeTime; 
+                     notesWithInfo.forEach(({note, isExtra, direction, durationFactor}, index) => { 
+                         const startTime = cumulativeTime;
+                         const noteDuration = baseNoteDuration * (durationFactor || 1);
                          const actualDuration = direction === 'pause' ? noteDuration * 1.5 : noteDuration; 
                          if (direction !== 'pause' && note) { 
                              playedNotesSequence.push({ note, isExtra }); 
@@ -522,12 +553,12 @@
                  }
 
 
-                 if (baseScale.length < scaleLength +1) { console.error("Error al generar baseScale", baseScale); return { rule1Scale: [], rule2Scale: [], rule1Label: 'Err', rule2Label: 'Err', canApplyRule1: false, canApplyRule2: false }; }
+                 if (baseScale.length < scaleLength + 1) { console.error("Error al generar baseScale", baseScale); return { rule1Scale: [], rule2Scale: [], rule1Label: 'Err', rule2Label: 'Err', canApplyRule1: false, canApplyRule2: false }; }
                  const isEvenStart = actualStartDegree % 2 === 0;
                  let rule1ExtraNotes = 0; let rule2ExtraNotes = 0; let rule1Insertions = []; let rule2Insertions = [];
                  if (scaleType === 'dominant') { const tonicIdx = baseScale.findIndex((n, idx) => idx > 0 && getNoteName(n) === getNoteName(rootNote)); const deg2Idx = baseScale.findIndex(n => (ALL_NOTES.indexOf(n)-rootNoteIndex+12*5)%12 === formula[1]); const deg3Idx = baseScale.findIndex(n => (ALL_NOTES.indexOf(n)-rootNoteIndex+12*5)%12 === formula[2]); if (actualStartDegree === 1 || actualStartDegree === 8) { rule1ExtraNotes = 1; if(baseScale[1]) rule1Insertions.push({ index: 1, extraNote: transpose(baseScale[0], -1) }); rule2ExtraNotes = 1; rule2Insertions = [...rule1Insertions]; } else if (!isEvenStart) { rule1ExtraNotes = 1; if (tonicIdx !== -1 && baseScale[tonicIdx+1]) rule1Insertions.push({ index: tonicIdx + 1, extraNote: transpose(baseScale[tonicIdx], -1) }); rule2ExtraNotes = 3; if (deg3Idx !== -1 && baseScale[deg3Idx+1]) rule2Insertions.push({ index: deg3Idx + 1, extraNote: transpose(baseScale[deg3Idx], -1) }); if (deg2Idx !== -1 && baseScale[deg2Idx+1]) rule2Insertions.push({ index: deg2Idx + 1, extraNote: transpose(baseScale[deg2Idx], -1) }); if (tonicIdx !== -1 && baseScale[tonicIdx+1]) rule2Insertions.push({ index: tonicIdx + 1, extraNote: transpose(baseScale[tonicIdx], -1) }); } else { rule1ExtraNotes = 0; rule2ExtraNotes = 2; if (deg2Idx !== -1 && baseScale[deg2Idx+1]) rule2Insertions.push({ index: deg2Idx + 1, extraNote: transpose(baseScale[deg2Idx], -1) }); if (tonicIdx !== -1 && baseScale[tonicIdx+1]) rule2Insertions.push({ index: tonicIdx + 1, extraNote: transpose(baseScale[tonicIdx], -1) }); } } else { const degree6Interval = scaleType === 'major6dim' ? 9 : 9; const degree6Index = baseScale.findIndex((n, idx) => idx > 0 && (ALL_NOTES.indexOf(n)-rootNoteIndex+12*5)%12 === degree6Interval); rule1ExtraNotes = 1; if (degree6Index !== -1 && baseScale[degree6Index+1]) { rule1Insertions.push({ index: degree6Index + 1, extraNote: transpose(baseScale[degree6Index], -1)}); } rule2ExtraNotes = 1; rule2Insertions = [...rule1Insertions]; }
                  rule1Insertions.sort((a,b) => a.index - b.index); rule2Insertions.sort((a,b) => a.index - b.index);
-                 const applyRules = (insertions) => { const resultScale = []; let insertionIdx = 0; for (let i = 0; i < baseScale.length; i++) { while (insertionIdx < insertions.length && insertions[insertionIdx].index === i) { const extraNote = insertions[insertionIdx].extraNote; const prevNote = i > 0 ? baseScale[i-1] : null; let shouldInsert = true; if (prevNote && getNoteName(extraNote) === getNoteName(prevNote)) { shouldInsert = false; } if (shouldInsert) { resultScale.push({ note: extraNote, isExtra: true }); } insertionIdx++; } resultScale.push({ note: baseScale[i], isExtra: false }); } return resultScale; };
+                 const applyRules = (insertions) => { const resultScale = []; let insertionIdx = 0; for (let i = 0; i < baseScale.length; i++) { while (insertionIdx < insertions.length && insertions[insertionIdx].index === i) { const extraNote = insertions[insertionIdx].extraNote; const prevNote = i > 0 ? baseScale[i-1] : null; let shouldInsert = true; if (prevNote && getNoteName(extraNote) === getNoteName(prevNote)) { shouldInsert = false; } if (shouldInsert) { resultScale.push({ note: extraNote, isExtra: true, durationFactor: 1 }); } insertionIdx++; } resultScale.push({ note: baseScale[i], isExtra: false, durationFactor: 1 }); } return resultScale; };
                  return { rule1Scale: applyRules([...rule1Insertions]), rule2Scale: applyRules([...rule2Insertions]), rule1Label: `${rule1ExtraNotes} Nota${rule1ExtraNotes !== 1 ? 's' : ''} Extra${rule1ExtraNotes > 0 ? '' : 's'}`, rule2Label: `${rule2ExtraNotes} Nota${rule2ExtraNotes !== 1 ? 's' : ''} Extra${rule2ExtraNotes > 0 ? '' : 's'}`, canApplyRule1: true, canApplyRule2: (scaleType === 'dominant' && actualStartDegree !== 1 && actualStartDegree !== 8) || (scaleType !== 'dominant' && rule2ExtraNotes > 0) };
              }
 
@@ -541,12 +572,13 @@
                  else if (container === pianoContainerOutlines) noteDisplay = noteDisplayOutlines;
                  else if (container === pianoContainer251) noteDisplay = noteDisplay251;
                  else if (container === pianoContainerDiminished) noteDisplay = noteDisplayDiminished;
+                 else if (container === pianoContainerLick) noteDisplay = noteDisplayLick;
                  
                  if (noteDisplay) {
                      let displayString = '';
                      if (notesSequence && Array.isArray(notesSequence) && notesSequence.length > 0) {
                           if (notesSequence[0] && typeof notesSequence[0] === 'object' && notesSequence[0].hasOwnProperty('note')) {
-                              displayString = `${container === pianoContainerImpro ? 'Sec:' : 'Notas:'} ${notesSequence.map(({ note, isExtra }) => 
+                              displayString = `${(container === pianoContainerImpro || container === pianoContainerLick) ? 'Sec:' : 'Notas:'} ${notesSequence.map(({ note, isExtra }) => 
                                  `<span class="inline-block px-1 ${isExtra ? 'text-amber-400 font-semibold' : 'text-zinc-300'}">${getNoteName(note)}</span>` 
                              ).join('')}`;
                           } 
@@ -576,8 +608,8 @@
              function highlightAnimatedKey(container, note, isExtra = false, baseHighlightClass = 'highlighted', notesSequence = []) { if (!container || !note) return; container.querySelectorAll('.piano-key').forEach(key => { key.classList.remove('highlighted', 'highlighted-bass', 'highlighted-extra', 'highlighted-outline'); }); const keyEl = container.querySelector(`.piano-key[data-note="${note}"]`); if (keyEl) { const hlClass = isExtra ? 'highlighted-extra' : (baseHighlightClass === 'highlighted-outline' ? 'highlighted-outline' : 'highlighted'); keyEl.classList.add(hlClass); } updateNoteDisplay(container, notesSequence); }
             improScaleTypeSelect.onchange = updateImproControls; improScaleRootSelect.onchange = updateImproControls; improStartDegreeSelect.onchange = updateImproControls;
 
-            const pivotPhrase1 = [ { note: 'C4', isExtra: false }, { note: 'B3', isExtra: false }, { note: 'Bb3', isExtra: false }, { note: 'A3', isExtra: false }, { note: 'G3', isExtra: false }, { note: 'F3', isExtra: false }, { note: 'E3', isExtra: false }, { note: 'D3', isExtra: false } ];
-            const pivotPhrase2 = [ { note: 'C4', isExtra: false }, { note: 'B3', isExtra: false }, { note: 'Bb3', isExtra: false }, { note: 'A3', isExtra: false }, { note: 'G4', isExtra: true }, { note: 'F4', isExtra: false }, { note: 'E4', isExtra: false }, { note: 'D4', isExtra: false } ];
+            const pivotPhrase1 = [ { note: 'C4', isExtra: false, durationFactor: 1 }, { note: 'B3', isExtra: false, durationFactor: 1 }, { note: 'Bb3', isExtra: false, durationFactor: 1 }, { note: 'A3', isExtra: false, durationFactor: 1 }, { note: 'G3', isExtra: false, durationFactor: 1 }, { note: 'F3', isExtra: false, durationFactor: 1 }, { note: 'E3', isExtra: false, durationFactor: 1 }, { note: 'D3', isExtra: false, durationFactor: 1 } ];
+            const pivotPhrase2 = [ { note: 'C4', isExtra: false, durationFactor: 1 }, { note: 'B3', isExtra: false, durationFactor: 1 }, { note: 'Bb3', isExtra: false, durationFactor: 1 }, { note: 'A3', isExtra: false, durationFactor: 1 }, { note: 'G4', isExtra: true, durationFactor: 1 }, { note: 'F4', isExtra: false, durationFactor: 1 }, { note: 'E4', isExtra: false, durationFactor: 1 }, { note: 'D4', isExtra: false, durationFactor: 1 } ];
             btnPivot1.onclick = () => { playAnimatedScale(pivotPhrase1, pianoContainerImpro, 'highlighted'); };
             btnPivot2.onclick = () => { playAnimatedScale(pivotPhrase2, pianoContainerImpro, 'highlighted'); };
             
@@ -606,11 +638,11 @@
 
                 if (!isPivot) {
                     notesToPlay = notes; // [C4, E4, G4, B4]
-                    scaleInfo = notesToPlay.map(n => ({note: n, isExtra: false}));
+                    scaleInfo = notesToPlay.map(n => ({note: n, isExtra: false, durationFactor: 1}));
                 } else {
                     const pivotedRoot = transpose(notes[0], 12); // C4 -> C5
                     notesToPlay = [notes[1], notes[2], notes[3], pivotedRoot]; // [E4, G4, B4, C5]
-                    scaleInfo = notesToPlay.map((n, i) => ({note: n, isExtra: i === 3})); // Marcar C5 como "extra"
+                    scaleInfo = notesToPlay.map((n, i) => ({note: n, isExtra: i === 3, durationFactor: 1})); // Marcar C5 como "extra"
                 }
                 playAnimatedScale(scaleInfo, pianoContainerImpro, 'highlighted');
             }
@@ -621,7 +653,7 @@
             pivotQualitySelect.onchange = () => { highlightKeys(pianoContainerImpro, []); noteDisplayImpro.textContent = ''; };
 
 
-            tabButtons.forEach(button => { button.onclick = () => { const tabId = button.dataset.tab; tabButtons.forEach(btn => btn.classList.remove('active')); button.classList.add('active'); tabContents.forEach(content => { content.classList.toggle('active', content.id === tabId); }); highlightKeys(pianoContainer251); highlightKeys(pianoContainerDiminished); highlightKeys(pianoContainerImpro); highlightKeys(pianoContainerOutlines); inversionControls251.classList.add('hidden'); noteDisplay251.textContent = ''; noteDisplayDiminished.textContent = ''; noteDisplayImpro.textContent = ''; noteDisplayOutlines.textContent = ''; stopAnimatedScale(); }; });
+            tabButtons.forEach(button => { button.onclick = () => { const tabId = button.dataset.tab; tabButtons.forEach(btn => btn.classList.remove('active')); button.classList.add('active'); tabContents.forEach(content => { content.classList.toggle('active', content.id === tabId); }); highlightKeys(pianoContainer251); highlightKeys(pianoContainerDiminished); highlightKeys(pianoContainerImpro); highlightKeys(pianoContainerOutlines); highlightKeys(pianoContainerLick); inversionControls251.classList.add('hidden'); noteDisplay251.textContent = ''; noteDisplayDiminished.textContent = ''; noteDisplayImpro.textContent = ''; noteDisplayOutlines.textContent = ''; noteDisplayLick.textContent = ''; stopAnimatedScale(); }; });
 
             let concepts251 = []; let currentConceptIndex251 = 0;
             function generateConcepts251(keyTonicRoot) { const k=transpose(keyTonicRoot,12); const iiR=transpose(k,2); const VR=transpose(k,7); const IR=k; const adjOct=(n)=>{if(!n)return 'C3';let i=ALL_NOTES.indexOf(n);if(i>=ALL_NOTES.indexOf('C4'))return transpose(n,-12);if(i<ALL_NOTES.indexOf('F2'))return transpose(n,12);return n;}; const iiB=transpose(iiR,-12); const VB=transpose(VR,-12); const IB=transpose(IR,-12); const iiN=getNoteName(iiR); const VN=getNoteName(VR); const IN=getNoteName(IR); const iiB3N=transpose(iiR,3); const iiB3Nm=getNoteName(iiB3N); const iiB7N=transpose(iiR,10); const iiB7Nm=getNoteName(iiB7N); const V5N=transpose(VR,7); const V5Nm=getNoteName(V5N); const VB7N=transpose(VR,10); const VB7Nm=getNoteName(VB7N); const VB2N=transpose(VR,1); const VB2Nm=getNoteName(VB2N); const I5N=transpose(IR,7); const I5Nm=getNoteName(I5N); const sortN=(a)=>a.sort((x,y)=>ALL_NOTES.indexOf(x)-ALL_NOTES.indexOf(y)); const std_ii=sortN([adjOct(iiR),adjOct(transpose(iiR,3)),adjOct(transpose(iiR,7)),adjOct(transpose(iiR,10))]); const std_V=sortN([adjOct(VR),adjOct(transpose(VR,4)),adjOct(transpose(VR,7)),adjOct(transpose(VR,10))]); const std_I=sortN([adjOct(IR),adjOct(transpose(IR,4)),adjOct(transpose(IR,7)),adjOct(transpose(IR,11))]); const c1=sortN([adjOct(iiB3N),adjOct(transpose(iiB3N,4)),adjOct(transpose(iiB3N,7)),adjOct(transpose(iiB3N,9))]); const c2=sortN([adjOct(iiB7N),adjOct(transpose(iiB7N,4)),adjOct(transpose(iiB7N,7)),adjOct(transpose(iiB7N,9))]); const c3=sortN([adjOct(V5N),adjOct(transpose(V5N,3)),adjOct(transpose(V5N,7)),adjOct(transpose(V5N,9))]); const c4=sortN([adjOct(VB7N),adjOct(transpose(VB7N,4)),adjOct(transpose(VB7N,7)),adjOct(transpose(VB7N,9))]); const c5=sortN([adjOct(VB7N),adjOct(transpose(VB7N,3)),adjOct(transpose(VB7N,7)),adjOct(transpose(VB7N,9))]); const c6=sortN([adjOct(VB2N),adjOct(transpose(VB2N,3)),adjOct(transpose(VB2N,7)),adjOct(transpose(VB2N,9))]); const c7=sortN([adjOct(IR),adjOct(transpose(IR,4)),adjOct(transpose(IR,7)),adjOct(transpose(IR,9))]); const c8=sortN([adjOct(I5N),adjOct(transpose(I5N,4)),adjOct(transpose(I5N,7)),adjOct(transpose(I5N,9))]); return [ { title: `1. II (${iiN}m7)`, subtitle: `Sust: ${iiB3Nm}6`, description: `En lugar de ${iiN}m7, usamos un ${iiB3Nm}6. ¡Son las mismas notas! El sistema de Harris prefiere el acorde de 6ª. El bajo se mantiene en ${iiN}.`, standardChord: { name: `${iiN}m7`, notes: std_ii }, harrisChord: { name: `${iiB3Nm}6 / ${iiN}`, notes: [iiB,...c1], chordNotes: c1, bassNote: iiB, inversions: getChordInversions(c1) } }, { title: `2. II (${iiN}m7)`, subtitle: `Sust: ${iiB7Nm}6`, description: `Otra opción para el II (${iiN}m7) es usar un ${iiB7Nm}6 sobre el bajo de ${iiN}. Esto crea un sonido más complejo, un color diferente.`, standardChord: { name: `${iiN}m7`, notes: std_ii }, harrisChord: { name: `${iiB7Nm}6 / ${iiN}`, notes: [iiB,...c2], chordNotes: c2, bassNote: iiB, inversions: getChordInversions(c2) } }, { title: `3. V (${VN}7)`, subtitle: `Sust: ${V5Nm}m6`, description: `Para un sonido ${VN}9, usamos un ${V5Nm}m6 sobre el bajo de ${VN}. El ${V5Nm}m6 añade la 9ª y la 3ª al acorde de ${VN}7.`, standardChord: { name: `${VN}7`, notes: std_V }, harrisChord: { name: `${V5Nm}m6 / ${VN}`, notes: [VB,...c3], chordNotes: c3, bassNote: VB, inversions: getChordInversions(c3) } }, { title: `4. V (${VN}7)`, subtitle: `Sust: ${VB7Nm}6`, description: `Para un sonido ${VN}7sus4, usamos un ${VB7Nm}6 sobre el bajo de ${VN}. El acorde de ${VB7Nm}6 introduce la 4ª y elimina la 3ª.`, standardChord: { name: `${VN}7`, notes: std_V }, harrisChord: { name: `${VB7Nm}6 / ${VN}`, notes: [VB,...c4], chordNotes: c4, bassNote: VB, inversions: getChordInversions(c4) } }, { title: `5. V (${VN}7)`, subtitle: `Sust: ${VB7Nm}m6`, description: `Para más tensión (${VN}7sus4(b9)), usamos ${VB7Nm}m6 sobre ${VN}. El ${VB7Nm}m6 introduce la 4ª y la b9.`, standardChord: { name: `${VN}7`, notes: std_V }, harrisChord: { name: `${VB7Nm}m6 / ${VN}`, notes: [VB,...c5], chordNotes: c5, bassNote: VB, inversions: getChordInversions(c5) } }, { title: `6. V (${VN}7)`, subtitle: `Sust: ${VB2Nm}m6`, description: `Para tensión máxima (${VN}7alt), usamos ${VB2Nm}m6 sobre ${VN}. Esto introduce la b9 y la #5. ¡Una sustitución muy poderosa!`, standardChord: { name: `${VN}7`, notes: std_V }, harrisChord: { name: `${VB2Nm}m6 / ${VN}`, notes: [VB,...c6], chordNotes: c6, bassNote: VB, inversions: getChordInversions(c6) } }, { title: `7. I (${IN}Maj)`, subtitle: `Sust: ${IN}6`, description: `El sistema de Harris resuelve por defecto al acorde de 6ª Mayor (${IN}6) en lugar del Maj7.`, standardChord: { name: `${IN}maj7`, notes: std_I }, harrisChord: { name: `${IN}6`, notes: [IB,...c7], chordNotes: c7, bassNote: IB, inversions: getChordInversions(c7) } }, { title: `8. I (${IN}Maj)`, subtitle: `Sust: ${I5Nm}6`, description: `Para una resolución más rica (${IN}maj9), usamos un ${I5Nm}6 sobre el bajo de ${IN}. Esto añade la 9ª al acorde de ${IN}.`, standardChord: { name: `${IN}maj7`, notes: std_I }, harrisChord: { name: `${I5Nm}6 / ${IN}`, notes: [IB,...c8], chordNotes: c8, bassNote: IB, inversions: getChordInversions(c8) } } ]; } 
@@ -675,13 +707,14 @@
                              const root = SCALE_KEY_ROOT_NOTES[keySelectScales.value];
                              const { dim: majDim } = getMajor6DiminishedScale(root);
                              const { dim: minDim } = getMinor6DiminishedScale(root);
-                             if (majDim.some(dn => getNoteName(dn) === getNoteName(note)) || minDim.some(dn => getNoteName(dn) === getNoteName(note))) {
+                             const noteName = getNoteName(note);
+                             if (majDim.some(dn => getNoteName(dn) === noteName) || minDim.some(dn => getNoteName(dn) === noteName)) {
                                  isExtra = true;
                              }
                          }
-                         if (container === pianoContainerImpro && notes.length === 4) { 
+                         if ((container === pianoContainerImpro || container === pianoContainerLick) && notes.length === 4) { 
                               const pivotRootName = pivotRootSelect.value;
-                              if(getNoteName(note) === pivotRootName) isExtra = true;
+                              if(getNoteName(note) === pivotRootName && ALL_NOTES.indexOf(note) >= ALL_NOTES.indexOf('C5')) isExtra = true;
                          }
                          
                          keyEl.classList.add(isBass ? 'highlighted-bass' : (isExtra ? 'highlighted-extra' : 'highlighted')); 
@@ -922,10 +955,10 @@
 
             const lickLibrary = {
                 'G': [
-                    { name: "Arpegio V7 -> Escala V7 (Regla 1)", notes: [{note: 'G3', isExtra: false}, {note: 'B3', isExtra: false}, {note: 'D4', isExtra: false}, {note: 'F4', isExtra: false}, {note: 'E4', isExtra: false}, {note: 'D4', isExtra: false}, {note: 'C4', isExtra: false}, {note: 'B3', isExtra: true}, {note: 'Bb3', isExtra: false}, {note: 'A3', isExtra: false}, {note: 'G3', isExtra: false}] },
-                    { name: "Arpegio IIm7 -> Escala V7 (Regla 0)", notes: [{note: 'D3', isExtra: false}, {note: 'F3', isExtra: false}, {note: 'A3', isExtra: false}, {note: 'C4', isExtra: false}, {note: 'Bb3', isExtra: false}, {note: 'A3', isExtra: false}, {note: 'G3', isExtra: false}, {note: 'F3', isExtra: false}] },
-                    { name: "Tresillo (Grado 2) -> Escala V7", notes: [{note: 'A3', isExtra: false}, {note: 'G3', isExtra: false}, {note: 'F3', isExtra: false}, {note: 'E3', isExtra: false}, {note: 'D3', isExtra: false}, {note: 'C3', isExtra: false}, {note: 'B2', isExtra: true}, {note: 'Bb2', isExtra: false}] },
-                    { name: "Arp dim (Rel.) -> Escala V7", notes: [{note: 'B3', isExtra: false}, {note: 'D4', isExtra: false}, {note: 'F4', isExtra: false}, {note: 'Ab4', isExtra: false}, {note: 'G4', isExtra: false}, {note: 'F4', isExtra: false}, {note: 'E4', isExtra: false}, {note: 'Eb4', isExtra: true}, {note: 'D4', isExtra: false}, {note: 'C4', isExtra: false}] }
+                    { name: "Arpegio V7 (Regla 4)", description: "Arpegio V7 (sube) -> Escala V7 desc. (Regla 1: 1 extra)", notes: [{note: 'G3', isExtra: false, durationFactor: 1}, {note: 'B3', isExtra: false, durationFactor: 1}, {note: 'D4', isExtra: false, durationFactor: 1}, {note: 'F4', isExtra: false, durationFactor: 1}, {note: 'E4', isExtra: false, durationFactor: 1}, {note: 'D4', isExtra: false, durationFactor: 1}, {note: 'C4', isExtra: false, durationFactor: 1}, {note: 'B3', isExtra: true, durationFactor: 1}, {note: 'Bb3', isExtra: false, durationFactor: 1}, {note: 'A3', isExtra: false, durationFactor: 1}, {note: 'G3', isExtra: false, durationFactor: 1}] },
+                    { name: "Arpegio IIm7 (Regla 4)", description: "Arpegio IIm7 (sube) -> Escala V7 desc. (Regla 0: 0 extras)", notes: [{note: 'D3', isExtra: false, durationFactor: 1}, {note: 'F3', isExtra: false, durationFactor: 1}, {note: 'A3', isExtra: false, durationFactor: 1}, {note: 'C4', isExtra: false, durationFactor: 1}, {note: 'Bb3', isExtra: false, durationFactor: 1}, {note: 'A3', isExtra: false, durationFactor: 1}, {note: 'G3', isExtra: false, durationFactor: 1}, {note: 'F3', isExtra: false, durationFactor: 1}] },
+                    { name: "Tresillo (Regla 2)", description: "Inicio con Tresillo (gr. 2) -> Escala V7 desc. (Regla 1: 1 extra)", notes: [{note: 'A3', isExtra: false, durationFactor: 0.66}, {note: 'G3', isExtra: false, durationFactor: 0.66}, {note: 'F3', isExtra: false, durationFactor: 0.66}, {note: 'E3', isExtra: false, durationFactor: 1}, {note: 'D3', isExtra: false, durationFactor: 1}, {note: 'C3', isExtra: false, durationFactor: 1}, {note: 'B2', isExtra: true, durationFactor: 1}, {note: 'Bb2', isExtra: false, durationFactor: 1}] },
+                    { name: "Arp dim (Rel.)", description: "Arpegio dim7 (relativo) -> Escala V7 desc. (Regla 1: 1 extra)", notes: [{note: 'B3', isExtra: false, durationFactor: 1}, {note: 'D4', isExtra: false, durationFactor: 1}, {note: 'F4', isExtra: false, durationFactor: 1}, {note: 'Ab4', isExtra: false, durationFactor: 1}, {note: 'G4', isExtra: false, durationFactor: 1}, {note: 'F4', isExtra: false, durationFactor: 1}, {note: 'E4', isExtra: false, durationFactor: 1}, {note: 'Eb4', isExtra: true, durationFactor: 1}, {note: 'D4', isExtra: false, durationFactor: 1}, {note: 'C4', isExtra: false, durationFactor: 1}] }
                 ]
             };
             function updateLickV7Display() {
@@ -950,16 +983,121 @@
                     note: transpose(item.note, transposition)
                 }));
                 
-                lickFormulaDisplay.textContent = `Fórmula: ${randomLickData.name}`;
-                playAnimatedScale(transposedLick, pianoContainerImpro, 'highlighted', 0.18); 
+                lastGeneratedLick = {
+                    notes: transposedLick,
+                    formula: randomLickData.description,
+                    name: randomLickData.name,
+                    v7: `${v7RootName}7`
+                };
+                
+                lickFormulaDisplay.innerHTML = `<strong>Fórmula:</strong> ${randomLickData.name}<br><span class="text-xs text-zinc-400">${randomLickData.description}</span>`;
+                playAnimatedScale(transposedLick, pianoContainerLick, 'highlighted', 0.22); 
+                
+                btnRepeatLick.disabled = false;
+                btnSaveLick.disabled = false;
             };
             lickTonicSelect.onchange = updateLickV7Display;
+
+            btnRepeatLick.onclick = () => {
+                if (lastGeneratedLick.notes.length > 0) {
+                    playAnimatedScale(lastGeneratedLick.notes, pianoContainerLick, 'highlighted', 0.22);
+                }
+            };
+
+            btnSaveLick.onclick = () => {
+                if (lastGeneratedLick.notes.length === 0) return;
+                
+                const savedLicks = getSavedLicks();
+                
+                const isDuplicate = savedLicks.some(lick => JSON.stringify(lick.notes) === JSON.stringify(lastGeneratedLick.notes));
+                if (isDuplicate) {
+                    lickFormulaDisplay.innerHTML += `<br><span class="text-rose-500">¡Frase ya guardada!</span>`;
+                    setTimeout(() => {
+                        lickFormulaDisplay.innerHTML = `<strong>Fórmula:</strong> ${lastGeneratedLick.name}<br><span class="text-xs text-zinc-400">${lastGeneratedLick.formula}</span>`;
+                    }, 2000);
+                    return;
+                }
+
+                savedLicks.push(lastGeneratedLick);
+                try {
+                    localStorage.setItem(LICK_STORAGE_KEY, JSON.stringify(savedLicks));
+                } catch(e) {
+                    console.error("Error al guardar en localStorage:", e);
+                    lickFormulaDisplay.innerHTML += `<br><span class="text-rose-500">Error al guardar.</span>`;
+                }
+                renderSavedLicks();
+                
+                btnSaveLick.disabled = true; 
+                lickFormulaDisplay.innerHTML += `<br><span class="text-lime-400">¡Guardada!</span>`;
+                setTimeout(() => {
+                     lickFormulaDisplay.innerHTML = `<strong>Fórmula:</strong> ${lastGeneratedLick.name}<br><span class="text-xs text-zinc-400">${lastGeneratedLick.formula}</span>`;
+                }, 2000);
+            };
+
+            function getSavedLicks() {
+                try {
+                    const licks = localStorage.getItem(LICK_STORAGE_KEY);
+                    return licks ? JSON.parse(licks) : [];
+                } catch (e) {
+                    console.error("Error al leer licks guardados:", e);
+                    return [];
+                }
+            }
+
+            function renderSavedLicks() {
+                const licks = getSavedLicks();
+                savedLicksContainer.innerHTML = ''; 
+                
+                if (licks.length === 0) {
+                    savedLicksSection.style.display = 'none';
+                    return;
+                }
+                
+                savedLicksSection.style.display = 'block';
+                
+                licks.forEach((lick, index) => {
+                    const lickEl = document.createElement('div');
+                    lickEl.className = 'p-3 bg-zinc-900 border border-zinc-700 rounded-lg flex justify-between items-center';
+                    lickEl.innerHTML = `
+                        <div>
+                            <p class="font-semibold text-amber-400">${lick.name} (sobre ${lick.v7})</p>
+                            <p class="text-xs text-zinc-400">${lick.formula}</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="play-saved-lick bg-sky-500 hover:bg-sky-400 text-white font-bold p-2 w-10 h-10 rounded-lg leading-none" data-index="${index}">▶</button>
+                            <button class="delete-saved-lick bg-rose-600 hover:bg-rose-500 text-white font-bold p-2 w-10 h-10 rounded-lg leading-none" data-index="${index}">&times;</button>
+                        </div>
+                    `;
+                    savedLicksContainer.appendChild(lickEl);
+                });
+
+                savedLicksContainer.querySelectorAll('.play-saved-lick').forEach(btn => {
+                    btn.onclick = () => {
+                        const index = parseInt(btn.dataset.index);
+                        const lick = getSavedLicks()[index];
+                        if (lick) {
+                            playAnimatedScale(lick.notes, pianoContainerLick, 'highlighted', 0.22);
+                        }
+                    };
+                });
+
+                savedLicksContainer.querySelectorAll('.delete-saved-lick').forEach(btn => {
+                    btn.onclick = () => {
+                        const index = parseInt(btn.dataset.index);
+                        let licks = getSavedLicks();
+                        licks.splice(index, 1); 
+                        localStorage.setItem(LICK_STORAGE_KEY, JSON.stringify(licks));
+                        renderSavedLicks(); 
+                    };
+                });
+            }
             
 
-            drawPiano(pianoContainer251); drawPiano(pianoContainerDiminished); drawPiano(pianoContainerImpro); drawPiano(pianoContainerOutlines); 
+            drawPiano(pianoContainer251); drawPiano(pianoContainerDiminished); drawPiano(pianoContainerImpro); drawPiano(pianoContainerOutlines); drawPiano(pianoContainerLick);
             updateApp251(); updateAppDiminished(); updateImproControls(); updateOutlineDisplay(); 
             updateDimScaleButtonText();
             updateLickV7Display();
+            renderSavedLicks();
         });
     </script>
 </body>
