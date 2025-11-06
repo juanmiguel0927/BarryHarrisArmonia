@@ -87,7 +87,7 @@
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
         }
-        .tab-button-container { display: flex; flex-wrap: wrap; margin-bottom: 0; border-bottom: 1px solid #3f3f46; }
+        .tab-button-container { display: flex; flex-wrap: wrap; margin-bottom: 0; border-bottom: 1px solid #3f3f46; justify-content: center; }
         .tab-button { padding: 0.75rem 1rem; border-radius: 0.5rem 0.5rem 0 0; background-color: #27272a; color: #d4d4d8; border: 1px solid #3f3f46; border-bottom: none; cursor: pointer; font-weight: 600; white-space: nowrap; font-size: 0.875rem; margin-bottom: -1px; }
         @media (min-width: 640px) { .tab-button { padding: 0.75rem 1.5rem; font-size: 1rem; } }
         .tab-button.active { background-color: #18181b; color: #fcd34d; border-bottom: 1px solid #18181b; position: relative; }
@@ -132,13 +132,13 @@
         
         <div class="tab-button-container">
             <button id="tab-btn-251" class="tab-button active" data-tab="page-251">
-                2-5-1 (Armonía)
+                2-5-1
             </button>
             <button id="tab-btn-diminished" class="tab-button" data-tab="page-diminished">
-                Conceptos Fundamentales
+                Conceptos
             </button>
              <button id="tab-btn-outlines" class="tab-button" data-tab="page-outlines"> 
-                 Esquemas de Escalas
+                 Esquemas
              </button>
             <button id="tab-btn-improvisation" class="tab-button" data-tab="page-improvisation">
                 Improvisación
@@ -327,7 +327,7 @@
                     <div id="note-display-lick" class="note-display"></div>
                     <div class="flex justify-start gap-4 mt-2 text-sm text-zinc-400">
                         <div class="flex items-center"><div class="w-4 h-4 rounded bg-amber-500 mr-2"></div>Nota de Escala/Acorde</div>
-                        <div class="flex items-center"><div class="w-4 h-4 rounded bg-rose-500 mr-2"></div>Nota Extra</div>
+                        <div class="flex items-center"><div class_name="w-4 h-4 rounded bg-rose-500 mr-2"></div>Nota Extra</div>
                     </div>
                 </div>
             </div>
@@ -345,7 +345,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                     <div><label for="impro-scale-type">Tipo de Escala:</label><select id="impro-scale-type"><option value="dominant" selected>Dominante 7</option><option value="major6dim">Major 6 Diminished</option><option value="minor6dim">minor 6 Diminished</option></select></div>
                     <div><label for="impro-scale-root">Tónica:</label><select id="impro-scale-root"><option value="C" selected>C</option><option value="Db">Db / C#</option><option value="D">D</option><option value="Eb">Eb</option><option value="E">E</option><option value="F">F</option><option value="Gb">Gb / F#</option><option value="G">G</option><option value="Ab">Ab</option><option value="A">A</option><option value="Bb">Bb</option><option value="B">B / Cb</option></select></div>
-                    <div><label for="impro-start-degree">Nota de Inicio (Grado):</label><select id="impro-start-degree"><option value="8">8 (Octava)</option><option value="7">7</option><option value="6">6</option><option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1 (Tónica)</option></select></div>
+                    <div><label for="impro-start-degree">Nota de Inicio (Grado):</label><select id="impro-start-degree"><option value="8">8 (Octava)</option><option value="7">7</option><option value="6">6</option><option value="5">5</option><option value="4">4</option><option value="3">3</option><option valuevalue="2">2</option><option value="1">1 (Tónica)</option></select>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"><button id="btn-apply-rule1" class="control-button bg-amber-500 hover:bg-amber-400 text-black font-bold py-2 px-4 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed">Aplicar Regla 1 (0 ó 1 Nota Extra)</button><button id="btn-apply-rule2" class="control-button bg-amber-500 hover:bg-amber-400 text-black font-bold py-2 px-4 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed">Aplicar Regla 2 (2 ó 3 Notas Extras)</button></div>
                  <div class="piano-section">
