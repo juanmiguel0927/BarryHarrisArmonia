@@ -121,6 +121,31 @@
          .measure-box .play-measure-btn { background-color: #3f3f46; color: #a3e635; border: none; border-radius: 50%; width: 1.75rem; height: 1.75rem; font-size: 1.25rem; line-height: 1.75rem; padding: 0; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: background-color 0.2s; }
          .measure-box .play-measure-btn:hover { background-color: #52525b; }
          .measure-box.span-2 { grid-column: span 2; }
+         
+         .sub-button {
+             display: block;
+             width: 100%;
+             background-color: #27272a;
+             border: 1px solid #3f3f46;
+             color: #e4e4e7;
+             padding: 0.75rem;
+             border-radius: 0.5rem;
+             text-align: left;
+             transition: all 0.2s;
+             margin-bottom: 0.5rem;
+         }
+         .sub-button:hover {
+             background-color: #3f3f46;
+             border-color: #52525b;
+         }
+         .sub-button strong {
+             color: #fcd34d; /* amber-400 */
+             font-weight: 600;
+         }
+         .sub-button span {
+             font-size: 0.875rem;
+             color: #a1a1aa; /* zinc-400 */
+         }
     </style>
 </head>
 <body class="bg-zinc-900 text-zinc-100 font-sans p-4 md:p-8">
@@ -142,6 +167,9 @@
              </button>
             <button id="tab-btn-improvisation" class="tab-button" data-tab="page-improvisation">
                 Improvisación
+            </button>
+            <button id="tab-btn-summary" class="tab-button" data-tab="page-summary">
+                Sustituciones
             </button>
         </div>
 
@@ -201,7 +229,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 text-center">
                     <div class="bg-zinc-700 p-3 rounded-lg"><h4 class="text-sm font-semibold text-zinc-400">Familia "Arriba" (iiø)</h4><button id="btn-dim-up" class="w-full text-lg font-bold text-amber-400 py-2 px-3 rounded-lg hover:bg-zinc-600 transition-all"></button></div>
                     <div class="bg-black border-2 border-amber-500 p-3 rounded-lg"><h4 class="text-sm font-semibold text-amber-400">Familia "Base" (dim7)</h4><button id="btn-dim-base" class="w-full text-lg font-bold text-white py-2 px-3 rounded-lg hover:bg-zinc-600 transition-all"></button></div>
-                    <div class="bg-zinc-700 p-3 rounded-lg"><h4 class="text-sm font-semibold text-zinc-400">Familia "Abajo" (V7)</h4><button id="btn-dim-down" class="w-full text-lg font-bold text-amber-400 py-2 px-3 rounded-lg hover:bg-zinc-600 transition-all"></button></div>
+                    <div class="bg-zinc-700 p-3 rounded-lg"><h4 class="text-sm font-semibold text-zinc-400">FamilIA "Abajo" (V7)</h4><button id="btn-dim-down" class="w-full text-lg font-bold text-amber-400 py-2 px-3 rounded-lg hover:bg-zinc-600 transition-all"></button></div>
                 </div>
                 <p class="text-zinc-300 mb-6 text-center">Toma la familia "Base" y "toma prestada" una nota de las familias vecinas (arriba o abajo) para generar nuevos acordes.</p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -327,7 +355,7 @@
                     <div id="note-display-lick" class="note-display"></div>
                     <div class="flex justify-start gap-4 mt-2 text-sm text-zinc-400">
                         <div class="flex items-center"><div class="w-4 h-4 rounded bg-amber-500 mr-2"></div>Nota de Escala/Acorde</div>
-                        <div class="flex items-center"><div class_name="w-4 h-4 rounded bg-rose-500 mr-2"></div>Nota Extra</div>
+                        <div class="flex items-center"><div class="w-4 h-4 rounded bg-rose-500 mr-2"></div>Nota Extra</div>
                     </div>
                 </div>
             </div>
@@ -345,7 +373,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                     <div><label for="impro-scale-type">Tipo de Escala:</label><select id="impro-scale-type"><option value="dominant" selected>Dominante 7</option><option value="major6dim">Major 6 Diminished</option><option value="minor6dim">minor 6 Diminished</option></select></div>
                     <div><label for="impro-scale-root">Tónica:</label><select id="impro-scale-root"><option value="C" selected>C</option><option value="Db">Db / C#</option><option value="D">D</option><option value="Eb">Eb</option><option value="E">E</option><option value="F">F</option><option value="Gb">Gb / F#</option><option value="G">G</option><option value="Ab">Ab</option><option value="A">A</option><option value="Bb">Bb</option><option value="B">B / Cb</option></select></div>
-                    <div><label for="impro-start-degree">Nota de Inicio (Grado):</label><select id="impro-start-degree"><option value="8">8 (Octava)</option><option value="7">7</option><option value="6">6</option><option value="5">5</option><option value="4">4</option><option value="3">3</option><option valuevalue="2">2</option><option value="1">1 (Tónica)</option></select>
+                    <div><label for="impro-start-degree">Nota de Inicio (Grado):</label><select id="impro-start-degree"><option value="8">8 (Octava)</option><option value="7">7</option><option value="6">6</option><option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1 (Tónica)</option></select></div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"><button id="btn-apply-rule1" class="control-button bg-amber-500 hover:bg-amber-400 text-black font-bold py-2 px-4 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed">Aplicar Regla 1 (0 ó 1 Nota Extra)</button><button id="btn-apply-rule2" class="control-button bg-amber-500 hover:bg-amber-400 text-black font-bold py-2 px-4 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed">Aplicar Regla 2 (2 ó 3 Notas Extras)</button></div>
                  <div class="piano-section">
@@ -388,7 +416,7 @@
                             <option value="m7">m7</option>
                             <option value="7">7</option>
                             <option value="m7b5">m7(b5)</option>
-                            <option value="dim7">dim7</option>
+                            <option valueV="dim7">dim7</option>
                         </select>
                      </div>
                 </div>
@@ -414,6 +442,46 @@
                 </ol>
             </div>
 
+        </div>
+        
+        <div id="page-summary" class="tab-content page-section">
+            <h2>Resumen de Sustituciones y Equivalencias</h2>
+            <div class="mb-6 max-w-xs mx-auto">
+                <label for="key-select-summary">Selecciona la Tonalidad (I):</label>
+                <select id="key-select-summary">
+                    <option value="C" selected>C</option> <option value="Db">Db / C#</option> <option value="D">D</option> <option value="Eb">Eb</option>
+                    <option value="E">E</option> <option value="F">F</option> <option value="Gb">Gb / F#</option> <option value="G">G</option>
+                    <option value="Ab">Ab</option> <option value="A">A</option> <option value="Bb">Bb</option> <option value="B">B / Cb</option>
+                </select>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div id="summary-col-ii" class="bg-zinc-800 p-4 rounded-lg">
+                    <h3 class="text-xl font-semibold text-center mb-4 border-b border-zinc-700 pb-2">Acorde II</h3>
+                </div>
+                <div id="summary-col-v" class="bg-zinc-800 p-4 rounded-lg">
+                    <h3 class="text-xl font-semibold text-center mb-4 border-b border-zinc-700 pb-2">Acorde V</h3>
+                </div>
+                <div id="summary-col-i" class="bg-zinc-800 p-4 rounded-lg">
+                    <h3 class="text-xl font-semibold text-center mb-4 border-b border-zinc-700 pb-2">Acorde I</h3>
+                </div>
+            </div>
+            
+            <div class="bg-zinc-800 rounded-lg mb-6 p-4">
+                 <h3 class="text-xl font-semibold text-center mb-4 border-b border-zinc-700 pb-2">Equivalencias Generales</h3>
+                 <div id="summary-col-equiv" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 </div>
+            </div>
+
+            <div class="piano-section">
+                <p class="piano-label">Visualizador de Teclado (Rango: C2 - C6)</p>
+                <div class="piano-scroll-container"><div id="piano-container-summary" class="piano-container"></div></div>
+                <div id="note-display-summary" class="note-display"></div>
+                <div class="flex justify-start gap-4 mt-2 text-sm text-zinc-400">
+                    <div class="flex items-center"><div class="w-4 h-4 rounded bg-amber-500 mr-2"></div>Nota del Acorde</div>
+                    <div class="flex items-center"><div class="w-4 h-4 rounded bg-sky-500 mr-2"></div>Nota del Bajo</div>
+                </div>
+            </div>
         </div>
 
     </div>
@@ -455,6 +523,15 @@
             const btnSaveLick = document.getElementById('btn-save-lick');
             const savedLicksSection = document.getElementById('saved-licks-section');
             const savedLicksContainer = document.getElementById('saved-licks-container');
+            
+            const pianoContainerSummary = document.getElementById('piano-container-summary');
+            const noteDisplaySummary = document.getElementById('note-display-summary');
+            const keySelectSummary = document.getElementById('key-select-summary');
+            const summaryColII = document.getElementById('summary-col-ii');
+            const summaryColV = document.getElementById('summary-col-v');
+            const summaryColI = document.getElementById('summary-col-i');
+            const summaryColEquiv = document.getElementById('summary-col-equiv');
+
             const LICK_STORAGE_KEY = 'barryHarrisSavedLicks';
             let lastGeneratedLick = { notes: [], formula: "", name: "", v7: "" };
 
@@ -1092,12 +1169,92 @@
                 });
             }
             
+            function createSummaryButton(container, text, notes, bassNote = null) {
+                const button = document.createElement('button');
+                button.className = 'sub-button';
+                button.innerHTML = text;
+                button.onclick = () => {
+                    highlightKeys(pianoContainerSummary, notes, bassNote);
+                    playChord(notes, 1.5);
+                };
+                container.appendChild(button);
+            }
 
-            drawPiano(pianoContainer251); drawPiano(pianoContainerDiminished); drawPiano(pianoContainerImpro); drawPiano(pianoContainerOutlines); drawPiano(pianoContainerLick);
+            function getChordNotes(root, intervals) {
+                return intervals.map(i => transpose(root, i));
+            }
+
+            function updateSummaryUI() {
+                const tonicName = keySelectSummary.value;
+                const rootNote = SCALE_KEY_ROOT_NOTES[tonicName]; // C3
+                
+                summaryColII.innerHTML = '<h3 class="text-xl font-semibold text-center mb-4 border-b border-zinc-700 pb-2">Acorde II</h3>';
+                summaryColV.innerHTML = '<h3 class="text-xl font-semibold text-center mb-4 border-b border-zinc-700 pb-2">Acorde V</h3>';
+                summaryColI.innerHTML = '<h3 class="text-xl font-semibold text-center mb-4 border-b border-zinc-700 pb-2">Acorde I</h3>';
+                summaryColEquiv.innerHTML = '';
+                
+                const k=transpose(rootNote,0);
+                const iiR=transpose(k,2); const VR=transpose(k,7); const IR=k; 
+                const adjOct=(n)=>{if(!n)return 'C3';let i=ALL_NOTES.indexOf(n);if(i>=ALL_NOTES.indexOf('C4'))return transpose(n,-12);if(i<ALL_NOTES.indexOf('F2'))return transpose(n,12);return n;}; 
+                const iiB=transpose(iiR,-12); const VB=transpose(VR,-12); const IB=transpose(IR,-12);
+                const iiN=getNoteName(iiR); const VN=getNoteName(VR); const IN=getNoteName(IR); 
+                const iiB3N=transpose(iiR,3); const iiB3Nm=getNoteName(iiB3N); 
+                const iiB7N=transpose(iiR,10); const iiB7Nm=getNoteName(iiB7N); 
+                const V5N=transpose(VR,7); const V5Nm=getNoteName(V5N); 
+                const VB7N=transpose(VR,10); const VB7Nm=getNoteName(VB7N); 
+                const VB2N=transpose(VR,1); const VB2Nm=getNoteName(VB2N); 
+                const I5N=transpose(IR,7); const I5Nm=getNoteName(I5N);
+                const VdimR = transpose(VR, -1); const VdimNm = getNoteName(VdimR);
+                const sortN=(a)=>a.sort((x,y)=>ALL_NOTES.indexOf(x)-ALL_NOTES.indexOf(y));
+                
+                const std_ii=sortN([adjOct(iiR),adjOct(transpose(iiR,3)),adjOct(transpose(iiR,7)),adjOct(transpose(iiR,10))]);
+                const std_V=sortN([adjOct(VR),adjOct(transpose(VR,4)),adjOct(transpose(VR,7)),adjOct(transpose(VR,10))]);
+                const std_I=sortN([adjOct(IR),adjOct(transpose(IR,4)),adjOct(transpose(IR,7)),adjOct(transpose(IR,11))]);
+                const c1=sortN([adjOct(iiB3N),adjOct(transpose(iiB3N,4)),adjOct(transpose(iiB3N,7)),adjOct(transpose(iiB3N,9))]);
+                const c2=sortN([adjOct(iiB7N),adjOct(transpose(iiB7N,4)),adjOct(transpose(iiB7N,7)),adjOct(transpose(iiB7N,9))]);
+                const c3=sortN([adjOct(V5N),adjOct(transpose(V5N,3)),adjOct(transpose(V5N,7)),adjOct(transpose(V5N,9))]);
+                const c4=sortN([adjOct(VB7N),adjOct(transpose(VB7N,4)),adjOct(transpose(VB7N,7)),adjOct(transpose(VB7N,9))]);
+                const c5=sortN([adjOct(VB7N),adjOct(transpose(VB7N,3)),adjOct(transpose(VB7N,7)),adjOct(transpose(VB7N,9))]);
+                const c6=sortN([adjOct(VB2N),adjOct(transpose(VB2N,3)),adjOct(transpose(VB2N,7)),adjOct(transpose(VB2N,9))]);
+                const c7=sortN([adjOct(IR),adjOct(transpose(IR,4)),adjOct(transpose(IR,7)),adjOct(transpose(IR,9))]);
+                const c8=sortN([adjOct(I5N),adjOct(transpose(I5N,4)),adjOct(transpose(I5N,7)),adjOct(transpose(I5N,9))]);
+                const v_dim=sortN([adjOct(VdimR), adjOct(transpose(VdimR,3)), adjOct(transpose(VdimR,6)), adjOct(transpose(VdimR,9))]);
+                
+                createSummaryButton(summaryColII, `<strong>${iiN}m7</strong> <span>(Acorde Base)</span>`, [...std_ii, iiB], iiB);
+                createSummaryButton(summaryColII, `<strong>${iiB3Nm}6</strong> <span>(Relativo Maj6)</span>`, [...c1, iiB], iiB);
+                createSummaryButton(summaryColII, `<strong>${iiB7Nm}6</strong> <span>(Maj6 en b7)</span>`, [...c2, iiB], iiB);
+
+                createSummaryButton(summaryColV, `<strong>${VN}7</strong> <span>(Acorde Base)</span>`, [...std_V, VB], VB);
+                createSummaryButton(summaryColV, `<strong>${V5Nm}m6</strong> <span>(m6 en 5ta -> ${VN}9)</span>`, [...c3, VB], VB);
+                createSummaryButton(summaryColV, `<strong>${VB7Nm}6</strong> <span>(Maj6 en b7 -> ${VN}9sus)</span>`, [...c4, VB], VB);
+                createSummaryButton(summaryColV, `<strong>${VB7Nm}m6</strong> <span>(m6 en b7 -> ${VN}7susb9)</span>`, [...c5, VB], VB);
+                createSummaryButton(summaryColV, `<strong>${VB2Nm}m6</strong> <span>(m6 en b2 -> ${VN}7alt)</span>`, [...c6, VB], VB);
+                createSummaryButton(summaryColV, `<strong>${VdimNm}dim7</strong> <span>(Disminuido Relativo)</span>`, [...v_dim, VB], VB);
+                
+                createSummaryButton(summaryColI, `<strong>${IN}Maj7</strong> <span>(Acorde Base)</span>`, [...std_I, IB], IB);
+                createSummaryButton(summaryColI, `<strong>${IN}6</strong> <span>(Tónica Harris)</span>`, [...c7, IB], IB);
+                createSummaryButton(summaryColI, `<strong>${I5Nm}6</strong> <span>(Maj6 en 5ta -> ${IN}Maj9)</span>`, [...c8, IB], IB);
+
+                const m7_rel_maj6_root = transpose(rootNote, 9); 
+                const m7_rel_maj6_notes = getChordNotes(m7_rel_maj6_root, [0, 3, 7, 10]); 
+                const maj6_rel_m7_notes = getChordNotes(rootNote, [0, 4, 7, 9]); 
+                createSummaryButton(summaryColEquiv, `<strong>${getNoteName(rootNote)}6 = ${getNoteName(m7_rel_maj6_root)}m7</strong> <span>(Maj6 / m7 Relativo)</span>`, maj6_rel_m7_notes);
+                
+                const m6_root = transpose(rootNote, 2); 
+                const m6_notes = getChordNotes(m6_root, [0, 3, 7, 9]); 
+                const m7b5_root = transpose(m6_root, 9); 
+                createSummaryButton(summaryColEquiv, `<strong>${getNoteName(m6_root)}m6 = ${getNoteName(m7b5_root)}m7(b5)</strong> <span>(m6 / m7b5 Relativo)</span>`, m6_notes);
+                
+                highlightKeys(pianoContainerSummary);
+            }
+
+            drawPiano(pianoContainer251); drawPiano(pianoContainerDiminished); drawPiano(pianoContainerImpro); drawPiano(pianoContainerOutlines); drawPiano(pianoContainerLick); drawPiano(pianoContainerSummary);
             updateApp251(); updateAppDiminished(); updateImproControls(); updateOutlineDisplay(); 
             updateDimScaleButtonText();
             updateLickV7Display();
             renderSavedLicks();
+            updateSummaryUI(); 
+            keySelectSummary.onchange = updateSummaryUI;
         });
     </script>
 </body>
