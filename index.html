@@ -83,7 +83,8 @@
         .dim-btn-action.up:hover { background: #14532d; }
         .dim-btn-action.down { color: #60a5fa; border-color: #1e40af; }
         .dim-btn-action.down:hover { background: #1e3a8a; }
-        .dim-note-display { width: 3.5rem; height: 3.5rem; border-radius: 50%; background: #18181b; border: 2px solid #a855f7; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #a855f7; font-size: 1.2rem; }
+        .dim-note-display { width: 3.5rem; height: 3.5rem; border-radius: 50%; background: #18181b; border: 2px solid #a855f7; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #a855f7; font-size: 1.2rem; transition: background 0.1s; }
+        .dim-note-display:hover { background-color: #27272a; cursor: pointer; border-color: #c084fc; }
         #dim-reset-container { display: none; margin-top: 1rem; text-align: center; }
         .tritone-btn { padding: 0.5rem; background: #27272a; border: 1px solid #f59e0b; color: #f59e0b; font-weight: bold; font-size: 0.8rem; border-radius: 0.3rem; transition: all 0.2s; text-align: center; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; }
         .tritone-btn:hover { background: #3f3f46; color: #fff; }
@@ -312,13 +313,14 @@
                     <p>Mueve cualquier voz del acorde disminuido para transformarlo.</p>
                 </div>
                 
-                <div class="flex justify-center mb-6">
+                <div class="flex justify-center mb-6 gap-4 items-center">
                     <select id="dim-root" class="w-40 text-center font-bold bg-zinc-800 border-amber-500 text-amber-500 p-2 rounded" onchange="updateDimOrganic()">
-                        <option value="C">C°7</option><option value="C#">C#°7</option><option value="D">D°7</option>
+                        <option value="C">C°7</option><option value="Db">Db°7</option><option value="D">D°7</option>
                         <option value="Eb">Eb°7</option><option value="E">E°7</option><option value="F">F°7</option>
-                        <option value="F#">F#°7</option><option value="G">G°7</option><option value="Ab">Ab°7</option>
+                        <option value="Gb">Gb°7</option><option value="G">G°7</option><option value="Ab">Ab°7</option>
                         <option value="A">A°7</option><option value="Bb">Bb°7</option><option value="B">B°7</option>
                     </select>
+                    <button id="btn-enarm" onclick="toggleDimEnharmonic()" class="btn-secondary h-10 px-3 border-zinc-500 font-bold" title="Cambiar Enarmonía">♭</button>
                 </div>
 
                 <!-- NEW: 7b5 Controls -->
@@ -948,6 +950,88 @@
         }
 
         // --- TAB 5: DIMINUIDO ---
+        let dimEnharmonic = false;
+        const SHARP_MAP = { 'Db':'C#', 'Eb':'D#', 'Gb':'F#', 'Ab':'G#', 'Bb':'A#' };
+        const FLAT_MAP = { 'C#':'Db', 'D#':'Eb', 'F#':'Gb', 'G#':'Ab', 'A#':'Bb' };
+
+        // Función para cambiar enarmonía de una sola nota
+        function toggleSingleNote(el) {
+            let oldTxt = el.innerText;
+            let newTxt = oldTxt;
+            
+            // Toggle between sharp and flat map
+            if(SHARP_MAP[oldTxt]) newTxt = SHARP_MAP[oldTxt];
+            else if(FLAT_MAP[oldTxt]) newTxt = FLAT_MAP[oldTxt];
+            
+            if(newTxt !== oldTxt) {
+                el.innerText = newTxt;
+                // Update all labels that contain this note name
+                updateLabelsForEnharmonic(oldTxt, newTxt);
+            }
+        }
+
+        // Actualizar etiquetas de texto cuando cambia una nota
+        function updateLabelsForEnharmonic(oldN, newN) {
+            const targets = ['disp-dm', 'dim-result-text', 'tri-lbl-0-main', 'tri-lbl-0-notes', 'tri-lbl-1-main', 'tri-lbl-1-notes'];
+            
+            targets.forEach(id => {
+                let el = document.getElementById(id);
+                if(el) {
+                    // Escape special regex characters in note name (though usually just #)
+                    let escapedOld = oldN.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+                    // Regex: Match note not followed by b or # to avoid replacing partial matches (e.g. C in C#)
+                    let re = new RegExp(escapedOld + '(?![' + 'b#' + '])', 'g');
+                    el.innerText = el.innerText.replace(re, newN);
+                }
+            });
+        }
+
+        function getDispNote(n) {
+            let base = n.replace(/\d/g, ''); 
+            let note = n.includes(base) ? base : n; 
+            if (dimEnharmonic) return SHARP_MAP[note] || note;
+            return note;
+        }
+
+        function toggleDimEnharmonic() {
+            dimEnharmonic = !dimEnharmonic;
+            const btn = document.getElementById('btn-enarm');
+            if(btn) {
+                btn.classList.toggle('text-purple-400');
+                btn.classList.toggle('border-purple-500');
+                btn.innerText = dimEnharmonic ? '♯' : '♭';
+            }
+            
+            // Update Circles with global setting (resets manual changes)
+            document.querySelectorAll('.dim-note-display').forEach(el => {
+                let txt = el.innerText;
+                // First normalize to flat if needed to apply global setting correctly
+                let flatKey = Object.keys(SHARP_MAP).find(k => SHARP_MAP[k] === txt) || txt;
+                
+                if(dimEnharmonic) el.innerText = SHARP_MAP[flatKey] || flatKey;
+                else el.innerText = FLAT_MAP[txt] || flatKey; 
+            });
+
+            updateTritoneLabels();
+        }
+
+        function updateTritoneLabels() {
+            const root = document.getElementById('dim-root').value;
+            let rIdx = getNoteIndex(root+'3');
+            let dimNotes = [0, 3, 6, 9].map(i => getNoteFromIndex(rIdx+i));
+            
+            let n0 = getDispNote(dimNotes[0].slice(0,-1));
+            let n1 = getDispNote(dimNotes[1].slice(0,-1));
+            let n2 = getDispNote(dimNotes[2].slice(0,-1));
+            let n3 = getDispNote(dimNotes[3].slice(0,-1));
+
+            document.getElementById('tri-lbl-0-main').innerText = `Subir ${n0} y ${n2}`;
+            document.getElementById('tri-lbl-0-notes').innerText = `(Par 1: ${n0} y ${n2})`;
+            
+            document.getElementById('tri-lbl-1-main').innerText = `Subir ${n1} y ${n3}`;
+            document.getElementById('tri-lbl-1-notes').innerText = `(Par 2: ${n1} y ${n3})`;
+        }
+
         function updateDimOrganic() {
             const root = document.getElementById('dim-root').value;
             const container = document.getElementById('dim-organic-container');
@@ -959,24 +1043,12 @@
             if(document.getElementById('dim-reset-container')) document.getElementById('dim-reset-container').style.display = 'none';
             
             let rIdx = getNoteIndex(root+'3');
-            // Dim intervals: 0, 3, 6, 9
             let dimNotes = [0, 3, 6, 9].map(i => getNoteFromIndex(rIdx+i));
             
-            // Draw Dim chord initially
             highlight('piano-dm', dimNotes, 'highlighted-dim');
             if(document.getElementById('disp-dm')) document.getElementById('disp-dm').innerText = `${root}°7 (Familia)`;
 
-            // UPDATE TRITONE LABELS
-            let n0 = dimNotes[0].slice(0,-1);
-            let n1 = dimNotes[1].slice(0,-1);
-            let n2 = dimNotes[2].slice(0,-1);
-            let n3 = dimNotes[3].slice(0,-1);
-
-            document.getElementById('tri-lbl-0-main').innerText = `Subir ${n0} y ${n2}`;
-            document.getElementById('tri-lbl-0-notes').innerText = `(Par 1: ${n0} y ${n2})`;
-            
-            document.getElementById('tri-lbl-1-main').innerText = `Subir ${n1} y ${n3}`;
-            document.getElementById('tri-lbl-1-notes').innerText = `(Par 2: ${n1} y ${n3})`;
+            updateTritoneLabels();
 
             dimNotes.forEach(n => {
                 let card = document.createElement('div');
@@ -994,8 +1066,10 @@
                 };
 
                 let noteDisp = document.createElement('div');
-                noteDisp.className = 'dim-note-display';
-                noteDisp.innerText = n.slice(0,-1);
+                noteDisp.className = 'dim-note-display cursor-pointer hover:bg-zinc-800 transition-colors';
+                noteDisp.title = 'Click para enarmonía (♭/♯)';
+                noteDisp.innerText = getDispNote(n.slice(0,-1));
+                noteDisp.onclick = (e) => toggleSingleNote(e.target);
 
                 let btnDown = document.createElement('div');
                 btnDown.className = 'dim-btn-action down';
@@ -1021,9 +1095,7 @@
             let rIdx = getNoteIndex(root+'3');
             let dimNotes = [0, 3, 6, 9].map(i => getNoteFromIndex(rIdx+i));
 
-            // Indices to move (Pair 1: 0,2 | Pair 2: 1,3)
             let moveIndices = pairIdx === 0 ? [0, 2] : [1, 3];
-            // Indices that stay (become roots of the tritone subs)
             let staticIndices = pairIdx === 0 ? [1, 3] : [0, 2];
 
             let newChord = dimNotes.map((n, i) => {
@@ -1050,7 +1122,7 @@
             const displayEls = document.querySelectorAll('.dim-note-display');
             if (displayEls.length === notes.length) {
                 notes.forEach((n, i) => {
-                    displayEls[i].innerText = n.slice(0, -1); // Quitar octava
+                    displayEls[i].innerText = getDispNote(n.slice(0, -1)); // Quitar octava y aplicar enarmonia
                 });
             }
         }
