@@ -43,6 +43,8 @@
         .btn-secondary { background: #3f3f46; color: #e4e4e7; padding: 0.5rem; border-radius: 0.375rem; border: 1px solid #52525b; cursor: pointer; font-size: 0.85rem; }
         .btn-secondary:hover { background: #52525b; border-color: #a1a1aa; }
         .btn-secondary.active { background: #0ea5e9; color: white; border-color: #0284c7; }
+        .btn-option { @apply btn-secondary; width: 100%; padding: 0.75rem; margin-bottom: 0.5rem; text-align: left; }
+        .btn-option.selected { background: #0ea5e9; border-color: #0284c7; color: white; }
         
         .btn-stop { background: #dc2626; color: white; font-weight: bold; padding: 0.5rem 1rem; border-radius: 0.5rem; display: flex; align-items: center; gap: 0.5rem; transition: background 0.2s; cursor: pointer; }
         
@@ -126,7 +128,7 @@
         <!-- TAB 1: ESCALAS -->
         <div id="tab-scales" class="tab-content block">
             <div class="control-panel">
-                <h3 class="section-title text-xl font-bold text-amber-400 mb-4">Generador de Escalas (Reglas PDF)</h3>
+                <h3 class="section-title text-xl font-bold text-amber-400 mb-4">Generador de Escalas</h3>
                 <div id="scale-explanation" class="info-box">
                     <p><strong>Reglas de Inserción Cromática (Para caer a tiempo):</strong></p>
                     <ul id="rules-desc">
@@ -232,7 +234,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
                     <div class="formula-card" onclick="addToTimeline(1, 'Escala Simple')"><h4>1. Escala Simple</h4><p>Descendente (Reglas)</p></div>
                     <div class="formula-card" onclick="addToTimeline(2, 'Arp+Escala')"><h4>2. Arpegio + Escala</h4><p>Arpegio Asc -> Escala Desc</p></div>
-                    <div class="formula-card" onclick="addToTimeline(3, 'Tresillo')"><h4>3. Tresillo</h4><p>3 notas rápidas hacia tiempo fuerte</p></div>
+                    <div class="formula-card" onclick="addToTimeline(3, 'Tresillo')"><h4>3. Tresillo + Escala</h4><p>Bordadura + Descenso Diatónico</p></div>
                     <div class="formula-card" onclick="addToTimeline(4, 'Aproximación')"><h4>4. Aprox + Arp</h4><p>Semitono abajo -> Arpegio</p></div>
                     <div class="formula-card" onclick="addToTimeline(5, 'Pivot 5')"><h4>5. Pivot (BH)</h4><p>Escala Desc -> Salto -> Cont.</p></div>
                     <div class="formula-card border-amber-500/50" onclick="addToTimeline(6, 'Arp Pivot')"><h4>6. Arp. Pivote</h4><p>C5 E4 G4 B4 (ZigZag)</p></div>
@@ -354,12 +356,31 @@
         </div>
     </div>
 
-    <!-- Modal -->
+    <!-- Info Modal -->
     <div id="infoModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="document.getElementById('infoModal').style.display='none'">&times;</span>
             <h3 id="modal-title" class="text-xl font-bold text-amber-400 mb-2"></h3>
             <div id="modal-desc" class="text-zinc-300 text-sm leading-relaxed space-y-2"></div>
+        </div>
+    </div>
+
+    <!-- Phrase Rules Modal (Advanced) -->
+    <div id="phraseModal" class="modal">
+        <div class="modal-content text-center">
+            <span class="close" onclick="document.getElementById('phraseModal').style.display='none'">&times;</span>
+            <h3 class="text-xl font-bold text-amber-400 mb-4" id="phrase-modal-title">Configurar Frase Bebop</h3>
+            
+            <div class="text-left mb-6">
+                <p class="text-sm text-zinc-400 mb-2 font-bold">1. Elige una Regla (Notas extra):</p>
+                <div id="rule-selection-container" class="flex flex-col gap-2"></div>
+            </div>
+
+            <div class="text-left mb-6" id="beat-selection-section" style="display:none;">
+                <p class="text-sm text-zinc-400 mb-2 font-bold">2. Elige dónde terminar (Compás 2):</p>
+                <p class="text-xs text-zinc-500 mb-3 italic">Solo se muestran los tiempos donde la escala cae en una nota del acorde.</p>
+                <div id="beat-selection-container" class="flex flex-col gap-2"></div>
+            </div>
         </div>
     </div>
 
@@ -498,7 +519,8 @@
         }
 
         function getScaleNotes(root, type) {
-            const r = getNoteIndex(root+'3');
+            // FIX: Base scale shifted to 5th octave
+            const r = getNoteIndex(root+'5');
             let i = [];
             if(type==='dominant') i=[0,2,4,5,7,9,10];
             if(type==='major6dim') i=[0,2,4,5,7,8,9,11];
@@ -523,6 +545,11 @@
             
             let desc = [...rotated].reverse();
             desc.unshift(transpose(desc[desc.length-1], 12));
+            
+            // FIX: Extend descending sequence if even start
+            if (deg % 2 === 0) {
+                desc.push(transpose(desc[1], -12));
+            }
             
             let final = [];
             const getDeg = (n) => {
@@ -686,15 +713,230 @@
 
         // --- TAB 3: FRASEO ---
         let phraseQueue = [];
-        
+        let pendingPhraseId = null;
+        let pendingPhraseName = "";
+        let pendingAnalysis = []; // Stores valid combinations for current selection
+
+        // PRE-CALCULATION & MODAL LOGIC
         function addToTimeline(id, name) { 
-            let startIdx = parseInt(document.getElementById('ph-start-note').value);
-            let offsets = [0, 2, 4, 5, 7, 9, 10];
-            let shift = offsets[startIdx] || 0;
-            let labelMap = ["Tónica", "2da", "3ra", "4ta", "5ta", "6ta", "7ma"];
-            let label = labelMap[startIdx];
+            if(id === 1 || id === 2 || id === 3) {
+                pendingPhraseId = id;
+                pendingPhraseName = name;
+                openPhraseRuleModal();
+            } else {
+                addPhraseWithRule(0, id, name);
+            }
+        }
+
+        function openPhraseRuleModal() {
+            const startIdx = parseInt(document.getElementById('ph-start-note').value); // 0=Tónica, 1=2da
+            const degree = startIdx + 1; 
             
-            phraseQueue.push({id, name, shift, label}); 
+            // Determine Rule Source Degree
+            let targetDegree = degree;
+            if(pendingPhraseId === 3) { // Triplet uses 2nd note (upper neighbor)
+                targetDegree = degree + 1; 
+                if(targetDegree > 7) targetDegree = 1;
+            } else if (pendingPhraseId === 2) {
+                // Arpeggio ends on 7th degree relative to start
+                // C (1) -> C E G Bb (ends on 7). 7 is Odd.
+                // D (2) -> D F A C (ends on 1). 1 is Odd.
+                // E (3) -> E G Bb D (ends on 2). 2 is Even.
+                // Formula: If start is Odd (1,3,5,7), Arp end is Odd/Even?
+                // 1->7(Odd), 3->2(Even), 5->4(Even), 7->6(Even).
+                // 2->1(Odd), 4->3(Odd), 6->5(Odd).
+                // Let's compute precisely:
+                // Arpeggio last note is 3 diatonic steps above start (1->7 is -1 step? No 1,3,5,7)
+                // 1(0) -> 7(10). 
+                // 2(2) -> 1(12).
+                const arpEndDegrees = {1:7, 2:1, 3:2, 4:3, 5:4, 6:5, 7:6};
+                targetDegree = arpEndDegrees[degree];
+            }
+
+            const isEven = (targetDegree % 2 === 0);
+            
+            // Rules available
+            let rules = isEven ? [0, 2] : [1, 3];
+            
+            // Run Simulations for each rule
+            pendingAnalysis = [];
+            rules.forEach(r => {
+                let options = calculateValidEndings(startIdx, r, pendingPhraseId);
+                pendingAnalysis.push({rule: r, options: options});
+            });
+
+            // Render Step 1: Rule Selection
+            const modal = document.getElementById('phraseModal');
+            const title = document.getElementById('phrase-modal-title');
+            const rulesContainer = document.getElementById('rule-selection-container');
+            const beatsContainer = document.getElementById('beat-selection-container');
+            const beatSection = document.getElementById('beat-selection-section');
+            
+            title.innerText = `Configurar ${pendingPhraseName}`;
+            rulesContainer.innerHTML = '';
+            beatsContainer.innerHTML = '';
+            beatSection.style.display = 'none'; // Hide step 2 initially
+
+            pendingAnalysis.forEach((entry, idx) => {
+                let r = entry.rule;
+                let label = "";
+                if(r===0) label = "0 Notas Extra";
+                if(r===1) label = "1 Nota Extra (1-7)";
+                if(r===2) label = "2 Notas Extra (2-1, 1-7)";
+                if(r===3) label = "3 Notas Extra (3-2, 2-1, 1-7)";
+                
+                let btn = document.createElement('button');
+                btn.className = 'btn-option';
+                btn.innerHTML = `<strong>${label}</strong>`;
+                btn.onclick = () => selectRuleInModal(idx, btn);
+                rulesContainer.appendChild(btn);
+            });
+            
+            modal.style.display = 'block';
+        }
+
+        function selectRuleInModal(analysisIndex, btnElement) {
+            // UI Toggle
+            document.querySelectorAll('#rule-selection-container .btn-option').forEach(b => b.classList.remove('selected'));
+            btnElement.classList.add('selected');
+
+            // Show Step 2
+            const beatSection = document.getElementById('beat-selection-section');
+            const beatsContainer = document.getElementById('beat-selection-container');
+            beatSection.style.display = 'block';
+            beatsContainer.innerHTML = '';
+
+            let validOptions = pendingAnalysis[analysisIndex].options;
+            let rule = pendingAnalysis[analysisIndex].rule;
+
+            if(validOptions.length === 0) {
+                beatsContainer.innerHTML = '<div class="text-red-400 italic">No hay finales válidos con esta regla.</div>';
+                return;
+            }
+
+            // Render valid endings
+            validOptions.forEach(opt => {
+                let toneName = "";
+                if(opt.tone === 1) toneName = "Tónica (1)";
+                if(opt.tone === 3) toneName = "Tercera (3)";
+                if(opt.tone === 5) toneName = "Quinta (5)";
+                if(opt.tone === 7) toneName = "Séptima (7)";
+
+                let b = document.createElement('button');
+                b.className = 'btn-option text-sm py-2';
+                b.innerHTML = `Terminar en <strong>Tiempo ${opt.beat}</strong> <span class="text-zinc-400">(${toneName})</span>`;
+                b.onclick = () => confirmPhraseConfig(rule, opt.beat, opt.tone);
+                beatsContainer.appendChild(b);
+            });
+        }
+
+        function calculateValidEndings(startIdx, rule, phraseId) {
+            // Calculate indices where beats fall
+            // Bar 2 Beat 1, 2, 3, 4 indices (0-based from start of entire phrase)
+            
+            let targets = [];
+            // ID 1 (Scale): 8 notes in Bar 1. Bar 2 starts at index 8. Beats: 8, 10, 12, 14.
+            if(phraseId === 1) targets = [8, 10, 12, 14];
+            
+            // ID 3 (Triplet + Scale): Triplet (3 notes) + 6 eighths = 9 notes in Bar 1? 
+            // Triplet is usually 1 beat. So 1 beat (3 notes) + 3 beats (6 notes) = 9 notes total in Bar 1.
+            // Bar 2 starts at index 9. Beats: 9, 11, 13, 15.
+            if(phraseId === 3) targets = [9, 11, 13, 15];
+
+            // ID 2 (Arp + Scale): Arp (4 notes = 2 beats). Remaining Bar 1 = 2 beats (4 notes).
+            // Total Bar 1 = 8 notes. Bar 2 starts index 8. Beats: 8, 10, 12, 14.
+            if(phraseId === 2) targets = [8, 10, 12, 14];
+
+            // Map offsets to degrees
+            const getDegree = (off) => {
+                let norm = (off % 12 + 12) % 12;
+                if(norm === 0) return 1; if(norm === 2) return 2; if(norm === 4) return 3;
+                if(norm === 5) return 4; if(norm === 7) return 5; if(norm === 9) return 6; if(norm === 10) return 7;
+                return 0;
+            };
+
+            // Generate a long sequence simulation
+            let offsets = [0, 2, 4, 5, 7, 9, 10];
+            let startShift = offsets[startIdx];
+            
+            let sequence = [];
+            let currentOffset = startShift;
+            
+            // Prefix Logic
+            if(phraseId === 3) { // Triplet
+                sequence.push(0,0,0); // 3 notes placeholder
+            } else if (phraseId === 2) { // Arpeggio
+                sequence.push(0,0,0,0); // 4 notes placeholder
+                // Calculate Arp End Note
+                // 1->7(10), 2->1(12/0), 3->2(2), 4->3(4), 5->4(5), 6->5(7), 7->6(9)
+                // Let's use getDegree logic for last note
+                let arpLastOffset = startShift; // Calc logic
+                // Simple diatonic 7th arpeggio offset adder?
+                // C(0) -> Bb(10). D(2)->C(12). E(4)->D(14). F(5)->E(16). G(7)->F(17). A(9)->G(19). Bb(10)->A(21).
+                let arpEndMap = {0:10, 2:12, 4:14, 5:16, 7:17, 9:19, 10:21};
+                currentOffset = arpEndMap[startShift]; 
+            }
+
+            // Generate scale descent
+            let safety = 0;
+            while(sequence.length < 20 && safety < 50) {
+                // Logic identical to generation but just tracking offsets
+                // IMPORTANT: ID 2 scale starts descending from last arp note. 
+                // ID 3 scale starts descending from start note (after triplet decoration).
+                
+                let deg = getDegree(currentOffset);
+                sequence.push(currentOffset); // Add note
+
+                // Check insertions
+                let insert = false;
+                if(rule === 1 && deg === 1) insert = true;
+                if(rule === 2 && (deg === 2 || deg === 1)) insert = true;
+                if(rule === 3 && (deg === 3 || deg === 2 || deg === 1)) insert = true;
+
+                if(insert) {
+                    sequence.push(currentOffset - 1);
+                }
+
+                // Diatonic step
+                let step = -2;
+                if(deg === 7 || deg === 4) step = -1;
+                currentOffset += step;
+                safety++;
+            }
+
+            // Check Targets
+            let valid = [];
+            targets.forEach((idx, i) => {
+                if(idx < sequence.length) {
+                    let noteOffset = sequence[idx];
+                    let d = getDegree(noteOffset);
+                    // Is Chord Tone? (1, 3, 5, 7)
+                    if(d === 1 || d === 3 || d === 5 || d === 7) {
+                        valid.push({ beat: i+1, tone: d });
+                    }
+                }
+            });
+            return valid;
+        }
+
+        function confirmPhraseConfig(rule, beat, tone) {
+            document.getElementById('phraseModal').style.display = 'none';
+            addPhraseWithRule(rule, pendingPhraseId, pendingPhraseName, tone, beat);
+        }
+
+        function addPhraseWithRule(rule, id, name, target, targetBeat) {
+            let startIdx = parseInt(document.getElementById('ph-start-note').value);
+            let labelMap = ["Tónica", "2da", "3ra", "4ta", "5ta", "6ta", "7ma"];
+            
+            let targetLabel = "";
+            if(target === 1) targetLabel = "->1";
+            if(target === 3) targetLabel = "->3";
+            if(target === 5) targetLabel = "->5";
+            if(target === 7) targetLabel = "->7";
+
+            let beatLabel = ` [B:${targetBeat}]`;
+
+            phraseQueue.push({id, name, shift: 0, label: labelMap[startIdx], rule, startIdx, target, targetBeat}); 
             renderTimeline(); 
         }
 
@@ -704,9 +946,20 @@
             const d = document.getElementById('phrase-timeline');
             d.innerHTML = phraseQueue.length ? '' : '<span class="text-zinc-600 text-sm italic ml-2">Añade fórmulas...</span>';
             phraseQueue.forEach((x,i) => {
+                let targetLabel = "";
+                if(x.target === 1) targetLabel = "->1";
+                if(x.target === 3) targetLabel = "->3";
+                if(x.target === 5) targetLabel = "->5";
+                if(x.target === 7) targetLabel = "->7";
+                if(x.target === 0) targetLabel = "->Chrd";
+
+                let extraHtml = "";
+                if(x.rule !== undefined) extraHtml = `<span class="text-amber-300 text-xs ml-1">R:${x.rule}</span>`;
+                if(x.targetBeat) extraHtml += `<span class="text-sky-300 text-xs ml-1">B:${x.targetBeat}</span>`;
+
                 let e = document.createElement('div');
                 e.className = 'timeline-item';
-                e.innerHTML = `${x.name} <span class="text-xs text-amber-500">(${x.label})</span> <span onclick="event.stopPropagation();phraseQueue.splice(${i},1);renderTimeline()" class="cursor-pointer ml-2 text-red-500">x</span>`;
+                e.innerHTML = `${x.name}${extraHtml} <span class="text-xs text-amber-500">(${x.label}${targetLabel ? ' '+targetLabel : ''}${x.targetBeat ? ' B:'+x.targetBeat : ''})</span> <span onclick="event.stopPropagation();phraseQueue.splice(${i},1);renderTimeline()" class="cursor-pointer ml-2 text-red-500">x</span>`;
                 d.appendChild(e);
             });
         }
@@ -718,35 +971,155 @@
             playPhraseSequence(notes);
         }
         
+        // --- NOTE GENERATION ---
         function getPhraseNotes(queue, rootVal) {
              if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const r4 = getNoteIndex(rootVal+'4');
-            const n = (o) => getNoteFromIndex(r4+o);
+            // FIX: Base scale shifted to 5th octave for phrasing
+            const r5 = getNoteIndex(rootVal+'5');
+            const n = (o) => getNoteFromIndex(r5+o);
             let notes = [];
-            
+            let offsets = [0, 2, 4, 5, 7, 9, 10]; 
+
             queue.forEach(p => {
                 let lastNote = notes.length > 0 ? notes[notes.length-1].n : null;
                 let chunk = [];
-                let shift = p.shift || 0;
+                let shift = offsets[p.startIdx];
 
-                let pat = [];
-                if(p.id==1) pat = [12,10,9,7,5,4,2,0]; 
-                if(p.id==2) pat = [0,4,7,10,14,12,10,9]; 
-                if(p.id==3) pat = [{o:2,d:0.1},{o:4,d:0.1},{o:5,d:0.1},{o:4,d:0.4}]; 
-                if(p.id==4) pat = [-1,0,4,7,10,9,7]; 
-                if(p.id==5) pat = [5,4,2,0,-1,9,7,5,4]; 
-                if(p.id==6) pat = [12,4,7,11]; 
+                // ID 1: ESCALA SIMPLE
+                if(p.id == 1) {
+                    let lenNeeded = 0;
+                    if(p.targetBeat === 1) lenNeeded = 9;
+                    if(p.targetBeat === 2) lenNeeded = 11;
+                    if(p.targetBeat === 3) lenNeeded = 13;
+                    if(p.targetBeat === 4) lenNeeded = 15;
+                    
+                    let seq = generateExactSequence(shift, p.rule, lenNeeded);
+                    chunk = seq.map(x => ({n: n(x.o), d: x.d}));
+                }
+                
+                // ID 2: Arpegio + Escala
+                if(p.id == 2) {
+                    // Arpeggio part (4 notes)
+                    // Logic: Diatonic 7th arpeggio.
+                    // Map offsets for 1,3,5,7 relative to start index
+                    // Root Indices: 0, 1, 2, 3, 4, 5, 6
+                    // Arp Indices: i, i+2, i+4, i+6 (mod 7)
+                    let arpIndices = [p.startIdx, (p.startIdx+2)%7, (p.startIdx+4)%7, (p.startIdx+6)%7];
+                    // Map to offsets (handle octave wrap)
+                    let arpOffsets = arpIndices.map((degIdx, k) => {
+                        let off = offsets[degIdx];
+                        // If degree wraps, add 12. E.g. start=6 (A), next is 1 (C). C is lower index, so add 12.
+                        // Simple check: if offset < prevOffset, add 12.
+                        return off; 
+                    });
+                    
+                    // Fix octaves for ascending arp
+                    let finalArp = [offsets[p.startIdx]];
+                    for(let k=1; k<4; k++) {
+                        let prev = finalArp[k-1];
+                        let curr = arpOffsets[k];
+                        while(curr <= prev) curr += 12;
+                        finalArp.push(curr);
+                    }
+                    
+                    let lastArpNote = finalArp[3]; // This is where scale starts descending
+                    
+                    // Calculate Scale Length
+                    // Arp = 4 notes. Remaining Bar 1 = 4 notes. 
+                    // Target Beats Indices (Total): 8, 10, 12, 14.
+                    // Scale part needs to fill from index 4 to target.
+                    // Beat 1 (idx 8) -> 8 - 4 = 4 scale notes + 1 (target note) = 5 notes?
+                    // Wait. generateExactSequence generates N notes starting from 'start'.
+                    // If we want total length 9 (Beat 1), and arp is 4. Scale part is 5 notes.
+                    let scaleLen = 0;
+                    if(p.targetBeat === 1) scaleLen = 5;
+                    if(p.targetBeat === 2) scaleLen = 7;
+                    if(p.targetBeat === 3) scaleLen = 9;
+                    if(p.targetBeat === 4) scaleLen = 11;
 
-                chunk = pat.map(x => {
-                    let off = (typeof x === 'object') ? x.o : x;
-                    let dur = (typeof x === 'object') ? x.d : 0.2;
-                    return {n: n(off + shift), d: dur};
-                });
+                    let scale = generateExactSequence(lastArpNote, p.rule, scaleLen);
+                    // Remove first note of scale if it duplicates last arp note?
+                    // Usually we descend FROM the top note. So scale[0] == lastArpNote.
+                    // We want to hear the top note as part of arp, then descend.
+                    // So we remove scale[0].
+                    if(scale.length > 0) scale.shift();
 
+                    let arpChunk = finalArp.map(x => ({n: n(x), d: 0.2}));
+                    let scaleChunk = scale.map(x => ({n: n(x.o), d: x.d}));
+                    
+                    chunk = [...arpChunk, ...scaleChunk];
+                }
+
+                // ID 3: TRESILLO + ESCALA
+                if(p.id == 3) {
+                    let mapUp = {0:2, 2:4, 4:5, 5:7, 7:9, 9:10, 10:12};
+                    let norm = shift % 12;
+                    let upperDist = mapUp[norm] - norm;
+                    if(isNaN(upperDist)) upperDist = 2;
+
+                    let triplet = [
+                        {o: shift, d: 0.13},
+                        {o: shift + upperDist, d: 0.13},
+                        {o: shift, d: 0.13}
+                    ];
+                    
+                    // Total notes needed: 10, 12, 14, 16.
+                    // Scale part needs: 7, 9, 11, 13.
+                    let scaleLen = 0;
+                    if(p.targetBeat === 1) scaleLen = 7;
+                    if(p.targetBeat === 2) scaleLen = 9;
+                    if(p.targetBeat === 3) scaleLen = 11;
+                    if(p.targetBeat === 4) scaleLen = 13;
+
+                    // Generate exact scale part
+                    let scale = generateExactSequence(shift, p.rule, scaleLen);
+                    if(scale.length > 0) scale.shift(); // Remove overlap
+
+                    chunk = [...triplet, ...scale].map(x => ({n: n(x.o), d: x.d}));
+                }
+
+                if(p.id==4) { let pat = [-1,0,4,7,10,9,7]; chunk = pat.map(x => ({n: n(x+shift), d: 0.2})); }
+                if(p.id==5) { let pat = [5,4,2,0,-1,9,7,5,4]; chunk = pat.map(x => ({n: n(x+shift), d: 0.2})); }
+                if(p.id==6) { let pat = [12,4,7,11]; chunk = pat.map(x => ({n: n(x+shift), d: 0.2})); }
+
+                // Glue phrases
                 if(lastNote && chunk.length>0 && chunk[0].n === lastNote) chunk.shift();
                 notes = notes.concat(chunk);
             });
             return notes;
+        }
+
+        function generateExactSequence(startShift, rule, exactLength) {
+            const getDegree = (off) => {
+                let norm = (off % 12 + 12) % 12;
+                if(norm === 0) return 1; if(norm === 2) return 2; if(norm === 4) return 3;
+                if(norm === 5) return 4; if(norm === 7) return 5; if(norm === 9) return 6; if(norm === 10) return 7;
+                return 0;
+            };
+
+            let currentOffset = startShift;
+            let result = [];
+
+            while(result.length < exactLength) {
+                result.push({o: currentOffset, d: 0.2});
+                if(result.length === exactLength) break;
+
+                let deg = getDegree(currentOffset);
+                let insert = false;
+                if(rule === 1 && deg === 1) insert = true;
+                if(rule === 2 && (deg === 2 || deg === 1)) insert = true;
+                if(rule === 3 && (deg === 3 || deg === 2 || deg === 1)) insert = true;
+
+                if(insert) {
+                    result.push({o: currentOffset - 1, d: 0.2});
+                    if(result.length === exactLength) break;
+                }
+
+                let step = -2;
+                if(deg === 7 || deg === 4) step = -1;
+                currentOffset += step;
+            }
+            return result;
         }
 
         function playPhraseSequence(notes) {
@@ -954,32 +1327,23 @@
         const SHARP_MAP = { 'Db':'C#', 'Eb':'D#', 'Gb':'F#', 'Ab':'G#', 'Bb':'A#' };
         const FLAT_MAP = { 'C#':'Db', 'D#':'Eb', 'F#':'Gb', 'G#':'Ab', 'A#':'Bb' };
 
-        // Función para cambiar enarmonía de una sola nota
         function toggleSingleNote(el) {
             let oldTxt = el.innerText;
             let newTxt = oldTxt;
-            
-            // Toggle between sharp and flat map
             if(SHARP_MAP[oldTxt]) newTxt = SHARP_MAP[oldTxt];
             else if(FLAT_MAP[oldTxt]) newTxt = FLAT_MAP[oldTxt];
-            
             if(newTxt !== oldTxt) {
                 el.innerText = newTxt;
-                // Update all labels that contain this note name
                 updateLabelsForEnharmonic(oldTxt, newTxt);
             }
         }
 
-        // Actualizar etiquetas de texto cuando cambia una nota
         function updateLabelsForEnharmonic(oldN, newN) {
             const targets = ['disp-dm', 'dim-result-text', 'tri-lbl-0-main', 'tri-lbl-0-notes', 'tri-lbl-1-main', 'tri-lbl-1-notes'];
-            
             targets.forEach(id => {
                 let el = document.getElementById(id);
                 if(el) {
-                    // Escape special regex characters in note name (though usually just #)
                     let escapedOld = oldN.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
-                    // Regex: Match note not followed by b or # to avoid replacing partial matches (e.g. C in C#)
                     let re = new RegExp(escapedOld + '(?![' + 'b#' + '])', 'g');
                     el.innerText = el.innerText.replace(re, newN);
                 }
@@ -1001,17 +1365,12 @@
                 btn.classList.toggle('border-purple-500');
                 btn.innerText = dimEnharmonic ? '♯' : '♭';
             }
-            
-            // Update Circles with global setting (resets manual changes)
             document.querySelectorAll('.dim-note-display').forEach(el => {
                 let txt = el.innerText;
-                // First normalize to flat if needed to apply global setting correctly
                 let flatKey = Object.keys(SHARP_MAP).find(k => SHARP_MAP[k] === txt) || txt;
-                
                 if(dimEnharmonic) el.innerText = SHARP_MAP[flatKey] || flatKey;
                 else el.innerText = FLAT_MAP[txt] || flatKey; 
             });
-
             updateTritoneLabels();
         }
 
@@ -1037,8 +1396,6 @@
             const container = document.getElementById('dim-organic-container');
             const resultText = document.getElementById('dim-result-text');
             if(container) container.innerHTML = '';
-            
-            // Draw initial state (reset)
             if(resultText) resultText.innerText = "";
             if(document.getElementById('dim-reset-container')) document.getElementById('dim-reset-container').style.display = 'none';
             
@@ -1059,7 +1416,6 @@
                 btnUp.innerHTML = '▲ Subir';
                 btnUp.onclick = () => {
                     let newNote = transpose(n, 1);
-                    // Raising creates m6/m7b5 related.
                     let newChord = dimNotes.map(x => x===n ? newNote : x);
                     let rootm7b5 = transpose(newNote, 2).slice(0,-1);
                     playTransform(newChord, `${rootm7b5}m7(b5)`);
@@ -1076,7 +1432,6 @@
                 btnDown.innerHTML = '▼ Bajar';
                 btnDown.onclick = () => {
                     let newNote = transpose(n, -1);
-                    // Lowering creates Dom7
                     let newChord = dimNotes.map(x => x===n ? newNote : x);
                     let rootName = newNote.slice(0,-1);
                     playTransform(newChord, `${rootName}7`);
@@ -1089,7 +1444,6 @@
             });
         }
 
-        // Nueva función para 7b5 (Tritonos)
         function transformTritone(pairIdx) {
             const root = document.getElementById('dim-root').value;
             let rIdx = getNoteIndex(root+'3');
@@ -1103,7 +1457,6 @@
                 return n;
             });
 
-            // Get names of static notes to name the 7b5 chords
             let root1 = dimNotes[staticIndices[0]].slice(0, -1);
             let root2 = dimNotes[staticIndices[1]].slice(0, -1);
 
@@ -1118,11 +1471,10 @@
             if(document.getElementById('dim-result-text')) document.getElementById('dim-result-text').innerText = label;
             if(document.getElementById('dim-reset-container')) document.getElementById('dim-reset-container').style.display = 'block';
 
-            // Actualizar visualización de las notas (Círculos morados)
             const displayEls = document.querySelectorAll('.dim-note-display');
             if (displayEls.length === notes.length) {
                 notes.forEach((n, i) => {
-                    displayEls[i].innerText = getDispNote(n.slice(0, -1)); // Quitar octava y aplicar enarmonia
+                    displayEls[i].innerText = getDispNote(n.slice(0, -1)); 
                 });
             }
         }
