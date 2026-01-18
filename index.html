@@ -85,6 +85,8 @@
         .dim-btn-action.down:hover { background: #1e3a8a; }
         .dim-note-display { width: 3.5rem; height: 3.5rem; border-radius: 50%; background: #18181b; border: 2px solid #a855f7; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #a855f7; font-size: 1.2rem; }
         #dim-reset-container { display: none; margin-top: 1rem; text-align: center; }
+        .tritone-btn { padding: 0.5rem; background: #27272a; border: 1px solid #f59e0b; color: #f59e0b; font-weight: bold; font-size: 0.8rem; border-radius: 0.3rem; transition: all 0.2s; text-align: center; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; }
+        .tritone-btn:hover { background: #3f3f46; color: #fff; }
 
         /* Franja de Análisis */
         .analysis-strip { background: #000; border: 1px solid #3f3f46; padding: 1rem; margin-bottom: 1rem; text-align: center; min-height: 80px; display: flex; flex-direction: column; justify-content: center; border-radius: 0.5rem; font-size: 0.9rem; gap: 0.5rem; }
@@ -307,10 +309,10 @@
             <div class="control-panel">
                 <h3 class="section-title text-xl font-bold text-amber-400 mb-4">El Disminuido</h3>
                 <div class="info-box mb-6">
-                    <p>Mueve cualquier voz del acorde disminuido medio tono para transformarlo.</p>
+                    <p>Mueve cualquier voz del acorde disminuido para transformarlo.</p>
                 </div>
                 
-                <div class="flex justify-center mb-8">
+                <div class="flex justify-center mb-6">
                     <select id="dim-root" class="w-40 text-center font-bold bg-zinc-800 border-amber-500 text-amber-500 p-2 rounded" onchange="updateDimOrganic()">
                         <option value="C">C°7</option><option value="C#">C#°7</option><option value="D">D°7</option>
                         <option value="Eb">Eb°7</option><option value="E">E°7</option><option value="F">F°7</option>
@@ -319,11 +321,26 @@
                     </select>
                 </div>
 
+                <!-- NEW: 7b5 Controls -->
+                <div class="border-t border-b border-zinc-700 py-4 mb-6">
+                    <h4 class="text-center text-sm font-bold text-zinc-400 mb-3 uppercase tracking-wider">Transformación Tritonal (7b5)</h4>
+                    <div class="grid grid-cols-2 gap-4 max-w-md mx-auto">
+                        <button onclick="transformTritone(0)" class="tritone-btn">
+                            <span id="tri-lbl-0-main" class="text-lg">Subir Par 1</span>
+                            <span id="tri-lbl-0-notes" class="text-[10px] font-normal opacity-75">Calculando...</span>
+                        </button>
+                        <button onclick="transformTritone(1)" class="tritone-btn">
+                            <span id="tri-lbl-1-main" class="text-lg">Subir Par 2</span>
+                            <span id="tri-lbl-1-notes" class="text-[10px] font-normal opacity-75">Calculando...</span>
+                        </button>
+                    </div>
+                </div>
+
                 <!-- ORGANIC INTERFACE -->
                 <div id="dim-organic-container" class="dim-controls bg-zinc-900 p-4 rounded border border-zinc-700">
                     <!-- Injected via JS -->
                 </div>
-                <div id="dim-result-text" class="text-center mt-4 text-amber-300 font-bold h-8"></div>
+                <div id="dim-result-text" class="text-center mt-4 text-amber-300 font-bold min-h-[2rem] text-lg"></div>
                 <div id="dim-reset-container">
                      <button onclick="updateDimOrganic()" class="btn-secondary text-xs">Volver al Acorde Base</button>
                 </div>
@@ -574,19 +591,9 @@
                     let tones = [0,2,4,6].map(k => scaleBase[k].slice(0,-1));
                     notes = buildVoicing(tones, melody);
                     
-                    // Exact Naming Logic: C6 Ddis C6/E Fdis C6/G Abdis C6/A(Am7) Bdis
+                    // Exact Naming Logic
                     let bass = notes[0].slice(0,-1);
                     if(type === 'dominantDim') {
-                        // C7, Ddim, C7/E, Fdim...
-                        // Scale: C, D, E, F, G, Ab, Bb, B.
-                        // i=0(C) -> C7
-                        // i=1(D) -> Ddim7
-                        // i=2(E) -> C7/E
-                        // i=3(F) -> Fdim7
-                        // i=4(G) -> C7/G
-                        // i=5(Ab) -> Abdim7
-                        // i=6(Bb) -> C7/Bb
-                        // i=7(B) -> Bdim7
                         if(bass===root) name = `${root}7`;
                         else {
                             if(i%2 !== 0) name = `${bass}°7`;
@@ -677,90 +684,7 @@
 
         // --- TAB 3: FRASEO ---
         let phraseQueue = [];
-        function previewAndAdd(id, name) {
-            // Do NOT play when adding, only play via Play Button
-            // playLick(id); 
-            addToTimeline(id, name);
-        }
-        function addToTimeline(id, name) { phraseQueue.push({id, name}); renderTimeline(); }
-        function clearTimeline() { phraseQueue = []; renderTimeline(); }
-        function renderTimeline() {
-            const d = document.getElementById('phrase-timeline');
-            d.innerHTML = phraseQueue.length ? '' : '<span class="text-zinc-600 text-sm italic ml-2">Añade fórmulas...</span>';
-            phraseQueue.forEach((x,i) => {
-                let e = document.createElement('div');
-                e.className = 'timeline-item';
-                e.innerHTML = `${x.name} <span onclick="event.stopPropagation();phraseQueue.splice(${i},1);renderTimeline()">x</span>`;
-                d.appendChild(e);
-            });
-        }
-
-        function playTimeline() {
-            stopAll();
-            let rootVal = document.getElementById('ph-root').value;
-            let startIdx = parseInt(document.getElementById('ph-start-note').value); // 0=Root, 1=3rd...
-            
-            // Generate sequence of notes from queue
-            let notes = getPhraseNotes(phraseQueue, rootVal, startIdx);
-            playPhraseSequence(notes);
-        }
         
-        function getPhraseNotes(queue, rootVal, startOffsetIndex) {
-            // startOffsetIndex: 0=Root, 1=2nd, 2=3rd, etc...
-            // Logic: shift initial note of Arpeggio/Scale patterns
-            
-            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const r4 = getNoteIndex(rootVal+'4');
-            const n = (o) => getNoteFromIndex(r4+o);
-            let notes = [];
-            
-            // Map offset index to semitones (approx scale degrees)
-            // 1, 2(2), 3(4), 4(5), 5(7), 6(9), 7(10/11)
-            let offsets = [0, 2, 4, 5, 7, 9, 10]; // Major/Mixolydian approx
-            let shift = offsets[startOffsetIndex] || 0;
-
-            queue.forEach(p => {
-                let lastNote = notes.length > 0 ? notes[notes.length-1].n : null;
-                let chunk = [];
-                
-                // Base patterns (relative to root)
-                let pat = [];
-                if(p.id==1) pat = [12,10,9,7,5,4,2,0]; // Scale Desc
-                if(p.id==2) pat = [0,4,7,10,14,12,10,9]; // Arp+Scale
-                if(p.id==3) pat = [{o:2,d:0.1},{o:4,d:0.1},{o:5,d:0.1},{o:4,d:0.4}]; // Tresillo relative
-                if(p.id==4) pat = [-1,0,4,7,10,9,7]; // Approx
-                if(p.id==5) pat = [5,4,2,0,-1,9,7,5,4]; // Pivot 5
-                if(p.id==6) pat = [12,4,7,11]; // Arp Pivot
-
-                // Apply shift to pattern
-                chunk = pat.map(x => {
-                    let off = (typeof x === 'object') ? x.o : x;
-                    let dur = (typeof x === 'object') ? x.d : 0.2;
-                    return {n: n(off + shift), d: dur};
-                });
-
-                // Coherence: if last note is same as first, remove first to link smoothly?
-                // Logic requested: "debe ser coherente en la tarjeta". 
-                // Let's keep simple linking logic: avoid immediate repetition if identical pitch
-                if(lastNote && chunk.length>0 && chunk[0].n === lastNote) chunk.shift();
-                
-                notes = notes.concat(chunk);
-                
-                // Update shift for next phrase? No, phrases usually reset or link melodically.
-                // The request says "si selecciono empezar por tonica y la siguiente...". 
-                // Implies manual selection per card? 
-                // Current UI has ONE global "Empezar en" selector. 
-                // To support per-card start, we'd need to select start BEFORE clicking card.
-                // That IS how it works now: Select Start -> Click Card. 
-                // The 'shift' variable is captured at function call time, but here we process the queue at play time.
-                // To fix this, queue needs to store the shift used at insertion time.
-            });
-            // RE-IMPLEMENTATION: The queue stores just ID. 
-            // We need to capture the shift state when adding to queue.
-            return notes;
-        }
-
-        // CORRECTED: Queue needs to store shift
         function addToTimeline(id, name) { 
             let startIdx = parseInt(document.getElementById('ph-start-note').value);
             let offsets = [0, 2, 4, 5, 7, 9, 10];
@@ -772,6 +696,8 @@
             renderTimeline(); 
         }
 
+        function clearTimeline() { phraseQueue = []; renderTimeline(); }
+        
         function renderTimeline() {
             const d = document.getElementById('phrase-timeline');
             d.innerHTML = phraseQueue.length ? '' : '<span class="text-zinc-600 text-sm italic ml-2">Añade fórmulas...</span>';
@@ -782,9 +708,15 @@
                 d.appendChild(e);
             });
         }
+
+        function playTimeline() {
+            stopAll();
+            let rootVal = document.getElementById('ph-root').value;
+            let notes = getPhraseNotes(phraseQueue, rootVal);
+            playPhraseSequence(notes);
+        }
         
-        // Redefined getPhraseNotes to use stored shift
-        function getPhraseNotes(queue, rootVal, ignoredStartIdx) {
+        function getPhraseNotes(queue, rootVal) {
              if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const r4 = getNoteIndex(rootVal+'4');
             const n = (o) => getNoteFromIndex(r4+o);
@@ -793,7 +725,7 @@
             queue.forEach(p => {
                 let lastNote = notes.length > 0 ? notes[notes.length-1].n : null;
                 let chunk = [];
-                let shift = p.shift || 0; // Use stored shift
+                let shift = p.shift || 0;
 
                 let pat = [];
                 if(p.id==1) pat = [12,10,9,7,5,4,2,0]; 
@@ -936,7 +868,6 @@
             let html = "";
             seq.forEach((cName, i) => {
                 let notes = getChordNotesSimple(cName);
-                // Calculate bass for display logic
                 let bass = origBass[i]; 
                 if(bassMode === 'sub') {
                      if(cName.includes('/')) {
@@ -981,7 +912,6 @@
                 timeouts.push(setTimeout(() => {
                     let notes = getChordNotesSimple(cName);
                     
-                    // Inversion logic
                     if(i===0) {
                         while(getNoteIndex(notes[0]) < 48) notes = notes.map(n=>transpose(n,12));
                         for(let k=0; k<inv; k++) notes.push(transpose(notes.shift(), 12));
@@ -1001,10 +931,8 @@
                     }
                     prevNotes = notes;
 
-                    // Bass Logic Selection CORRECTED
                     let bass = "";
                     if (bassMode === 'sub') {
-                        // Use Substitute Bass
                         if(cName.includes('/')) {
                             let parts = cName.split('/');
                             let bName = parts[1].split('(')[0];
@@ -1015,7 +943,6 @@
                             bass = r+'2';
                         }
                     } else {
-                         // Original Bass
                          bass = origBass[i];
                     }
                     
@@ -1030,15 +957,8 @@
                 t += 1500;
             });
         }
-        
-        function origRootsTranspose(n) {
-            let i = getNoteIndex(n);
-            if(i<36) return transpose(n,12);
-            if(i>48) return transpose(n,-12);
-            return n;
-        }
 
-        // --- TAB 5: DIMINUIDO (NUEVA PESTAÑA) ---
+        // --- TAB 5: DIMINUIDO ---
         function updateDimOrganic() {
             const root = document.getElementById('dim-root').value;
             const container = document.getElementById('dim-organic-container');
@@ -1056,6 +976,18 @@
             // Draw Dim chord initially
             highlight('piano-dm', dimNotes, 'highlighted-dim');
             if(document.getElementById('disp-dm')) document.getElementById('disp-dm').innerText = `${root}°7 (Familia)`;
+
+            // UPDATE TRITONE LABELS
+            let n0 = dimNotes[0].slice(0,-1);
+            let n1 = dimNotes[1].slice(0,-1);
+            let n2 = dimNotes[2].slice(0,-1);
+            let n3 = dimNotes[3].slice(0,-1);
+
+            document.getElementById('tri-lbl-0-main').innerText = `Subir ${n0} y ${n2}`;
+            document.getElementById('tri-lbl-0-notes').innerText = `(Par 1: ${n0} y ${n2})`;
+            
+            document.getElementById('tri-lbl-1-main').innerText = `Subir ${n1} y ${n3}`;
+            document.getElementById('tri-lbl-1-notes').innerText = `(Par 2: ${n1} y ${n3})`;
 
             dimNotes.forEach(n => {
                 let card = document.createElement('div');
@@ -1093,6 +1025,29 @@
                 if(container) container.appendChild(card);
             });
         }
+
+        // Nueva función para 7b5 (Tritonos)
+        function transformTritone(pairIdx) {
+            const root = document.getElementById('dim-root').value;
+            let rIdx = getNoteIndex(root+'3');
+            let dimNotes = [0, 3, 6, 9].map(i => getNoteFromIndex(rIdx+i));
+
+            // Indices to move (Pair 1: 0,2 | Pair 2: 1,3)
+            let moveIndices = pairIdx === 0 ? [0, 2] : [1, 3];
+            // Indices that stay (become roots of the tritone subs)
+            let staticIndices = pairIdx === 0 ? [1, 3] : [0, 2];
+
+            let newChord = dimNotes.map((n, i) => {
+                if(moveIndices.includes(i)) return transpose(n, 1);
+                return n;
+            });
+
+            // Get names of static notes to name the 7b5 chords
+            let root1 = dimNotes[staticIndices[0]].slice(0, -1);
+            let root2 = dimNotes[staticIndices[1]].slice(0, -1);
+
+            playTransform(newChord, `${root1}7(b5) / ${root2}7(b5)`);
+        }
         
         function playTransform(notes, label) {
             stopAll();
@@ -1101,6 +1056,14 @@
             if(document.getElementById('disp-dm')) document.getElementById('disp-dm').innerText = label;
             if(document.getElementById('dim-result-text')) document.getElementById('dim-result-text').innerText = label;
             if(document.getElementById('dim-reset-container')) document.getElementById('dim-reset-container').style.display = 'block';
+
+            // Actualizar visualización de las notas (Círculos morados)
+            const displayEls = document.querySelectorAll('.dim-note-display');
+            if (displayEls.length === notes.length) {
+                notes.forEach((n, i) => {
+                    displayEls[i].innerText = n.slice(0, -1); // Quitar octava
+                });
+            }
         }
 
         // Init
