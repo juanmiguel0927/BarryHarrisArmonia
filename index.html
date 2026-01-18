@@ -870,17 +870,11 @@
                 let notes = getChordNotesSimple(cName);
                 let bass = origBass[i]; 
                 if(bassMode === 'sub') {
-                     if(cName.includes('/')) {
-                        let parts = cName.split('/');
-                        let bName = parts[1].split('(')[0];
-                        bass = bName+'2';
-                        if(getNoteIndex(bass)<36) bass = transpose(bass,12);
-                    } else {
-                        let parts = cName.split('=');
-                        let r = parts[0].match(/^[A-G][b#]?/)[0];
-                        bass = r+'2';
-                        if(getNoteIndex(bass)<36) bass = transpose(bass,12);
-                    }
+                     let tempName = cName.split('/')[0];
+                     tempName = tempName.split('=')[0]; 
+                     let r = tempName.match(/^[A-G][b#]?/)[0];
+                     bass = r+'2';
+                     if(getNoteIndex(bass)<36) bass = transpose(bass,12);
                 }
                 
                 let tStr = analyzeTensionsExact(notes, bass, roots[i]);
@@ -933,15 +927,10 @@
 
                     let bass = "";
                     if (bassMode === 'sub') {
-                        if(cName.includes('/')) {
-                            let parts = cName.split('/');
-                            let bName = parts[1].split('(')[0];
-                            bass = bName+'2';
-                        } else {
-                            let parts = cName.split('=');
-                            let r = parts[0].match(/^[A-G][b#]?/)[0];
-                            bass = r+'2';
-                        }
+                        let chordSymbol = cName.split('/')[0]; 
+                        chordSymbol = chordSymbol.split('=')[0]; 
+                        let r = chordSymbol.match(/^[A-G][b#]?/)[0];
+                        bass = r+'2';
                     } else {
                          bass = origBass[i];
                     }
