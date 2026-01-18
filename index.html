@@ -233,9 +233,9 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
                     <div class="formula-card" onclick="addToTimeline(1, 'Escala Simple')"><h4>1. Escala Simple</h4><p>Descendente (Reglas)</p></div>
-                    <div class="formula-card" onclick="addToTimeline(2, 'Arp+Escala')"><h4>2. Arpegio + Escala</h4><p>Arpegio Asc -> Escala Desc</p></div>
+                    <div class="formula-card" onclick="addToTimeline(2, 'Arp+Escala')"><h4>2. Arpegio + Escala</h4><p>Arp Diatónico -> Escala</p></div>
                     <div class="formula-card" onclick="addToTimeline(3, 'Tresillo')"><h4>3. Tresillo + Escala</h4><p>Bordadura + Descenso Diatónico</p></div>
-                    <div class="formula-card" onclick="addToTimeline(4, 'Aproximación')"><h4>4. Aprox + Arp</h4><p>Semitono abajo -> Arpegio</p></div>
+                    <div class="formula-card" onclick="addToTimeline(4, 'Aprox + Arp')"><h4>4. Aprox + Arp</h4><p>Aprox -> Arp -> Top -> Escala</p></div>
                     <div class="formula-card" onclick="addToTimeline(5, 'Pivot 5')"><h4>5. Pivot (BH)</h4><p>Escala Desc -> Salto -> Cont.</p></div>
                     <div class="formula-card border-amber-500/50" onclick="addToTimeline(6, 'Arp Pivot')"><h4>6. Arp. Pivote</h4><p>C5 E4 G4 B4 (ZigZag)</p></div>
                 </div>
@@ -719,7 +719,7 @@
 
         // PRE-CALCULATION & MODAL LOGIC
         function addToTimeline(id, name) { 
-            if(id === 1 || id === 2 || id === 3) {
+            if(id === 1 || id === 2 || id === 3 || id === 4) {
                 pendingPhraseId = id;
                 pendingPhraseName = name;
                 openPhraseRuleModal();
@@ -732,25 +732,30 @@
             const startIdx = parseInt(document.getElementById('ph-start-note').value); // 0=Tónica, 1=2da
             const degree = startIdx + 1; 
             
-            // Determine Rule Source Degree
+            // Determine Rule Source Degree (Top note logic)
             let targetDegree = degree;
+            let noteLabel = "";
+            let labelMap = ["Tónica", "2da", "3ra", "4ta", "5ta", "6ta", "7ma"];
+            
             if(pendingPhraseId === 3) { // Triplet uses 2nd note (upper neighbor)
                 targetDegree = degree + 1; 
                 if(targetDegree > 7) targetDegree = 1;
-            } else if (pendingPhraseId === 2) {
-                // Arpeggio ends on 7th degree relative to start
-                // C (1) -> C E G Bb (ends on 7). 7 is Odd.
-                // D (2) -> D F A C (ends on 1). 1 is Odd.
-                // E (3) -> E G Bb D (ends on 2). 2 is Even.
-                // Formula: If start is Odd (1,3,5,7), Arp end is Odd/Even?
-                // 1->7(Odd), 3->2(Even), 5->4(Even), 7->6(Even).
-                // 2->1(Odd), 4->3(Odd), 6->5(Odd).
-                // Let's compute precisely:
-                // Arpeggio last note is 3 diatonic steps above start (1->7 is -1 step? No 1,3,5,7)
-                // 1(0) -> 7(10). 
-                // 2(2) -> 1(12).
+                // Get name of that degree
+                let topNoteName = labelMap[(startIdx + 1) % 7];
+                noteLabel = `(Regla basada en bordadura: ${topNoteName})`;
+            } else if (pendingPhraseId === 2 || pendingPhraseId === 4) { 
                 const arpEndDegrees = {1:7, 2:1, 3:2, 4:3, 5:4, 6:5, 7:6};
                 targetDegree = arpEndDegrees[degree];
+                // 1(idx0) -> 7(idx6). 2(idx1)->1(idx0).
+                let topIdx = 0;
+                if(degree === 1) topIdx = 6;
+                else topIdx = (startIdx + 6) % 7; 
+                // Wait. 2 (idx 1) -> 1 (idx 0). (1+6)%7 = 0. Correct.
+                // 3 (idx 2) -> 2 (idx 1). (2+6)%7 = 8%7=1. Correct.
+                let topNoteName = labelMap[topIdx];
+                noteLabel = `(Regla basada en tope de arpegio: ${topNoteName})`;
+            } else {
+                 noteLabel = `(Regla basada en inicio: ${labelMap[startIdx]})`;
             }
 
             const isEven = (targetDegree % 2 === 0);
@@ -773,7 +778,9 @@
             const beatSection = document.getElementById('beat-selection-section');
             
             title.innerText = `Configurar ${pendingPhraseName}`;
-            rulesContainer.innerHTML = '';
+            rulesContainer.innerHTML = `
+                <p class="text-xs text-zinc-500 mb-2 italic">${noteLabel}</p>
+            `;
             beatsContainer.innerHTML = '';
             beatSection.style.display = 'none'; // Hide step 2 initially
 
@@ -831,21 +838,41 @@
         }
 
         function calculateValidEndings(startIdx, rule, phraseId) {
-            // Calculate indices where beats fall
-            // Bar 2 Beat 1, 2, 3, 4 indices (0-based from start of entire phrase)
-            
+            // Indices (0-based) for beats in Bar 2.
             let targets = [];
-            // ID 1 (Scale): 8 notes in Bar 1. Bar 2 starts at index 8. Beats: 8, 10, 12, 14.
-            if(phraseId === 1) targets = [8, 10, 12, 14];
+            // ID 1 (Scale): 8 notes in M1. Targets: 8, 10, 12, 14.
+            if(phraseId === 1 || phraseId === 2) targets = [8, 10, 12, 14];
             
-            // ID 3 (Triplet + Scale): Triplet (3 notes) + 6 eighths = 9 notes in Bar 1? 
-            // Triplet is usually 1 beat. So 1 beat (3 notes) + 3 beats (6 notes) = 9 notes total in Bar 1.
-            // Bar 2 starts at index 9. Beats: 9, 11, 13, 15.
+            // ID 3 (Triplet + Scale): 9 notes in M1 (3+6). Targets: 9, 11, 13, 15.
             if(phraseId === 3) targets = [9, 11, 13, 15];
-
-            // ID 2 (Arp + Scale): Arp (4 notes = 2 beats). Remaining Bar 1 = 2 beats (4 notes).
-            // Total Bar 1 = 8 notes. Bar 2 starts index 8. Beats: 8, 10, 12, 14.
-            if(phraseId === 2) targets = [8, 10, 12, 14];
+            
+            // ID 4 (Aprox + Arp): M1 notes = Rest(0.2), App(0.2), Trip(3*0.13), Top(0.2), ScaleStart...
+            // Time map:
+            // 0.0 Rest
+            // 0.2 App
+            // 0.4 Trip1
+            // 0.53 Trip2
+            // 0.66 Trip3
+            // 0.8 Top
+            // 1.0 Scale1 (Beat 3.5)
+            // 1.2 Scale2 (Beat 4)
+            // 1.4 Scale3 (Beat 4.5)
+            // 1.6 (Bar 2 Beat 1) -> Scale4. Index 10 in full sequence (if scale starts at 0, top is -1)
+            // Wait, let's map sequence indices to Beats in M2.
+            // Seq: Rest, App, T1, T2, T3, Top, S1, S2, S3, S4...
+            // Indices: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9...
+            // Beat 1 M2 is roughly at Index 9 or 10?
+            // Durations: 
+            // 0.2+0.2 + 0.4(trip) + 0.2(top) = 1.0 (Beat 1+2+3 covered).
+            // Beat 3 starts at 0.8 (Top).
+            // Beat 3.5 starts at 1.0 (S1).
+            // Beat 4 starts at 1.2 (S2).
+            // Beat 4.5 starts at 1.4 (S3).
+            // Bar 2 Beat 1 starts at 1.6 (S4). Index 9.
+            // Bar 2 Beat 2 starts at 2.0 (S6). Index 11.
+            // Bar 2 Beat 3 starts at 2.4 (S8). Index 13.
+            // Bar 2 Beat 4 starts at 2.8 (S10). Index 15.
+            if(phraseId === 4) targets = [9, 11, 13, 15];
 
             // Map offsets to degrees
             const getDegree = (off) => {
@@ -855,49 +882,41 @@
                 return 0;
             };
 
-            // Generate a long sequence simulation
             let offsets = [0, 2, 4, 5, 7, 9, 10];
             let startShift = offsets[startIdx];
             
             let sequence = [];
             let currentOffset = startShift;
             
-            // Prefix Logic
-            if(phraseId === 3) { // Triplet
-                sequence.push(0,0,0); // 3 notes placeholder
-            } else if (phraseId === 2) { // Arpeggio
-                sequence.push(0,0,0,0); // 4 notes placeholder
-                // Calculate Arp End Note
-                // 1->7(10), 2->1(12/0), 3->2(2), 4->3(4), 5->4(5), 6->5(7), 7->6(9)
-                // Let's use getDegree logic for last note
-                let arpLastOffset = startShift; // Calc logic
-                // Simple diatonic 7th arpeggio offset adder?
-                // C(0) -> Bb(10). D(2)->C(12). E(4)->D(14). F(5)->E(16). G(7)->F(17). A(9)->G(19). Bb(10)->A(21).
+            // Build Sequence Prefix
+            if(phraseId === 3) { 
+                sequence.push(0,0,0); // Triplet
+            } else if (phraseId === 2) { 
+                sequence.push(0,0,0,0); // Arp
+                // Arp End Note
                 let arpEndMap = {0:10, 2:12, 4:14, 5:16, 7:17, 9:19, 10:21};
                 currentOffset = arpEndMap[startShift]; 
+            } else if (phraseId === 4) {
+                // Rest, App, Trip(3), Top. 6 notes prefix.
+                // Scale starts AFTER Top.
+                sequence.push(0,0,0,0,0,0); 
+                let arpEndMap = {0:10, 2:12, 4:14, 5:16, 7:17, 9:19, 10:21};
+                currentOffset = arpEndMap[startShift];
             }
 
-            // Generate scale descent
+            // Generate Scale Simulation
             let safety = 0;
             while(sequence.length < 20 && safety < 50) {
-                // Logic identical to generation but just tracking offsets
-                // IMPORTANT: ID 2 scale starts descending from last arp note. 
-                // ID 3 scale starts descending from start note (after triplet decoration).
-                
                 let deg = getDegree(currentOffset);
-                sequence.push(currentOffset); // Add note
+                sequence.push(currentOffset); 
 
-                // Check insertions
                 let insert = false;
                 if(rule === 1 && deg === 1) insert = true;
                 if(rule === 2 && (deg === 2 || deg === 1)) insert = true;
                 if(rule === 3 && (deg === 3 || deg === 2 || deg === 1)) insert = true;
 
-                if(insert) {
-                    sequence.push(currentOffset - 1);
-                }
+                if(insert) sequence.push(currentOffset - 1);
 
-                // Diatonic step
                 let step = -2;
                 if(deg === 7 || deg === 4) step = -1;
                 currentOffset += step;
@@ -974,7 +993,6 @@
         // --- NOTE GENERATION ---
         function getPhraseNotes(queue, rootVal) {
              if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            // FIX: Base scale shifted to 5th octave for phrasing
             const r5 = getNoteIndex(rootVal+'5');
             const n = (o) => getNoteFromIndex(r5+o);
             let notes = [];
@@ -999,21 +1017,9 @@
                 
                 // ID 2: Arpegio + Escala
                 if(p.id == 2) {
-                    // Arpeggio part (4 notes)
-                    // Logic: Diatonic 7th arpeggio.
-                    // Map offsets for 1,3,5,7 relative to start index
-                    // Root Indices: 0, 1, 2, 3, 4, 5, 6
-                    // Arp Indices: i, i+2, i+4, i+6 (mod 7)
                     let arpIndices = [p.startIdx, (p.startIdx+2)%7, (p.startIdx+4)%7, (p.startIdx+6)%7];
-                    // Map to offsets (handle octave wrap)
-                    let arpOffsets = arpIndices.map((degIdx, k) => {
-                        let off = offsets[degIdx];
-                        // If degree wraps, add 12. E.g. start=6 (A), next is 1 (C). C is lower index, so add 12.
-                        // Simple check: if offset < prevOffset, add 12.
-                        return off; 
-                    });
+                    let arpOffsets = arpIndices.map((degIdx, k) => offsets[degIdx]);
                     
-                    // Fix octaves for ascending arp
                     let finalArp = [offsets[p.startIdx]];
                     for(let k=1; k<4; k++) {
                         let prev = finalArp[k-1];
@@ -1022,15 +1028,7 @@
                         finalArp.push(curr);
                     }
                     
-                    let lastArpNote = finalArp[3]; // This is where scale starts descending
-                    
-                    // Calculate Scale Length
-                    // Arp = 4 notes. Remaining Bar 1 = 4 notes. 
-                    // Target Beats Indices (Total): 8, 10, 12, 14.
-                    // Scale part needs to fill from index 4 to target.
-                    // Beat 1 (idx 8) -> 8 - 4 = 4 scale notes + 1 (target note) = 5 notes?
-                    // Wait. generateExactSequence generates N notes starting from 'start'.
-                    // If we want total length 9 (Beat 1), and arp is 4. Scale part is 5 notes.
+                    let lastArpNote = finalArp[3];
                     let scaleLen = 0;
                     if(p.targetBeat === 1) scaleLen = 5;
                     if(p.targetBeat === 2) scaleLen = 7;
@@ -1038,10 +1036,6 @@
                     if(p.targetBeat === 4) scaleLen = 11;
 
                     let scale = generateExactSequence(lastArpNote, p.rule, scaleLen);
-                    // Remove first note of scale if it duplicates last arp note?
-                    // Usually we descend FROM the top note. So scale[0] == lastArpNote.
-                    // We want to hear the top note as part of arp, then descend.
-                    // So we remove scale[0].
                     if(scale.length > 0) scale.shift();
 
                     let arpChunk = finalArp.map(x => ({n: n(x), d: 0.2}));
@@ -1063,22 +1057,58 @@
                         {o: shift, d: 0.13}
                     ];
                     
-                    // Total notes needed: 10, 12, 14, 16.
-                    // Scale part needs: 7, 9, 11, 13.
                     let scaleLen = 0;
                     if(p.targetBeat === 1) scaleLen = 7;
                     if(p.targetBeat === 2) scaleLen = 9;
                     if(p.targetBeat === 3) scaleLen = 11;
                     if(p.targetBeat === 4) scaleLen = 13;
 
-                    // Generate exact scale part
                     let scale = generateExactSequence(shift, p.rule, scaleLen);
-                    if(scale.length > 0) scale.shift(); // Remove overlap
+                    if(scale.length > 0) scale.shift(); 
 
                     chunk = [...triplet, ...scale].map(x => ({n: n(x.o), d: x.d}));
                 }
 
-                if(p.id==4) { let pat = [-1,0,4,7,10,9,7]; chunk = pat.map(x => ({n: n(x+shift), d: 0.2})); }
+                // ID 4: APROX + ARP
+                if(p.id == 4) {
+                    let appNote = shift - 1;
+                    
+                    let arpIndices = [p.startIdx, (p.startIdx+2)%7, (p.startIdx+4)%7];
+                    let finalTrip = [offsets[p.startIdx]];
+                    for(let k=1; k<3; k++) {
+                        let prev = finalTrip[k-1];
+                        let curr = offsets[arpIndices[k]];
+                        while(curr <= prev) curr += 12;
+                        finalTrip.push(curr);
+                    }
+
+                    // Top Note (7th)
+                    let topIdx = (p.startIdx+6)%7;
+                    let topNote = offsets[topIdx];
+                    while(topNote <= finalTrip[2]) topNote += 12;
+
+                    let sequencePart1 = [
+                        {n: null, d: 0.2}, // Rest
+                        {n: n(appNote), d: 0.2}, // Aprox
+                        {n: n(finalTrip[0]), d: 0.13}, 
+                        {n: n(finalTrip[1]), d: 0.13}, 
+                        {n: n(finalTrip[2]), d: 0.13},
+                        {n: n(topNote), d: 0.2} // Top (Beat 3) - Corchea now (0.2)
+                    ];
+                    
+                    let scaleLen = 0;
+                    if(p.targetBeat === 1) scaleLen = 4; // Index 9 target
+                    if(p.targetBeat === 2) scaleLen = 6;
+                    if(p.targetBeat === 3) scaleLen = 8;
+                    if(p.targetBeat === 4) scaleLen = 10;
+
+                    let scale = generateExactSequence(topNote, p.rule, scaleLen);
+                    if(scale.length > 0) scale.shift(); // remove Top (already in seq1)
+                    
+                    let scaleChunk = scale.map(x => ({n: n(x.o), d: x.d}));
+                    chunk = [...sequencePart1, ...scaleChunk];
+                }
+
                 if(p.id==5) { let pat = [5,4,2,0,-1,9,7,5,4]; chunk = pat.map(x => ({n: n(x+shift), d: 0.2})); }
                 if(p.id==6) { let pat = [12,4,7,11]; chunk = pat.map(x => ({n: n(x+shift), d: 0.2})); }
 
@@ -1126,9 +1156,13 @@
             let accumulatedTime = 0;
             notes.forEach(e => {
                 timeouts.push(setTimeout(() => {
-                    highlight('piano-ph', [e.n], null);
-                    playTone(FREQUENCIES[e.n], audioCtx.currentTime, e.d);
-                    document.getElementById('disp-ph').innerText = e.n;
+                    if(e.n) { // Check valid note (skip rest)
+                        highlight('piano-ph', [e.n], null);
+                        playTone(FREQUENCIES[e.n], audioCtx.currentTime, e.d);
+                        document.getElementById('disp-ph').innerText = e.n;
+                    } else {
+                        document.getElementById('disp-ph').innerText = "(Silencio)";
+                    }
                 }, accumulatedTime * 1000));
                 accumulatedTime += e.d;
             });
