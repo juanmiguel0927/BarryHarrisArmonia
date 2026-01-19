@@ -26,7 +26,6 @@
         .string-3 { height: 2.5px; top: 94px; background: #a8a29e; } 
         .string-4 { height: 3px; top: 117px; background: #a8a29e; } 
         .string-5 { height: 3.5px; top: 140px; background: #a8a29e; } 
-
         .note-marker { position: absolute; width: 22px; height: 22px; border-radius: 50%; z-index: 20; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; color: #18181b; box-shadow: 0 3px 6px rgba(0,0,0,0.6); border: 2px solid white; transition: all 0.1s; }
         .note-marker.highlighted { background: #fbbf24; }
         .note-marker.highlighted-bass { background: #38bdf8; }
@@ -508,16 +507,11 @@
             document.getElementById('btn-piano').classList.toggle('active', inst==='piano');
             document.getElementById('btn-guitar').classList.toggle('active', inst==='guitar');
             
-            stopAll();
-
-            // Refresh Active Tab
-            const activeTabContent = document.querySelector('.tab-content[style*="block"]');
-            if(activeTabContent) {
-                const tabId = activeTabContent.id.replace('tab-', '');
-                const activeBtn = document.querySelector('.tab-button-container .tab-btn.active');
-                if(activeBtn) {
-                    showTab(tabId, activeBtn);
-                }
+            // Re-render active tab visualization to enforce instrument choice
+            const activeTab = document.querySelector('.tab-content.active');
+            if (activeTab) {
+                const id = activeTab.id.replace('tab-', '');
+                showTab(id, document.querySelector(`.tab-btn[onclick*="'${id}'"]`));
             }
         }
 
@@ -951,7 +945,7 @@
             });
         }
 
-        // --- TAB 2: VOICINGS ---
+        // --- TAB 2: VOICINGS (Force C3 Start - Octave Fix) ---
         let currVoicing = 'closed';
         function setVoicingType(v) {
             currVoicing = v;
@@ -1494,6 +1488,7 @@
             bassMode = m;
             document.getElementById('bass-orig').className = m=='orig'?'px-3 py-1 text-xs rounded bg-blue-600 text-white border-blue-500':'px-3 py-1 text-xs rounded bg-zinc-700 text-gray-300 border-zinc-600';
             document.getElementById('bass-sub').className = m=='sub'?'px-3 py-1 text-xs rounded bg-blue-600 text-white border-blue-500':'px-3 py-1 text-xs rounded bg-zinc-700 text-gray-300 border-zinc-600';
+            updateAnalysisPreview();
         }
 
         const SUBS_RAW = {
@@ -1599,17 +1594,12 @@
                 // Calculate bass for display logic
                 let bass = origBass[i]; 
                 if(bassMode === 'sub') {
-                     if(cName.includes('/')) {
-                        let parts = cName.split('/');
-                        let bName = parts[1].split('(')[0];
-                        bass = bName+'2';
-                        if(getNoteIndex(bass)<36) bass = transpose(bass,12);
-                    } else {
-                        let parts = cName.split('=');
-                        let r = parts[0].match(/^[A-G][b#]?/)[0];
-                        bass = r+'2';
-                        if(getNoteIndex(bass)<36) bass = transpose(bass,12);
-                    }
+                     // IGNORE SLASH FOR SUBSTITUTE MODE
+                     let cleanName = cName.split('/')[0];
+                     cleanName = cleanName.split('=')[0]; 
+                     let r = cleanName.match(/^[A-G][b#]?/)[0];
+                     bass = r+'2';
+                     if(getNoteIndex(bass)<36) bass = transpose(bass,12);
                 }
                 
                 let tStr = analyzeTensionsExact(notes, bass, roots[i]);
@@ -1665,16 +1655,11 @@
                     // Bass Logic Selection CORRECTED
                     let bass = "";
                     if (bassMode === 'sub') {
-                        // Use Substitute Bass
-                        if(cName.includes('/')) {
-                            let parts = cName.split('/');
-                            let bName = parts[1].split('(')[0];
-                            bass = bName+'2';
-                        } else {
-                            let parts = cName.split('=');
-                            let r = parts[0].match(/^[A-G][b#]?/)[0];
-                            bass = r+'2';
-                        }
+                        // Use Substitute Bass - IGNORE SLASH
+                         let cleanName = cName.split('/')[0];
+                         cleanName = cleanName.split('=')[0]; 
+                         let r = cleanName.match(/^[A-G][b#]?/)[0];
+                         bass = r+'2';
                     } else {
                          // Original Bass
                          bass = origBass[i];
@@ -1706,7 +1691,7 @@
             return n;
         }
 
-        // --- TAB 5: DIMINUIDO (NUEVA PESTAÑA) ---
+        // --- TAB 5: DIMINUIDO ---
         let dimEnharmonic = false;
         let currentDimState = [];
 
@@ -1764,8 +1749,8 @@
 
         function updateTritoneLabels() {
             const root = document.getElementById('dim-root').value;
-            let inv = parseInt(document.getElementById('dim-inversion').value);
             let rIdx = getNoteIndex(root+'4');
+            let inv = parseInt(document.getElementById('dim-inversion').value);
             let baseNotes = [0, 3, 6, 9].map(i => getNoteFromIndex(rIdx+i));
             
             for(let k=0; k<inv; k++) baseNotes.push(baseNotes.shift());
@@ -1815,19 +1800,15 @@
             let notes = [0, 3, 6, 9].map(i => getNoteFromIndex(rIdx+i));
             let basePitchNotes = [...notes];
             
-            // Rotation for Inversion (Closed)
             for(let k=0; k<inv; k++) {
                 let moved = basePitchNotes.shift();
                 basePitchNotes.push(transpose(moved, 12));
             }
             
-            // SPECIAL LOGIC FOR GUITAR MODE DROP 2 "FUNDAMENTAL"
+            // GUITAR MODE DROP 2 "FUNDAMENTAL"
             if (currentInstrument === 'guitar') {
-                 // Reset base notes to strict octave 4
                  basePitchNotes = [0, 3, 6, 9].map(i => getNoteFromIndex(rIdx+i));
-                 // Map UI Inversion to Required Closed Inversion for Drop 2 Root matching
                  let requiredInv = (inv + 2) % 4;
-                 
                  for(let k=0; k<requiredInv; k++) {
                     let moved = basePitchNotes.shift();
                     basePitchNotes.push(transpose(moved, 12));
@@ -1842,14 +1823,6 @@
             
             let vizId = currentInstrument === 'piano' ? 'piano-dm' : 'guitar-dm';
             let playNotes = currentInstrument === 'guitar' ? toDrop2(currentDimState) : currentDimState;
-            
-            // If guitar mode, lower octave for display if needed
-            if (currentInstrument === 'guitar') {
-                 // Dim in octave 4 might be high for fretboard visualization center
-                 if(getNoteIndex(playNotes[0]) > 60) {
-                     playNotes = playNotes.map(n => transpose(n, -12));
-                 }
-            }
 
             highlight(vizId, playNotes, 'highlighted-dim');
             if(document.getElementById('disp-dm')) document.getElementById('disp-dm').innerText = `${root}°7 (Familia)`;
@@ -1861,7 +1834,7 @@
             const container = document.getElementById('dim-organic-container');
             if(!container) return;
             container.innerHTML = '';
-            
+
             let displayOrder = currentInstrument === 'guitar' ? [2, 0, 1, 3] : [0, 1, 2, 3];
 
             displayOrder.forEach((idx) => {
@@ -1900,10 +1873,6 @@
             renderDimOrganic(); 
             
             let playNotes = currentInstrument === 'guitar' ? toDrop2(currentDimState) : currentDimState;
-            if (currentInstrument === 'guitar' && getNoteIndex(playNotes[0]) > 60) {
-                 playNotes = playNotes.map(n => transpose(n, -12));
-            }
-
             let vizId = currentInstrument === 'piano' ? 'piano-dm' : 'guitar-dm';
 
             highlight(vizId, playNotes, 'highlighted');
@@ -1968,6 +1937,7 @@
             let idxB = pairIdx === 0 ? 2 : 3;
 
             let moveIndices = [idxA, idxB];
+            
             let staticIndices = [0,1,2,3].filter(i => !moveIndices.includes(i));
 
             let newChord = baseNotes.map((n, i) => {
@@ -1988,10 +1958,6 @@
             }
 
             let playNotes = currentInstrument === 'guitar' ? toDrop2(currentDimState) : currentDimState;
-            if (currentInstrument === 'guitar' && getNoteIndex(playNotes[0]) > 60) {
-                 playNotes = playNotes.map(n => transpose(n, -12));
-            }
-
             playTransform(playNotes, `${root1}7(b5) / ${root2}7(b5)`);
         }
 
@@ -2030,10 +1996,6 @@
             else rootNote = newChord[idxA].slice(0,-1); 
 
             let playNotes = currentInstrument === 'guitar' ? toDrop2(currentDimState) : currentDimState;
-            if (currentInstrument === 'guitar' && getNoteIndex(playNotes[0]) > 60) {
-                 playNotes = playNotes.map(n => transpose(n, -12));
-            }
-
             playTransform(playNotes, `${getDispNote(rootNote)}7(#5)`);
         }
         
@@ -2068,4 +2030,4 @@
         });
     </script>
 </body>
-    </html>
+                                                                                             </html>
