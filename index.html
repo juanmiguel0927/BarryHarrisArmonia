@@ -9,12 +9,12 @@
         body { background-color: #18181b; color: #e4e4e7; font-family: 'Segoe UI', sans-serif; }
         
         /* Piano */
-        .piano-container { position: relative; width: 100%; height: 140px; background-color: #27272a; border-radius: 8px; overflow: hidden; box-shadow: inset 0 -4px 8px rgba(0,0,0,0.6); border-top: 4px solid #3f3f46; margin-bottom: 0.5rem; }
+        .piano-container { position: relative; width: 100%; height: 140px; background-color: #27272a; border-radius: 8px; overflow: hidden; box-shadow: inset 0 -4px 8px rgba(0,0,0,0.6); border-top: 4px solid #3f3f46; margin-bottom: 0.5rem; display: none; }
         .white-key { background: linear-gradient(to bottom, #ffffff 0%, #e0e0e0 100%); border: 1px solid #999; border-top: none; width: 40px; height: 100%; position: absolute; z-index: 1; display: flex; justify-content: center; align-items: flex-end; padding-bottom: 8px; font-size: 10px; font-weight: bold; color: #444; border-radius: 0 0 4px 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: background 0.05s; }
         .white-key.active { background: #ccc; transform: translateY(2px); }
         .black-key { background: linear-gradient(to bottom, #333 0%, #000 100%); border: 1px solid #000; width: 24px; height: 65%; position: absolute; top: 0; z-index: 2; border-radius: 0 0 4px 4px; box-shadow: 2px 2px 4px rgba(0,0,0,0.4); transition: background 0.05s; }
         
-        /* Guitarra Mejorada */
+        /* Guitarra */
         .guitar-container { position: relative; width: 100%; height: 180px; background: #3e2723; border-radius: 8px; overflow-x: auto; overflow-y: hidden; box-shadow: inset 0 0 15px rgba(0,0,0,0.9); border: 4px solid #271c19; margin-bottom: 0.5rem; display: none; }
         .fret { position: absolute; top: 0; height: 100%; border-right: 3px solid #a1a1aa; z-index: 1; box-shadow: 1px 0 2px rgba(0,0,0,0.3); }
         .fret-number { position: absolute; bottom: 4px; font-size: 9px; color: #a8a29e; transform: translateX(-50%); font-weight: bold; }
@@ -209,7 +209,6 @@
                 <!-- Instrument Container -->
                 <div class="piano-scroll-container">
                     <div id="piano-sc" class="piano-container"></div>
-                    <div id="guitar-sc" class="guitar-container"></div>
                 </div>
                 <div id="disp-sc" class="note-display">Selecciona una escala...</div>
             </div>
@@ -293,7 +292,6 @@
             <div class="bg-zinc-950 p-4 rounded-lg border border-zinc-800 shadow-xl">
                  <div class="piano-scroll-container">
                     <div id="piano-ph" class="piano-container"></div>
-                    <div id="guitar-ph" class="guitar-container"></div>
                 </div>
                 <div id="disp-ph" class="note-display"></div>
             </div>
@@ -341,9 +339,18 @@
                 </div>
 
                 <div class="grid grid-cols-3 gap-4 mb-6">
-                    <div class="bg-zinc-900 p-2 rounded border border-zinc-700"><h4 class="text-center text-sky-400 font-bold text-sm mb-4 pb-2 border-b border-zinc-700">II</h4><div id="col-ii" class="flex flex-col gap-2"></div></div>
-                    <div class="bg-zinc-900 p-2 rounded border border-zinc-700"><h4 class="text-center text-fuchsia-400 font-bold text-sm mb-4 pb-2 border-b border-zinc-700">V</h4><div id="col-v" class="flex flex-col gap-2"></div></div>
-                    <div class="bg-zinc-900 p-2 rounded border border-zinc-700"><h4 class="text-center text-lime-400 font-bold text-sm mb-4 pb-2 border-b border-zinc-700">I</h4><div id="col-i" class="flex flex-col gap-2"></div></div>
+                    <div class="bg-zinc-900 p-2 rounded border border-zinc-700">
+                        <h4 class="text-center text-sky-400 font-bold text-sm mb-4 pb-2 border-b border-zinc-700">II</h4>
+                        <div id="col-ii" class="flex flex-col gap-2"></div>
+                    </div>
+                    <div class="bg-zinc-900 p-2 rounded border border-zinc-700">
+                        <h4 class="text-center text-fuchsia-400 font-bold text-sm mb-4 pb-2 border-b border-zinc-700">V</h4>
+                        <div id="col-v" class="flex flex-col gap-2"></div>
+                    </div>
+                    <div class="bg-zinc-900 p-2 rounded border border-zinc-700">
+                        <h4 class="text-center text-lime-400 font-bold text-sm mb-4 pb-2 border-b border-zinc-700">I</h4>
+                        <div id="col-i" class="flex flex-col gap-2"></div>
+                    </div>
                 </div>
                 
                 <div class="text-center">
@@ -507,11 +514,44 @@
             document.getElementById('btn-piano').classList.toggle('active', inst==='piano');
             document.getElementById('btn-guitar').classList.toggle('active', inst==='guitar');
             
-            // Re-render active tab visualization to enforce instrument choice
-            const activeTab = document.querySelector('.tab-content.active');
-            if (activeTab) {
-                const id = activeTab.id.replace('tab-', '');
-                showTab(id, document.querySelector(`.tab-btn[onclick*="'${id}'"]`));
+            stopAll();
+
+            // Force refresh of the currently active tab to update view immediately
+            const activeTabContent = document.querySelector('.tab-content[style*="block"]');
+            if(activeTabContent) {
+                const tabId = activeTabContent.id.replace('tab-', '');
+                // Manually call showTab logic without button ref if needed, or find button
+                // Simpler: Just update visibility of containers directly
+                document.querySelectorAll('.piano-container').forEach(el => el.style.display = inst==='piano'?'block':'none');
+                document.querySelectorAll('.guitar-container').forEach(el => el.style.display = inst==='guitar'?'block':'none');
+                
+                // Specific logic per tab that might need re-render
+                if (tabId === 'chords') {
+                     if(inst==='guitar') setVoicingType('drop2');
+                     updateChordGrid();
+                     // Redraw empty containers if needed
+                     let targetId = inst === 'piano' ? 'piano-ch' : 'guitar-ch';
+                     if(document.getElementById(targetId).innerHTML === '') {
+                        if(inst==='piano') drawPiano(targetId); else drawGuitar(targetId);
+                     }
+                } else if (tabId === 'subs') {
+                     updateSubOptions(); // Refresh state
+                     // Update container visibility explicitly again for safety
+                     document.getElementById('piano-sb').style.display = inst==='piano'?'block':'none';
+                     document.getElementById('guitar-sb').style.display = inst==='guitar'?'block':'none';
+                     // Init
+                     let targetId = inst === 'piano' ? 'piano-sb' : 'guitar-sb';
+                     if(document.getElementById(targetId).innerHTML === '') {
+                        if(inst==='piano') drawPiano(targetId); else drawGuitar(targetId);
+                     }
+                } else if (tabId === 'diminished') {
+                     updateDimOrganic();
+                } else if (tabId === 'scales') {
+                     // Scales is piano only essentially, but let's hide guitar container
+                     document.getElementById('piano-sc').style.display = 'block'; 
+                } else if (tabId === 'phrasing') {
+                     document.getElementById('piano-ph').style.display = 'block'; 
+                }
             }
         }
 
@@ -792,7 +832,7 @@
             document.querySelectorAll('.tab-content').forEach(d => d.style.display = 'none');
             document.getElementById('tab-'+id).style.display = 'block';
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+            if(btn) btn.classList.add('active');
             
             let controls = document.getElementById('inst-controls');
             let allowGuitar = (id === 'chords' || id === 'subs' || id === 'diminished');
@@ -873,7 +913,6 @@
         }
 
         function getScaleNotes(root, type) {
-            // FIX: Base scale shifted to 5th octave
             const r = getNoteIndex(root+'5');
             let i = [];
             if(type==='dominant') i=[0,2,4,5,7,9,10];
@@ -945,7 +984,7 @@
             });
         }
 
-        // --- TAB 2: VOICINGS (Force C3 Start - Octave Fix) ---
+        // --- TAB 2: VOICINGS ---
         let currVoicing = 'closed';
         function setVoicingType(v) {
             currVoicing = v;
@@ -1749,8 +1788,8 @@
 
         function updateTritoneLabels() {
             const root = document.getElementById('dim-root').value;
-            let rIdx = getNoteIndex(root+'4');
             let inv = parseInt(document.getElementById('dim-inversion').value);
+            let rIdx = getNoteIndex(root+'4');
             let baseNotes = [0, 3, 6, 9].map(i => getNoteFromIndex(rIdx+i));
             
             for(let k=0; k<inv; k++) baseNotes.push(baseNotes.shift());
@@ -1775,8 +1814,8 @@
         
         function updateContraryLabels() {
             const root = document.getElementById('dim-root').value;
-            let rIdx = getNoteIndex(root+'4');
             let inv = parseInt(document.getElementById('dim-inversion').value);
+            let rIdx = getNoteIndex(root+'4');
             let baseNotes = [0, 3, 6, 9].map(i => getNoteFromIndex(rIdx+i));
             for(let k=0; k<inv; k++) baseNotes.push(baseNotes.shift());
             
@@ -1805,10 +1844,13 @@
                 basePitchNotes.push(transpose(moved, 12));
             }
             
-            // GUITAR MODE DROP 2 "FUNDAMENTAL"
+            // SPECIAL LOGIC FOR GUITAR MODE DROP 2 "FUNDAMENTAL"
             if (currentInstrument === 'guitar') {
+                 // Reset base notes to strict octave 4
                  basePitchNotes = [0, 3, 6, 9].map(i => getNoteFromIndex(rIdx+i));
+                 // Map UI Inversion to Required Closed Inversion for Drop 2 Root matching
                  let requiredInv = (inv + 2) % 4;
+                 
                  for(let k=0; k<requiredInv; k++) {
                     let moved = basePitchNotes.shift();
                     basePitchNotes.push(transpose(moved, 12));
@@ -1823,6 +1865,13 @@
             
             let vizId = currentInstrument === 'piano' ? 'piano-dm' : 'guitar-dm';
             let playNotes = currentInstrument === 'guitar' ? toDrop2(currentDimState) : currentDimState;
+            
+            // If guitar mode, lower octave for display if needed
+            if (currentInstrument === 'guitar') {
+                 if(getNoteIndex(playNotes[0]) > 60) {
+                     playNotes = playNotes.map(n => transpose(n, -12));
+                 }
+            }
 
             highlight(vizId, playNotes, 'highlighted-dim');
             if(document.getElementById('disp-dm')) document.getElementById('disp-dm').innerText = `${root}°7 (Familia)`;
@@ -1834,7 +1883,7 @@
             const container = document.getElementById('dim-organic-container');
             if(!container) return;
             container.innerHTML = '';
-
+            
             let displayOrder = currentInstrument === 'guitar' ? [2, 0, 1, 3] : [0, 1, 2, 3];
 
             displayOrder.forEach((idx) => {
@@ -1922,9 +1971,11 @@
         function transformTritone(pairIdx, dir) {
             const root = document.getElementById('dim-root').value;
             let inv = parseInt(document.getElementById('dim-inversion').value);
+            // Recalculate base based on current Mode Logic (same as updateDimOrganic)
             let rIdx = getNoteIndex(root+'4');
             let baseNotes = [0, 3, 6, 9].map(i => getNoteFromIndex(rIdx+i));
             
+            // Rotation Logic
             let shiftAmount = inv;
             if(currentInstrument === 'guitar') shiftAmount = (inv + 2) % 4;
 
@@ -1937,7 +1988,6 @@
             let idxB = pairIdx === 0 ? 2 : 3;
 
             let moveIndices = [idxA, idxB];
-            
             let staticIndices = [0,1,2,3].filter(i => !moveIndices.includes(i));
 
             let newChord = baseNotes.map((n, i) => {
@@ -1949,15 +1999,19 @@
             renderDimOrganic();
 
             let root1, root2;
-            if (dir === 1) { 
+            if (dir === 1) { // Moving UP
                  root1 = getDispNote(baseNotes[staticIndices[0]].slice(0, -1));
                  root2 = getDispNote(baseNotes[staticIndices[1]].slice(0, -1));
-            } else { 
+            } else { // Moving DOWN
                  root1 = getDispNote(newChord[moveIndices[0]].slice(0, -1));
                  root2 = getDispNote(newChord[moveIndices[1]].slice(0, -1));
             }
 
             let playNotes = currentInstrument === 'guitar' ? toDrop2(currentDimState) : currentDimState;
+            if (currentInstrument === 'guitar' && getNoteIndex(playNotes[0]) > 60) {
+                 playNotes = playNotes.map(n => transpose(n, -12));
+            }
+
             playTransform(playNotes, `${root1}7(b5) / ${root2}7(b5)`);
         }
 
@@ -1980,10 +2034,10 @@
             
             let newChord = [...baseNotes];
 
-            if(mode === 1) { 
+            if(mode === 1) { // Contraer
                 newChord[idxA] = transpose(baseNotes[idxA], 1);
                 newChord[idxB] = transpose(baseNotes[idxB], -1);
-            } else { 
+            } else { // Expandir
                 newChord[idxA] = transpose(baseNotes[idxA], -1);
                 newChord[idxB] = transpose(baseNotes[idxB], 1);
             }
@@ -1996,6 +2050,10 @@
             else rootNote = newChord[idxA].slice(0,-1); 
 
             let playNotes = currentInstrument === 'guitar' ? toDrop2(currentDimState) : currentDimState;
+            if (currentInstrument === 'guitar' && getNoteIndex(playNotes[0]) > 60) {
+                 playNotes = playNotes.map(n => transpose(n, -12));
+            }
+
             playTransform(playNotes, `${getDispNote(rootNote)}7(#5)`);
         }
         
@@ -2030,4 +2088,4 @@
         });
     </script>
 </body>
-                                                                                             </html>
+    </html>
