@@ -2,20 +2,20 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Explorador de Armonía e Improvisación (Sistema Harris)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #18181b; color: #e4e4e7; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #18181b; color: #e4e4e7; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
         
         /* Piano */
-        .piano-container { position: relative; width: 100%; height: 140px; background-color: #27272a; border-radius: 8px; overflow: hidden; box-shadow: inset 0 -4px 8px rgba(0,0,0,0.6); border-top: 4px solid #3f3f46; margin-bottom: 0.5rem; display: none; }
+        .piano-container { position: relative; width: 100%; height: 140px; background-color: #27272a; border-radius: 8px; overflow: hidden; box-shadow: inset 0 -4px 8px rgba(0,0,0,0.6); border-top: 4px solid #3f3f46; margin-bottom: 0.5rem; display: none; margin-left: auto; margin-right: auto; }
         .white-key { background: linear-gradient(to bottom, #ffffff 0%, #e0e0e0 100%); border: 1px solid #999; border-top: none; width: 40px; height: 100%; position: absolute; z-index: 1; display: flex; justify-content: center; align-items: flex-end; padding-bottom: 8px; font-size: 10px; font-weight: bold; color: #444; border-radius: 0 0 4px 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: background 0.05s; }
         .white-key.active { background: #ccc; transform: translateY(2px); }
         .black-key { background: linear-gradient(to bottom, #333 0%, #000 100%); border: 1px solid #000; width: 24px; height: 65%; position: absolute; top: 0; z-index: 2; border-radius: 0 0 4px 4px; box-shadow: 2px 2px 4px rgba(0,0,0,0.4); transition: background 0.05s; }
         
         /* Guitarra */
-        .guitar-container { position: relative; width: 100%; height: 180px; background: #3e2723; border-radius: 8px; overflow-x: auto; overflow-y: hidden; box-shadow: inset 0 0 15px rgba(0,0,0,0.9); border: 4px solid #271c19; margin-bottom: 0.5rem; display: none; }
+        .guitar-container { position: relative; height: 180px; background: #3e2723; border-radius: 8px; overflow: hidden; box-shadow: inset 0 0 15px rgba(0,0,0,0.9); border: 4px solid #271c19; margin-bottom: 0.5rem; display: none; margin-left: auto; margin-right: auto; }
         .fret { position: absolute; top: 0; height: 100%; border-right: 3px solid #a1a1aa; z-index: 1; box-shadow: 1px 0 2px rgba(0,0,0,0.3); }
         .fret-number { position: absolute; bottom: 4px; font-size: 9px; color: #a8a29e; transform: translateX(-50%); font-weight: bold; }
         .fret-dot { position: absolute; width: 14px; height: 14px; background: #d6d3d1; border-radius: 50%; z-index: 0; top: 50%; transform: translate(-50%, -50%); opacity: 0.6; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5); }
@@ -39,11 +39,26 @@
         .black-key.highlighted { background: #d97706 !important; border-color: #b45309; }
 
         .note-display { text-align: center; color: #a1a1aa; font-family: monospace; font-size: 0.9rem; height: 1.5rem; }
-        .piano-scroll-container { overflow-x: auto; padding-bottom: 5px; }
+        
+        /* Contenedor de Scroll Centrado */
+        .piano-scroll-container { 
+            overflow-x: auto; 
+            padding-bottom: 10px; 
+            text-align: center; /* Centra el contenido inline-block */
+            white-space: nowrap; /* Evita saltos de línea */
+            -webkit-overflow-scrolling: touch; /* Scroll suave en iOS */
+        }
+        /* Forzamos que los instrumentos sean inline-block para responder al text-align: center, 
+           pero mantenemos su alineación interna */
+        .piano-container, .guitar-container {
+            display: inline-block;
+            vertical-align: top;
+            text-align: left; /* Reinicia alineación interna */
+        }
 
         /* Tabs */
         .tab-button-container { display: flex; flex-wrap: wrap; border-bottom: 2px solid #3f3f46; margin-bottom: 1.5rem; justify-content: center; gap: 4px; }
-        .tab-btn { padding: 0.75rem 1.5rem; background: transparent; color: #a1a1aa; border-radius: 0.5rem 0.5rem 0 0; transition: all 0.2s; font-weight: 600; font-size: 0.95rem; cursor: pointer; border-bottom: 2px solid transparent; }
+        .tab-btn { padding: 0.5rem 1rem; background: transparent; color: #a1a1aa; border-radius: 0.5rem 0.5rem 0 0; transition: all 0.2s; font-weight: 600; font-size: 0.85rem; cursor: pointer; border-bottom: 2px solid transparent; flex-grow: 1; text-align: center; min-width: 80px; }
         .tab-btn:hover { color: #e4e4e7; background: #3f3f46; }
         .tab-btn.active { background: #27272a; color: #fcd34d; border-bottom-color: #fcd34d; }
         .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
@@ -51,12 +66,12 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
         /* Paneles */
-        .control-panel { background-color: #27272a; padding: 1.5rem; border-radius: 0.75rem; border: 1px solid #3f3f46; margin-bottom: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-        select { background: #18181b; border: 1px solid #52525b; padding: 0.5rem; border-radius: 0.25rem; width: 100%; color: white; }
+        .control-panel { background-color: #27272a; padding: 1rem; border-radius: 0.75rem; border: 1px solid #3f3f46; margin-bottom: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        select { background: #18181b; border: 1px solid #52525b; padding: 0.5rem; border-radius: 0.25rem; width: 100%; color: white; font-size: 1rem; /* Evita zoom en iOS */ }
         label { display: block; font-size: 0.8rem; color: #a1a1aa; margin-bottom: 0.25rem; font-weight: 500; }
         
-        .btn-action { background-color: #f59e0b; color: #18181b; font-weight: 800; padding: 0.75rem; border-radius: 0.5rem; width: 100%; text-transform: uppercase; font-size: 0.85rem; cursor: pointer; transition: transform 0.1s; }
-        .btn-action:hover { background-color: #fbbf24; transform: translateY(-1px); }
+        .btn-action { background-color: #f59e0b; color: #18181b; font-weight: 800; padding: 0.75rem; border-radius: 0.5rem; width: 100%; text-transform: uppercase; font-size: 0.85rem; cursor: pointer; transition: transform 0.1s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .btn-action:active { transform: translateY(1px); }
         .btn-secondary { background: #3f3f46; color: #e4e4e7; padding: 0.5rem; border-radius: 0.375rem; border: 1px solid #52525b; cursor: pointer; font-size: 0.85rem; }
         .btn-secondary:hover { background: #52525b; border-color: #a1a1aa; }
         .btn-secondary.active { background: #0ea5e9; color: white; border-color: #0284c7; }
@@ -66,92 +81,79 @@
         .btn-stop { background: #dc2626; color: white; font-weight: bold; padding: 0.5rem 1rem; border-radius: 0.5rem; display: flex; align-items: center; gap: 0.5rem; transition: background 0.2s; cursor: pointer; }
         
         /* Grid */
-        .chord-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 0.5rem; }
-        .chord-cell { background: #3f3f46; padding: 0.5rem; text-align: center; border-radius: 0.25rem; cursor: pointer; font-size: 0.7rem; border: 1px solid transparent; min-height: 3rem; display: flex; align-items: center; justify-content: center; word-break: break-all; }
+        .chord-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 0.5rem; }
+        .chord-cell { background: #3f3f46; padding: 0.5rem; text-align: center; border-radius: 0.25rem; cursor: pointer; font-size: 0.7rem; border: 1px solid transparent; min-height: 3rem; display: flex; align-items: center; justify-content: center; word-break: break-all; touch-action: manipulation; }
         .chord-cell:hover { border-color: #a1a1aa; }
         .chord-cell.playing { background: #f59e0b; color: black; font-weight: bold; transform: scale(1.05); }
         
         /* 2-5-1 Buttons */
-        .sub-btn { width: 100%; text-align: left; padding: 1rem 0.75rem; background: #3f3f46; border-radius: 0.35rem; border: 1px solid transparent; font-size: 0.85rem; margin-bottom: 0.5rem; transition: all 0.2s; cursor: pointer; display: flex; flex-direction: column; justify-content: center; gap: 0.5rem; }
+        .sub-btn { width: 100%; text-align: left; padding: 0.75rem; background: #3f3f46; border-radius: 0.35rem; border: 1px solid transparent; font-size: 0.85rem; margin-bottom: 0.5rem; transition: all 0.2s; cursor: pointer; display: flex; flex-direction: column; justify-content: center; gap: 0.25rem; }
         .sub-btn:hover { background: #52525b; }
         .sub-btn.selected { background: #f59e0b; color: black; font-weight: bold; border-color: #f59e0b; }
-        .sub-btn .chord-name { font-weight: bold; color: #fcd34d; font-size: 1rem; margin-bottom: 4px; display: block; }
+        .sub-btn .chord-name { font-weight: bold; color: #fcd34d; font-size: 1rem; margin-bottom: 2px; display: block; }
         .sub-btn.selected .chord-name { color: black; }
-        .sub-btn .chord-desc { font-size: 0.75rem; color: #a1a1aa; line-height: 1.4; display: block; }
+        .sub-btn .chord-desc { font-size: 0.75rem; color: #a1a1aa; line-height: 1.3; display: block; }
         .sub-btn.selected .chord-desc { color: #374151; }
-        .info-icon { font-size: 10px; width: 16px; height: 16px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-left: 5px; }
         
         /* Fraseo */
-        .formula-card { background: #18181b; padding: 1rem; border-radius: 0.5rem; border: 1px solid #3f3f46; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; justify-content: space-between; }
-        .formula-card:hover { border-color: #f59e0b; transform: translateY(-2px); }
-        .formula-card h4 { color: #f59e0b; font-weight: bold; margin-bottom: 0.25rem; }
+        .formula-card { background: #18181b; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid #3f3f46; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; justify-content: space-between; }
+        .formula-card:active { background: #27272a; }
+        .formula-card h4 { color: #f59e0b; font-weight: bold; margin-bottom: 0.25rem; font-size: 0.9rem; }
+        .formula-card p { font-size: 0.75rem; color: #a1a1aa; }
         
-        .phrase-timeline { display: flex; gap: 0.5rem; overflow-x: auto; padding: 0.5rem; background: #18181b; border-radius: 0.5rem; min-height: 60px; align-items: center; margin-bottom: 1rem; }
-        .timeline-item { background: #3f3f46; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.8rem; white-space: nowrap; display: flex; align-items: center; gap: 0.5rem; border: 1px solid #52525b; }
+        .phrase-timeline { display: flex; gap: 0.5rem; overflow-x: auto; padding: 0.5rem; background: #18181b; border-radius: 0.5rem; min-height: 60px; align-items: center; margin-bottom: 1rem; -webkit-overflow-scrolling: touch; }
+        .timeline-item { background: #3f3f46; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem; white-space: nowrap; display: flex; align-items: center; gap: 0.5rem; border: 1px solid #52525b; flex-shrink: 0; }
         .timeline-item span { cursor: pointer; color: #f87171; font-weight: bold; }
         
-        .info-box { background-color: #3f3f46; border-left: 4px solid #0ea5e9; padding: 1rem; margin-bottom: 1rem; border-radius: 0.25rem; }
+        .info-box { background-color: #3f3f46; border-left: 4px solid #0ea5e9; padding: 0.75rem; margin-bottom: 1rem; border-radius: 0.25rem; }
         .info-box p { font-size: 0.85rem; color: #e4e4e7; margin-bottom: 0.5rem; }
-        .info-box ul { list-style: disc; margin-left: 1.5rem; font-size: 0.8rem; color: #a1a1aa; }
+        .info-box ul { list-style: disc; margin-left: 1.25rem; font-size: 0.8rem; color: #a1a1aa; }
         
         /* Diminished Organic UI */
-        .dim-controls { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 1.5rem; }
+        .dim-controls { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-top: 1.5rem; }
         .dim-note-col { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
-        .dim-btn-action { width: 100%; padding: 0.5rem; border-radius: 0.25rem; font-size: 1rem; font-weight: bold; transition: all 0.2s; cursor: pointer; border: 1px solid #52525b; background: #3f3f46; color: #e4e4e7; text-align: center; }
+        .dim-btn-action { width: 100%; padding: 0.75rem 0; border-radius: 0.25rem; font-size: 1rem; font-weight: bold; transition: all 0.2s; cursor: pointer; border: 1px solid #52525b; background: #3f3f46; color: #e4e4e7; text-align: center; touch-action: manipulation; }
         .dim-btn-action.up { color: #4ade80; border-color: #166534; }
-        .dim-btn-action.up:hover { background: #14532d; }
         .dim-btn-action.down { color: #60a5fa; border-color: #1e40af; }
-        .dim-btn-action.down:hover { background: #1e3a8a; }
-        .dim-note-display { width: 3.5rem; height: 3.5rem; border-radius: 50%; background: #18181b; border: 2px solid #a855f7; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #a855f7; font-size: 1.2rem; transition: background 0.1s; }
-        .dim-note-display:hover { background-color: #27272a; cursor: pointer; border-color: #c084fc; }
-        #dim-reset-container { display: none; margin-top: 1rem; text-align: center; }
+        .dim-note-display { width: 3rem; height: 3rem; border-radius: 50%; background: #18181b; border: 2px solid #a855f7; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #a855f7; font-size: 1rem; transition: background 0.1s; }
         
-        .tritone-btn { padding: 0.5rem; background: #27272a; border: 1px solid #52525b; color: #e4e4e7; font-weight: bold; font-size: 0.8rem; border-radius: 0.3rem; transition: all 0.2s; text-align: center; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; }
-        .tritone-btn:hover { background: #3f3f46; color: #fff; }
-        .tritone-btn.up-style { border-color: #f59e0b; color: #f59e0b; }
-        .tritone-btn.up-style:hover { background: #3f3f46; color: #fff; }
-        .tritone-btn.down-style { border-color: #0ea5e9; color: #0ea5e9; }
-        .tritone-btn.down-style:hover { background: #3f3f46; color: #fff; }
-        .tritone-btn.contrary-style { border-color: #ec4899; color: #ec4899; }
-        .tritone-btn.contrary-style:hover { background: #831843; color: #fff; }
-
+        .tritone-btn { padding: 0.5rem; background: #27272a; border: 1px solid #52525b; color: #e4e4e7; font-weight: bold; font-size: 0.75rem; border-radius: 0.3rem; transition: all 0.2s; text-align: center; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; min-height: 60px; }
+        
         /* Instrument Toggle */
         .inst-toggle-container { visibility: hidden; opacity: 0; transition: opacity 0.2s; }
         .inst-toggle { display: flex; background: #27272a; border-radius: 0.5rem; border: 1px solid #52525b; overflow: hidden; }
-        .inst-btn { flex: 1; padding: 0.5rem 1rem; color: #a1a1aa; font-weight: bold; font-size: 0.85rem; cursor: pointer; transition: background 0.2s; }
+        .inst-btn { flex: 1; padding: 0.5rem 0.75rem; color: #a1a1aa; font-weight: bold; font-size: 0.8rem; cursor: pointer; transition: background 0.2s; }
         .inst-btn.active { background: #f59e0b; color: #18181b; }
-        .inst-btn:hover:not(.active) { background: #3f3f46; color: white; }
 
-        .analysis-strip { background: #000; border: 1px solid #3f3f46; padding: 1rem; margin-bottom: 1rem; text-align: center; min-height: 80px; display: flex; flex-direction: column; justify-content: center; border-radius: 0.5rem; font-size: 0.9rem; gap: 0.5rem; }
-        .analysis-text { color: #fcd34d; font-family: monospace; width: 100%; }
-        .analysis-row { border-bottom: 1px solid #333; padding-bottom: 4px; display: flex; }
+        .analysis-strip { background: #000; border: 1px solid #3f3f46; padding: 0.75rem; margin-bottom: 1rem; text-align: center; min-height: 80px; display: flex; flex-direction: column; justify-content: center; border-radius: 0.5rem; font-size: 0.85rem; gap: 0.5rem; }
+        .analysis-row { border-bottom: 1px solid #333; padding-bottom: 4px; display: flex; flex-wrap: wrap; }
         .analysis-label { width: 30px; color: #a1a1aa; font-weight: bold; }
-        .analysis-content { flex: 1; color: #e4e4e7; text-align: left; padding-left: 10px; }
+        .analysis-content { flex: 1; color: #e4e4e7; text-align: left; padding-left: 10px; word-break: break-word; }
 
         /* Modal */
         .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(4px); }
-        .modal-content { background-color: #27272a; margin: 15% auto; padding: 2rem; border: 1px solid #52525b; width: 90%; max-width: 500px; border-radius: 0.75rem; }
-        .close { float: right; font-size: 28px; cursor: pointer; color: #a1a1aa; }
+        .modal-content { background-color: #27272a; margin: 10% auto; padding: 1.5rem; border: 1px solid #52525b; width: 90%; max-width: 500px; border-radius: 0.75rem; max-height: 90vh; overflow-y: auto; }
+        .close { float: right; font-size: 28px; cursor: pointer; color: #a1a1aa; padding: 0 0.5rem; }
     </style>
 </head>
-<body class="bg-zinc-900 text-zinc-100 font-sans p-4 md:p-8 min-h-screen">
+<body class="bg-zinc-900 text-zinc-100 font-sans p-2 md:p-8 min-h-screen">
 
     <div class="max-w-6xl mx-auto">
-        <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-            <div>
-                <h1 class="text-3xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500 mb-2">Barry Harris Explorer</h1>
-                <p class="text-zinc-400 font-medium">Herramienta integral de Armonía, Voicings y Fraseo Bebop</p>
+        <header class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+            <div class="text-center md:text-left">
+                <h1 class="text-2xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500 mb-1">Barry Harris Explorer</h1>
+                <p class="text-zinc-400 font-medium text-sm md:text-base">Herramienta integral de Armonía Bebop</p>
             </div>
             
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-3 w-full md:w-auto justify-center">
                 <div class="inst-toggle-container" id="inst-controls">
                     <div class="inst-toggle">
                         <button id="btn-piano" class="inst-btn active" onclick="setInstrument('piano')">Piano</button>
                         <button id="btn-guitar" class="inst-btn" onclick="setInstrument('guitar')">Guitarra</button>
                     </div>
                 </div>
-                <button onclick="stopAll()" class="btn-stop shadow-lg bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded flex items-center gap-2">
-                    <span>■</span> DETENER
+                <button onclick="stopAll()" class="btn-stop shadow-lg bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded flex items-center gap-2 text-sm">
+                    <span>■</span> PARAR
                 </button>
             </div>
         </header>
@@ -160,21 +162,21 @@
             <button class="tab-btn active" onclick="showTab('scales', this)">1. Escalas</button>
             <button class="tab-btn" onclick="showTab('chords', this)">2. Voicings</button>
             <button class="tab-btn" onclick="showTab('phrasing', this)">3. Fraseo</button>
-            <button class="tab-btn" onclick="showTab('subs', this)">4. Sustituciones</button>
-            <button class="tab-btn" onclick="showTab('diminished', this)">5. El Disminuido</button>
+            <button class="tab-btn" onclick="showTab('subs', this)">4. Sustitutos</button>
+            <button class="tab-btn" onclick="showTab('diminished', this)">5. Dim</button>
         </div>
 
         <!-- TAB 1: ESCALAS -->
         <div id="tab-scales" class="tab-content block">
             <div class="control-panel">
-                <h3 class="section-title text-xl font-bold text-amber-400 mb-4">Generador de Escalas</h3>
+                <h3 class="section-title text-lg font-bold text-amber-400 mb-4">Generador de Escalas</h3>
                 <div id="scale-explanation" class="info-box">
-                    <p><strong>Reglas de Inserción Cromática (Para caer a tiempo):</strong></p>
+                    <p><strong>Reglas de Inserción Cromática:</strong></p>
                     <ul id="rules-desc">
                         <li>Selecciona una regla abajo...</li>
                     </ul>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                     <div>
                         <label>Tónica</label>
                         <select id="scale-root">
@@ -205,7 +207,7 @@
                 </div>
                 <button onclick="playScale()" class="btn-action">Reproducir Escala Descendente</button>
             </div>
-            <div class="bg-zinc-950 p-4 rounded-lg border border-zinc-800 shadow-xl">
+            <div class="bg-zinc-950 p-2 md:p-4 rounded-lg border border-zinc-800 shadow-xl">
                 <!-- Instrument Container -->
                 <div class="piano-scroll-container">
                     <div id="piano-sc" class="piano-container"></div>
@@ -217,9 +219,9 @@
         <!-- TAB 2: VOICINGS -->
         <div id="tab-chords" class="tab-content hidden">
             <div class="control-panel">
-                <h3 class="section-title text-xl font-bold text-amber-400 mb-4">Escalas de Acordes</h3>
+                <h3 class="section-title text-lg font-bold text-amber-400 mb-4">Escalas de Acordes</h3>
                 
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                     <div>
                         <label>Tónica</label>
                         <select id="ch-root" onchange="updateChordGrid()"><option value="C">C</option><option value="F">F</option><option value="Bb">Bb</option><option value="Eb">Eb</option><option value="Ab">Ab</option><option value="G">G</option><option value="D">D</option><option value="A">A</option><option value="E">E</option></select>
@@ -241,9 +243,9 @@
                     </div>
                 </div>
                 <div id="chord-grid" class="chord-grid mb-6"></div>
-                <button onclick="playChordScale()" class="btn-action">Tocar Escala Completa (Ida y Vuelta)</button>
+                <button onclick="playChordScale()" class="btn-action">Tocar Escala Completa</button>
             </div>
-            <div class="bg-zinc-950 p-4 rounded-lg border border-zinc-800 shadow-xl">
+            <div class="bg-zinc-950 p-2 md:p-4 rounded-lg border border-zinc-800 shadow-xl">
                  <div class="piano-scroll-container">
                     <div id="piano-ch" class="piano-container"></div>
                     <div id="guitar-ch" class="guitar-container"></div>
@@ -256,40 +258,40 @@
         <div id="tab-phrasing" class="tab-content hidden">
             <div class="control-panel">
                 <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                    <h3 class="text-xl font-bold text-amber-400">Constructor de Frases (Builder)</h3>
-                    <div class="flex flex-col md:flex-row gap-4 w-full md:w-auto">
+                    <h3 class="text-lg font-bold text-amber-400">Constructor de Frases</h3>
+                    <div class="flex flex-col md:flex-row gap-2 w-full md:w-auto">
                         <select id="ph-root" class="w-full md:w-24 py-1 text-sm bg-zinc-800 border-amber-500 text-amber-500 font-bold" onchange="clearTimeline()">
                             <option value="C">C7</option><option value="F">F7</option><option value="Bb">Bb7</option><option value="G">G7</option><option value="D">D7</option>
                         </select>
                          <select id="ph-start-note" class="w-full md:w-48 py-1 text-sm bg-zinc-800 border-amber-500 text-amber-500 font-bold">
-                            <option value="0">Empezar en: Tónica</option>
-                            <option value="1">Empezar en: 2da / 9na</option>
-                            <option value="2">Empezar en: 3ra</option>
-                            <option value="3">Empezar en: 4ta / 11na</option>
-                            <option value="4">Empezar en: 5ta</option>
-                            <option value="5">Empezar en: 6ta / 13na</option>
-                            <option value="6">Empezar en: 7ma</option>
+                            <option value="0">Inicio: Tónica</option>
+                            <option value="1">Inicio: 2da / 9na</option>
+                            <option value="2">Inicio: 3ra</option>
+                            <option value="3">Inicio: 4ta / 11na</option>
+                            <option value="4">Inicio: 5ta</option>
+                            <option value="5">Inicio: 6ta / 13na</option>
+                            <option value="6">Inicio: 7ma</option>
                         </select>
                     </div>
                 </div>
                 <div class="mb-4">
-                    <label class="mb-2 text-sm text-zinc-400">Línea de Tiempo (Las tarjetas añaden, pero NO suenan hasta reproducir):</label>
+                    <label class="mb-2 text-sm text-zinc-400">Línea de Tiempo:</label>
                     <div id="phrase-timeline" class="phrase-timeline"><span class="text-zinc-600 text-sm italic ml-2" id="timeline-placeholder">Vacío...</span></div>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mb-6">
                     <div class="formula-card" onclick="addToTimeline(1, 'Escala Simple')"><h4>1. Escala Simple</h4><p>Descendente (Reglas)</p></div>
                     <div class="formula-card" onclick="addToTimeline(2, 'Arp+Escala')"><h4>2. Arpegio + Escala</h4><p>Arp Diatónico -> Escala</p></div>
-                    <div class="formula-card" onclick="addToTimeline(3, 'Tresillo')"><h4>3. Tresillo + Escala</h4><p>Bordadura + Descenso Diatónico</p></div>
-                    <div class="formula-card" onclick="addToTimeline(4, 'Aprox + Arp')"><h4>4. Aprox + Arp</h4><p>Aprox -> Arp -> Top -> Escala</p></div>
-                    <div class="formula-card" onclick="addToTimeline(5, 'Pivot 5')"><h4>5. Pivot (BH)</h4><p>Escala Desc -> Salto -> Cont.</p></div>
+                    <div class="formula-card" onclick="addToTimeline(3, 'Tresillo')"><h4>3. Tresillo + Escala</h4><p>Bordadura + Descenso</p></div>
+                    <div class="formula-card" onclick="addToTimeline(4, 'Aprox + Arp')"><h4>4. Aprox + Arp</h4><p>Aprox -> Arp -> Top</p></div>
+                    <div class="formula-card" onclick="addToTimeline(5, 'Pivot 5')"><h4>5. Pivot (BH)</h4><p>Escala Desc -> Salto</p></div>
                     <div class="formula-card border-amber-500/50" onclick="addToTimeline(6, 'Arp Pivot')"><h4>6. Arp. Pivote</h4><p>C5 E4 G4 B4 (ZigZag)</p></div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
-                     <button onclick="playTimeline()" class="btn-action">Reproducir Frase</button>
-                     <button onclick="clearTimeline()" class="btn-secondary text-red-400 border-red-900">Borrar Frase</button>
+                     <button onclick="playTimeline()" class="btn-action">Reproducir</button>
+                     <button onclick="clearTimeline()" class="btn-secondary text-red-400 border-red-900">Borrar</button>
                 </div>
             </div>
-            <div class="bg-zinc-950 p-4 rounded-lg border border-zinc-800 shadow-xl">
+            <div class="bg-zinc-950 p-2 md:p-4 rounded-lg border border-zinc-800 shadow-xl">
                  <div class="piano-scroll-container">
                     <div id="piano-ph" class="piano-container"></div>
                 </div>
@@ -300,24 +302,24 @@
         <!-- TAB 4: SUSTITUCIONES -->
         <div id="tab-subs" class="tab-content hidden">
             <div class="control-panel">
-                <h3 class="section-title text-xl font-bold text-amber-400 mb-4">Sustituciones 2-5-1 (Análisis de Tensión)</h3>
+                <h3 class="section-title text-lg font-bold text-amber-400 mb-4">Sustituciones 2-5-1</h3>
                 
-                <div class="bg-zinc-800 p-3 mb-4 rounded border border-zinc-600 text-sm flex justify-around items-center">
+                <div class="bg-zinc-800 p-2 mb-4 rounded border border-zinc-600 text-xs flex justify-around items-center">
                     <div class="text-center"><strong>Equivalencias:</strong></div>
                     <div class="text-center"><span class="text-sky-400">X6 = Xm7</span></div>
                     <div class="text-center"><span class="text-amber-400">Xm6 = Xm7(b5)</span></div>
                 </div>
 
-                <div class="flex flex-col md:flex-row gap-6 mb-6">
+                <div class="flex flex-col md:flex-row gap-4 mb-6">
                     <div class="flex-1 text-center">
                         <label>Tonalidad</label>
-                        <select id="sub-key" class="w-32 text-center font-bold bg-zinc-800 border-amber-500 text-amber-500" onchange="updateSubOptions()">
+                        <select id="sub-key" class="w-full md:w-32 text-center font-bold bg-zinc-800 border-amber-500 text-amber-500" onchange="updateSubOptions()">
                             <option value="C">C Mayor</option><option value="Db">Db Mayor</option><option value="D">D Mayor</option><option value="Eb">Eb Mayor</option><option value="E">E Mayor</option><option value="F">F Mayor</option><option value="Gb">Gb Mayor</option><option value="G">G Mayor</option><option value="Ab">Ab Mayor</option><option value="A">A Mayor</option><option value="Bb">Bb Mayor</option><option value="B">B Mayor</option>
                         </select>
                     </div>
                     <div class="flex-1 text-center">
-                        <label>Inversión Inicial del II</label>
-                        <select id="start-inv" class="w-32 text-center bg-zinc-800 border-zinc-600 text-zinc-300">
+                        <label>Inversión II</label>
+                        <select id="start-inv" class="w-full md:w-32 text-center bg-zinc-800 border-zinc-600 text-zinc-300">
                             <option value="0">Fundamental</option>
                             <option value="1">1ra Inv</option>
                             <option value="2">2da Inv</option>
@@ -326,38 +328,38 @@
                     </div>
                     <div class="flex-1 text-center">
                         <label>Bajo</label>
-                        <div class="flex justify-center gap-2 mt-1">
-                             <button id="bass-orig" class="px-3 py-1 text-xs rounded bg-blue-600 text-white border border-blue-500" onclick="setBassMode('orig')">Original (2-5-1)</button>
-                             <button id="bass-sub" class="px-3 py-1 text-xs rounded bg-zinc-700 text-gray-300 border border-zinc-600" onclick="setBassMode('sub')">Del Sustituto</button>
+                        <div class="flex justify-center gap-1 mt-1">
+                             <button id="bass-orig" class="px-2 py-1 text-xs rounded bg-blue-600 text-white border border-blue-500" onclick="setBassMode('orig')">Original</button>
+                             <button id="bass-sub" class="px-2 py-1 text-xs rounded bg-zinc-700 text-gray-300 border border-zinc-600" onclick="setBassMode('sub')">Sustituto</button>
                         </div>
                     </div>
                 </div>
                 
                 <!-- FRANJA DE ANÁLISIS -->
                 <div class="analysis-strip mb-6">
-                     <div id="analysis-preview" class="w-full p-2 text-zinc-500 italic">Selecciona 3 acordes para ver el análisis...</div>
+                     <div id="analysis-preview" class="w-full p-2 text-zinc-500 italic">Selecciona 3 acordes...</div>
                 </div>
 
-                <div class="grid grid-cols-3 gap-4 mb-6">
-                    <div class="bg-zinc-900 p-2 rounded border border-zinc-700">
-                        <h4 class="text-center text-sky-400 font-bold text-sm mb-4 pb-2 border-b border-zinc-700">II</h4>
-                        <div id="col-ii" class="flex flex-col gap-2"></div>
+                <div class="grid grid-cols-3 gap-2 mb-6">
+                    <div class="bg-zinc-900 p-1 rounded border border-zinc-700">
+                        <h4 class="text-center text-sky-400 font-bold text-xs mb-2 pb-1 border-b border-zinc-700">II</h4>
+                        <div id="col-ii" class="flex flex-col gap-1"></div>
                     </div>
-                    <div class="bg-zinc-900 p-2 rounded border border-zinc-700">
-                        <h4 class="text-center text-fuchsia-400 font-bold text-sm mb-4 pb-2 border-b border-zinc-700">V</h4>
-                        <div id="col-v" class="flex flex-col gap-2"></div>
+                    <div class="bg-zinc-900 p-1 rounded border border-zinc-700">
+                        <h4 class="text-center text-fuchsia-400 font-bold text-xs mb-2 pb-1 border-b border-zinc-700">V</h4>
+                        <div id="col-v" class="flex flex-col gap-1"></div>
                     </div>
-                    <div class="bg-zinc-900 p-2 rounded border border-zinc-700">
-                        <h4 class="text-center text-lime-400 font-bold text-sm mb-4 pb-2 border-b border-zinc-700">I</h4>
-                        <div id="col-i" class="flex flex-col gap-2"></div>
+                    <div class="bg-zinc-900 p-1 rounded border border-zinc-700">
+                        <h4 class="text-center text-lime-400 font-bold text-xs mb-2 pb-1 border-b border-zinc-700">I</h4>
+                        <div id="col-i" class="flex flex-col gap-1"></div>
                     </div>
                 </div>
                 
                 <div class="text-center">
-                    <button onclick="playSelectedProgression()" class="btn-action w-auto px-10">Reproducir Progresión</button>
+                    <button onclick="playSelectedProgression()" class="btn-action w-auto px-10">Reproducir</button>
                 </div>
             </div>
-            <div class="bg-zinc-950 p-4 rounded-lg border border-zinc-800 shadow-xl">
+            <div class="bg-zinc-950 p-2 md:p-4 rounded-lg border border-zinc-800 shadow-xl">
                  <div class="piano-scroll-container">
                     <div id="piano-sb" class="piano-container"></div>
                     <div id="guitar-sb" class="guitar-container"></div>
@@ -369,18 +371,18 @@
         <!-- TAB 5: DIMINUIDO ORGANICO -->
         <div id="tab-diminished" class="tab-content hidden">
             <div class="control-panel">
-                <h3 class="section-title text-xl font-bold text-amber-400 mb-4">El Disminuido</h3>
+                <h3 class="section-title text-lg font-bold text-amber-400 mb-4">El Disminuido</h3>
                 <div class="info-box mb-6">
-                    <p>Mueve cualquier voz del acorde disminuido para transformarlo.</p>
+                    <p>Mueve las voces (Límite +/- 2 semitonos).</p>
                 </div>
                 
-                <div class="flex justify-center mb-6 gap-4 items-center">
-                    <select id="dim-root" class="w-40 text-center font-bold bg-zinc-800 border-amber-500 text-amber-500 p-2 rounded" onchange="updateDimOrganic()">
+                <div class="flex justify-center mb-6 gap-2 items-center">
+                    <select id="dim-root" class="w-32 text-center font-bold bg-zinc-800 border-amber-500 text-amber-500 p-2 rounded" onchange="updateDimOrganic()">
                         <option value="C">C°7</option><option value="C#">C#°7</option><option value="D">D°7</option>
                     </select>
                     <div class="flex flex-col">
-                         <select id="dim-inversion" class="w-32 text-center bg-zinc-800 border-zinc-600 text-zinc-300 p-2 rounded" onchange="updateDimOrganic()">
-                            <option value="0">Fundamental</option>
+                         <select id="dim-inversion" class="w-28 text-center bg-zinc-800 border-zinc-600 text-zinc-300 p-2 rounded" onchange="updateDimOrganic()">
+                            <option value="0">Fund.</option>
                             <option value="1">1ra Inv</option>
                             <option value="2">2da Inv</option>
                             <option value="3">3ra Inv</option>
@@ -391,28 +393,28 @@
 
                 <!-- NEW: 7b5 Controls -->
                 <div class="border-t border-b border-zinc-700 py-4 mb-6">
-                    <h4 class="text-center text-sm font-bold text-zinc-400 mb-3 uppercase tracking-wider">Transformación Tritonal (7b5)</h4>
-                    <div class="grid grid-cols-2 gap-4 max-w-md mx-auto">
+                    <h4 class="text-center text-xs font-bold text-zinc-400 mb-3 uppercase tracking-wider">Transformación Tritonal (7b5)</h4>
+                    <div class="grid grid-cols-2 gap-2 max-w-md mx-auto">
                         <!-- Up Group -->
-                        <div class="flex flex-col gap-2">
+                        <div class="flex flex-col gap-1">
                              <button onclick="transformTritone(0, 1)" class="tritone-btn up-style">
-                                <span id="tri-lbl-0-main" class="text-base font-bold">Subir Par 1</span>
-                                <span id="tri-lbl-0-notes" class="text-[10px] font-normal opacity-75">...</span>
+                                <span id="tri-lbl-0-main" class="text-sm font-bold">Subir P1</span>
+                                <span id="tri-lbl-0-notes" class="text-[9px] font-normal opacity-75">...</span>
                             </button>
                             <button onclick="transformTritone(1, 1)" class="tritone-btn up-style">
-                                <span id="tri-lbl-1-main" class="text-base font-bold">Subir Par 2</span>
-                                <span id="tri-lbl-1-notes" class="text-[10px] font-normal opacity-75">...</span>
+                                <span id="tri-lbl-1-main" class="text-sm font-bold">Subir P2</span>
+                                <span id="tri-lbl-1-notes" class="text-[9px] font-normal opacity-75">...</span>
                             </button>
                         </div>
                         <!-- Down Group -->
-                        <div class="flex flex-col gap-2">
+                        <div class="flex flex-col gap-1">
                              <button onclick="transformTritone(0, -1)" class="tritone-btn down-style">
-                                <span id="tri-lbl-0-down-main" class="text-base font-bold">Bajar Par 1</span>
-                                <span id="tri-lbl-0-down-notes" class="text-[10px] font-normal opacity-75">...</span>
+                                <span id="tri-lbl-0-down-main" class="text-sm font-bold">Bajar P1</span>
+                                <span id="tri-lbl-0-down-notes" class="text-[9px] font-normal opacity-75">...</span>
                             </button>
                             <button onclick="transformTritone(1, -1)" class="tritone-btn down-style">
-                                <span id="tri-lbl-1-down-main" class="text-base font-bold">Bajar Par 2</span>
-                                <span id="tri-lbl-1-down-notes" class="text-[10px] font-normal opacity-75">...</span>
+                                <span id="tri-lbl-1-down-main" class="text-sm font-bold">Bajar P2</span>
+                                <span id="tri-lbl-1-down-notes" class="text-[9px] font-normal opacity-75">...</span>
                             </button>
                         </div>
                     </div>
@@ -420,35 +422,35 @@
 
                 <!-- Movimiento Contrario -->
                  <div class="border-t border-b border-zinc-700 py-4 mb-6">
-                    <h4 class="text-center text-sm font-bold text-pink-400 mb-3 uppercase tracking-wider">Movimiento Contrario (Dom 7#5)</h4>
-                    <div class="grid grid-cols-2 gap-4 max-w-md mx-auto">
+                    <h4 class="text-center text-xs font-bold text-pink-400 mb-3 uppercase tracking-wider">Movimiento Contrario (Dom 7#5)</h4>
+                    <div class="grid grid-cols-2 gap-2 max-w-md mx-auto">
                         <!-- Pair 1 Group -->
-                        <div class="flex flex-col gap-2">
+                        <div class="flex flex-col gap-1">
                              <button onclick="transformTritoneContrary(0, -1)" class="tritone-btn contrary-style">
-                                <span class="text-base font-bold">Expandir Par 1</span>
-                                <span id="contrary-lbl-0-exp" class="text-[10px] font-normal opacity-75">...</span>
+                                <span class="text-sm font-bold">Expandir P1</span>
+                                <span id="contrary-lbl-0-exp" class="text-[9px] font-normal opacity-75">...</span>
                             </button>
                              <button onclick="transformTritoneContrary(0, 1)" class="tritone-btn contrary-style">
-                                <span class="text-base font-bold">Contraer Par 1</span>
-                                <span id="contrary-lbl-0-con" class="text-[10px] font-normal opacity-75">...</span>
+                                <span class="text-sm font-bold">Contraer P1</span>
+                                <span id="contrary-lbl-0-con" class="text-[9px] font-normal opacity-75">...</span>
                             </button>
                         </div>
                         <!-- Pair 2 Group -->
-                        <div class="flex flex-col gap-2">
+                        <div class="flex flex-col gap-1">
                              <button onclick="transformTritoneContrary(1, -1)" class="tritone-btn contrary-style">
-                                <span class="text-base font-bold">Expandir Par 2</span>
-                                <span id="contrary-lbl-1-exp" class="text-[10px] font-normal opacity-75">...</span>
+                                <span class="text-sm font-bold">Expandir P2</span>
+                                <span id="contrary-lbl-1-exp" class="text-[9px] font-normal opacity-75">...</span>
                             </button>
                              <button onclick="transformTritoneContrary(1, 1)" class="tritone-btn contrary-style">
-                                <span class="text-base font-bold">Contraer Par 2</span>
-                                <span id="contrary-lbl-1-con" class="text-[10px] font-normal opacity-75">...</span>
+                                <span class="text-sm font-bold">Contraer P2</span>
+                                <span id="contrary-lbl-1-con" class="text-[9px] font-normal opacity-75">...</span>
                             </button>
                         </div>
                     </div>
                 </div>
 
                 <!-- ORGANIC INTERFACE -->
-                <div id="dim-organic-container" class="dim-controls bg-zinc-900 p-4 rounded border border-zinc-700">
+                <div id="dim-organic-container" class="dim-controls bg-zinc-900 p-2 rounded border border-zinc-700">
                     <!-- Injected via JS -->
                 </div>
                 <div id="dim-result-text" class="text-center mt-4 text-amber-300 font-bold min-h-[2rem] text-lg"></div>
@@ -457,7 +459,7 @@
                 </div>
 
             </div>
-            <div class="bg-zinc-950 p-4 rounded-lg border border-zinc-800 shadow-xl">
+            <div class="bg-zinc-950 p-2 md:p-4 rounded-lg border border-zinc-800 shadow-xl">
                 <div class="piano-scroll-container">
                     <div id="piano-dm" class="piano-container"></div>
                     <div id="guitar-dm" class="guitar-container"></div>
@@ -479,16 +481,16 @@
     <div id="phraseModal" class="modal">
         <div class="modal-content text-center">
             <span class="close" onclick="document.getElementById('phraseModal').style.display='none'">&times;</span>
-            <h3 class="text-xl font-bold text-amber-400 mb-4" id="phrase-modal-title">Configurar Frase Bebop</h3>
+            <h3 class="text-lg font-bold text-amber-400 mb-4" id="phrase-modal-title">Configurar Frase</h3>
             
             <div class="text-left mb-6">
-                <p class="text-sm text-zinc-400 mb-2 font-bold">1. Elige una Regla (Notas extra):</p>
+                <p class="text-sm text-zinc-400 mb-2 font-bold">1. Regla (Notas extra):</p>
                 <div id="rule-selection-container" class="flex flex-col gap-2"></div>
             </div>
 
             <div class="text-left mb-6" id="beat-selection-section" style="display:none;">
-                <p class="text-sm text-zinc-400 mb-2 font-bold">2. Elige dónde terminar (Compás 2):</p>
-                <p class="text-xs text-zinc-500 mb-3 italic">Solo se muestran los tiempos donde la escala cae en una nota del acorde.</p>
+                <p class="text-sm text-zinc-400 mb-2 font-bold">2. Terminar en (Compás 2):</p>
+                <p class="text-xs text-zinc-500 mb-3 italic">Solo tiempos donde la escala cae en nota del acorde.</p>
                 <div id="beat-selection-container" class="flex flex-col gap-2"></div>
             </div>
         </div>
@@ -516,41 +518,62 @@
             
             stopAll();
 
-            // Force refresh of the currently active tab to update view immediately
-            const activeTabContent = document.querySelector('.tab-content[style*="block"]');
-            if(activeTabContent) {
-                const tabId = activeTabContent.id.replace('tab-', '');
-                // Manually call showTab logic without button ref if needed, or find button
-                // Simpler: Just update visibility of containers directly
-                document.querySelectorAll('.piano-container').forEach(el => el.style.display = inst==='piano'?'block':'none');
-                document.querySelectorAll('.guitar-container').forEach(el => el.style.display = inst==='guitar'?'block':'none');
-                
-                // Specific logic per tab that might need re-render
-                if (tabId === 'chords') {
-                     if(inst==='guitar') setVoicingType('drop2');
-                     updateChordGrid();
-                     // Redraw empty containers if needed
-                     let targetId = inst === 'piano' ? 'piano-ch' : 'guitar-ch';
-                     if(document.getElementById(targetId).innerHTML === '') {
-                        if(inst==='piano') drawPiano(targetId); else drawGuitar(targetId);
-                     }
-                } else if (tabId === 'subs') {
-                     updateSubOptions(); // Refresh state
-                     // Update container visibility explicitly again for safety
-                     document.getElementById('piano-sb').style.display = inst==='piano'?'block':'none';
-                     document.getElementById('guitar-sb').style.display = inst==='guitar'?'block':'none';
-                     // Init
-                     let targetId = inst === 'piano' ? 'piano-sb' : 'guitar-sb';
-                     if(document.getElementById(targetId).innerHTML === '') {
-                        if(inst==='piano') drawPiano(targetId); else drawGuitar(targetId);
-                     }
-                } else if (tabId === 'diminished') {
-                     updateDimOrganic();
-                } else if (tabId === 'scales') {
-                     // Scales is piano only essentially, but let's hide guitar container
-                     document.getElementById('piano-sc').style.display = 'block'; 
-                } else if (tabId === 'phrasing') {
-                     document.getElementById('piano-ph').style.display = 'block'; 
+            // Force global visibility first
+            // Note: We use style.display = 'inline-block' because of the text-align: center container
+            const displayMode = 'inline-block'; 
+            
+            document.querySelectorAll('.piano-container').forEach(el => el.style.display = inst==='piano'? displayMode : 'none');
+            document.querySelectorAll('.guitar-container').forEach(el => el.style.display = inst==='guitar'? displayMode : 'none');
+
+            // Explicitly find active tab
+            const tabs = ['scales', 'chords', 'phrasing', 'subs', 'diminished'];
+            let activeTabId = null;
+
+            // Simple check: check which tab content has style.display block (set by showTab)
+            tabs.forEach(t => {
+                const el = document.getElementById('tab-' + t);
+                if(el && el.style.display === 'block') activeTabId = t;
+            });
+            
+            // Fallback for initial load
+            if(!activeTabId) {
+                 if(document.getElementById('tab-scales').classList.contains('block') && document.getElementById('tab-scales').style.display !== 'none') {
+                     activeTabId = 'scales';
+                 }
+            }
+
+            if(activeTabId) {
+                // Ensure drawing logic
+                const ensure = (pid, gid) => {
+                    if(inst === 'piano') {
+                        const el = document.getElementById(pid);
+                        // Draw if empty OR if forced redraw needed
+                        if(el && el.innerHTML.trim() === '') drawPiano(pid);
+                        if(el) el.style.display = displayMode;
+                    } else {
+                        const el = document.getElementById(gid);
+                        if(el && el.innerHTML.trim() === '') drawGuitar(gid);
+                        if(el) el.style.display = displayMode;
+                    }
+                };
+
+                if(activeTabId === 'chords') {
+                    if(inst === 'guitar') setVoicingType('drop2');
+                    ensure('piano-ch', 'guitar-ch');
+                    updateChordGrid();
+                } else if (activeTabId === 'subs') {
+                    ensure('piano-sb', 'guitar-sb');
+                    updateSubOptions();
+                } else if (activeTabId === 'diminished') {
+                    ensure('piano-dm', 'guitar-dm');
+                    updateDimOrganic();
+                } else if (activeTabId === 'scales') {
+                    document.getElementById('piano-sc').style.display = displayMode;
+                } else if (activeTabId === 'phrasing') {
+                    // CORRECCIÓN: Asegurar que el piano de fraseo se dibuje si está vacío
+                    const el = document.getElementById('piano-ph');
+                    if(el && el.innerHTML.trim() === '') drawPiano('piano-ph');
+                    if(el) el.style.display = displayMode;
                 }
             }
         }
@@ -837,46 +860,18 @@
             let controls = document.getElementById('inst-controls');
             let allowGuitar = (id === 'chords' || id === 'subs' || id === 'diminished');
             
+            // Force redraw/re-check current instrument to ensure visibility
+            setInstrument(currentInstrument);
+
             if(allowGuitar) {
                 controls.style.visibility = 'visible';
                 controls.style.opacity = '1';
-                
-                let suffix = id==='chords'?'ch':id==='subs'?'sb':'dm';
-                let pianoId = `piano-${suffix}`;
-                let guitarId = `guitar-${suffix}`;
-                
-                let pContainer = document.getElementById(pianoId);
-                let gContainer = document.getElementById(guitarId);
-                
-                if(pContainer && gContainer) {
-                    pContainer.parentElement.style.display = 'block';
-                    pContainer.style.display = currentInstrument === 'piano' ? 'block' : 'none';
-                    gContainer.style.display = currentInstrument === 'guitar' ? 'block' : 'none';
-                    
-                    if(currentInstrument==='piano' && pContainer.innerHTML === '') drawPiano(pianoId);
-                    if(currentInstrument==='guitar' && gContainer.innerHTML === '') drawGuitar(guitarId);
-                }
-
                 if (currentInstrument === 'guitar') {
                      setVoicingType('drop2');
                 }
             } else {
                 controls.style.visibility = 'hidden';
                 controls.style.opacity = '0';
-                
-                let prefix = 'piano';
-                let suffix = id==='scales'?'sc':id==='phrasing'?'ph':''; 
-                if(suffix) {
-                    let targetId = `${prefix}-${suffix}`;
-                    let el = document.getElementById(targetId);
-                    if(el) {
-                        el.style.display = 'block';
-                        let gEl = document.getElementById(`guitar-${suffix}`);
-                        if(gEl) gEl.style.display = 'none';
-
-                        if(el.innerHTML === '') drawPiano(targetId);
-                    }
-                }
             }
 
             if(id==='chords') updateChordGrid();
@@ -1525,12 +1520,13 @@
         let bassMode = 'orig';
         function setBassMode(m) {
             bassMode = m;
-            document.getElementById('bass-orig').className = m=='orig'?'px-3 py-1 text-xs rounded bg-blue-600 text-white border-blue-500':'px-3 py-1 text-xs rounded bg-zinc-700 text-gray-300 border-zinc-600';
-            document.getElementById('bass-sub').className = m=='sub'?'px-3 py-1 text-xs rounded bg-blue-600 text-white border-blue-500':'px-3 py-1 text-xs rounded bg-zinc-700 text-gray-300 border-zinc-600';
+            document.getElementById('bass-orig').className = m=='orig'?'px-2 py-1 text-xs rounded bg-blue-600 text-white border border-blue-500':'px-2 py-1 text-xs rounded bg-zinc-700 text-gray-300 border-zinc-600';
+            document.getElementById('bass-sub').className = m=='sub'?'px-2 py-1 text-xs rounded bg-blue-600 text-white border border-blue-500':'px-2 py-1 text-xs rounded bg-zinc-700 text-gray-300 border-zinc-600';
             updateAnalysisPreview();
         }
 
-        const SUBS_RAW = {
+        // --- FIX: CHANGED const TO var TO AVOID REDECLARATION ERRORS ---
+        var SUBS_RAW = {
             II: [
                 {name:'F6/D', desc:'(b3, 5, b7, 9)'},
                 {name:'B6/D', desc:'Dominante secundaria V/V'},
@@ -1733,6 +1729,7 @@
         // --- TAB 5: DIMINUIDO ---
         let dimEnharmonic = false;
         let currentDimState = [];
+        let dimVoiceOffsets = [0, 0, 0, 0]; // Track movement from base
 
         const SHARP_MAP = { 'Db':'C#', 'Eb':'D#', 'Gb':'F#', 'Ab':'G#', 'Bb':'A#' };
         const FLAT_MAP = { 'C#':'Db', 'D#':'Eb', 'F#':'Gb', 'G#':'Ab', 'A#':'Bb' };
@@ -1832,6 +1829,8 @@
         }
 
         function updateDimOrganic() {
+            dimVoiceOffsets = [0, 0, 0, 0]; // Reset offsets on new chord
+            
             const root = document.getElementById('dim-root').value;
             let inv = parseInt(document.getElementById('dim-inversion').value);
             let rIdx = getNoteIndex(root+'4');
@@ -1915,6 +1914,14 @@
         }
         
         function modifyNote(index, delta) {
+            // Check limit constraint (+/- 2 semitones from base)
+            if (Math.abs(dimVoiceOffsets[index] + delta) > 2) {
+                // Shake or visual feedback could go here, for now just ignore
+                return;
+            }
+            
+            dimVoiceOffsets[index] += delta;
+            
             let oldNote = currentDimState[index];
             let newNote = transpose(oldNote, delta);
             currentDimState[index] = newNote;
@@ -1952,20 +1959,50 @@
                 
                 if(intStr === "0,3,6,9") return `${rootName}°7`;
                 if(intStr === "0,4,7,10") return `${rootName}7`;
-                if(intStr === "0,3,7,10") return `${rootName}m7`;
-                if(intStr === "0,3,6,10") return `${rootName}m7(b5)`;
                 if(intStr === "0,4,7,11") return `${rootName}Maj7`;
+                if(intStr === "0,3,7,10") return `${rootName}m7`;
                 if(intStr === "0,3,7,11") return `${rootName}m(Maj7)`;
+                if(intStr === "0,3,6,10") return `${rootName}m7(b5)`;
+                if(intStr === "0,4,7,9") return `${rootName}6`;
+                if(intStr === "0,3,7,9") return `${rootName}m6`;
+                
                 if(intStr === "0,4,8,10") return `${rootName}7(#5)`;
-                if(intStr === "0,4,6,10") {
+                if(intStr === "0,4,6,10") return `${rootName}7(b5)`;
+                
+                if(intStr === "0,4,8,11") return `${rootName}Maj7(#5)`;
+                if(intStr === "0,4,6,11") return `${rootName}Maj7(b5)`;
+                
+                if(intStr === "0,5,7,10") return `${rootName}7sus4`;
+                if(intStr === "0,2,7") return `${rootName}sus2`;
+                if(intStr === "0,5,7") return `${rootName}sus4`;
+                if(intStr === "0,2,4,7") return `${rootName}add9`;
+                if(intStr === "0,3,6,11") return `${rootName}mMaj7(b5)`;
+                
+                if(intStr === "0,4,6,10") { // Duplicate logic for safety or specialized tritone check
                     let tritoneRoot = getNoteNameFromIndex((root + 6) % 12);
                     return `${rootName}7(b5) / ${tritoneRoot}7(b5)`;
                 }
-                if(intStr === "0,4,7,9") return `${rootName}6`;
-                if(intStr === "0,3,7,9") return `${rootName}m6`;
-                if(intStr === "0,5,7,10") return `${rootName}7sus4`;
             }
-            return "Custom / Híbrido";
+            
+            // Fallback: Construct generic interval description
+            let root = indices[0];
+            let rootName = getNoteNameFromIndex(root);
+            let intervals = indices.map(x => {
+                let dist = (x - root + 12) % 12;
+                if(dist===0) return "1";
+                if(dist===1) return "b9";
+                if(dist===2) return "9";
+                if(dist===3) return "b3";
+                if(dist===4) return "3";
+                if(dist===5) return "4";
+                if(dist===6) return "#4/b5";
+                if(dist===7) return "5";
+                if(dist===8) return "#5/b6";
+                if(dist===9) return "6";
+                if(dist===10) return "b7";
+                if(dist===11) return "7";
+            });
+            return `Híbrido (${intervals.join(', ')})`;
         }
         
         function transformTritone(pairIdx, dir) {
@@ -2085,7 +2122,8 @@
             updateChordGrid();
             updateSubOptions();
             setBassMode('orig');
+            setInstrument('piano'); // Start with piano visible
         });
     </script>
 </body>
-    </html>
+</html>
